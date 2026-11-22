@@ -1,0 +1,6 @@
+name = "sprig-online-compiler"
+compatibility_date = "2026-11-22"
+pages_build_output_dir = "./site"
+
+[vars]
+SITE_ORIGIN = "https://sprig-online-compiler.pages.dev"
