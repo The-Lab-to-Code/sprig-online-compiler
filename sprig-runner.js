@@ -7,6 +7,7 @@ const { spawn } = require("child_process");
 const readline = require("readline");
 
 const PORT = Number(process.env.SPRIG_PORT || 3001);
+const HOST = process.env.SPRIG_HOST || "127.0.0.1";
 const commandAvailability = new Map();
 
 const commands = {
@@ -389,6 +390,18 @@ const server = http.createServer(async (req, res) => {
     }));
     return res.end(JSON.stringify(runtimes));
   }
+  if (req.method === "GET" && req.url.startsWith("/api/v2/piston/runtimes")) {
+    const runtimesUrl = PISTON_URL.replace(/execute\/?$/, "runtimes");
+    try {
+      const response = await fetch(runtimesUrl);
+      const body = await response.text();
+      res.statusCode = response.status;
+      return res.end(body);
+    } catch (error) {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ message: "Could not reach Piston at " + runtimesUrl + ": " + error.message }));
+    }
+  }
   if (req.method === "POST" && req.url.startsWith("/api/v2/stdin")) {
     let body = "";
     req.on("data", chunk => body += chunk);
@@ -471,6 +484,6 @@ const server = http.createServer(async (req, res) => {
   });
 });
 
-server.listen(PORT, "127.0.0.1", () => {
-  console.log("Sprig local runner listening on http://127.0.0.1:" + PORT);
+server.listen(PORT, HOST, () => {
+  console.log("Sprig local runner listening on http://" + HOST + ":" + PORT);
 });

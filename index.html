@@ -377,8 +377,10 @@ dialog{border-radius:9px}
 </dialog>
 
 <script>
-const localPage=location.protocol==="file:"||location.hostname==="127.0.0.1"||location.hostname==="localhost";
-const CDN=localPage?"http://127.0.0.1:3001/vendor/":new URL("sprig-vendor/",location.href).href;
+const isCodespacesPage=location.hostname.toLowerCase().endsWith(".app.github.dev");
+const localPage=location.protocol==="file:"||location.hostname==="127.0.0.1"||location.hostname==="localhost"||isCodespacesPage;
+const runnerBase=isCodespacesPage?location.origin:"http://127.0.0.1:3001";
+const CDN=localPage?runnerBase+"/vendor/":new URL("sprig-vendor/",location.href).href;
 const SK=CDN;
 const TSLIB=CDN+"typescript.min.js",COFFEE=CDN+"coffeescript.min.js",LUALIB=CDN+"fengari-web.min.js",MARKED=CDN+"marked.min.js";
 // id|Name|runtime(@=local)|ext|code  (¶ = newline)
@@ -437,21 +439,25 @@ const out=$("out"),code=$("code"),frame=$("frame"),gut=$("gut"),app=$("app");
 let errFlag=false,job=null,tabs=[],active=-1,untitledN=0;
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 const PISTON_URL="http://127.0.0.1:2000/api/v2/execute";
-const PISTON_PROXY_URL="http://127.0.0.1:3001/api/v2/piston/execute";
-const localRunnerUrl=()=>"http://127.0.0.1:3001/api/v2/execute";
+const PISTON_PROXY_URL=runnerBase+"/api/v2/piston/execute";
+const localRunnerUrl=()=>runnerBase+"/api/v2/execute";
 function isLoopbackUrl(url){
   try{return ["127.0.0.1","localhost","::1"].includes(new URL(url).hostname)}catch(e){return false}
 }
 function savedEngine(){return (store.get("sprig.url")||"").trim()}
 function engineIsAuto(url){
   if(!url)return true;
-  try{const u=new URL(url);return (u.hostname==="127.0.0.1"||u.hostname==="localhost")&&u.port==="3001"}catch(e){return false}
+  try{
+    const u=new URL(url);
+    return ((u.hostname==="127.0.0.1"||u.hostname==="localhost")&&u.port==="3001")||
+      (isCodespacesPage&&u.origin===runnerBase&&u.pathname==="/api/v2/piston/execute");
+  }catch(e){return false}
 }
 function isDefaultPiston(url){
   try{const u=new URL(url);return u.protocol==="http:"&&(u.hostname==="127.0.0.1"||u.hostname==="localhost")&&u.port==="2000"&&u.pathname.replace(/\/$/,"")==="/api/v2/execute"}catch(e){return false}
 }
 const hostedPistonUrl=()=>new URL("/api/v2/piston/execute",location.href).href;
-const cfg=()=>{const saved=savedEngine();return {url:saved&&!engineIsAuto(saved)?saved:(localPage?PISTON_URL:hostedPistonUrl()),tok:store.get("sprig.tok")||""}};
+const cfg=()=>{const saved=savedEngine();return {url:saved&&!engineIsAuto(saved)?saved:(localPage?(isCodespacesPage?PISTON_PROXY_URL:PISTON_URL):hostedPistonUrl()),tok:store.get("sprig.tok")||""}};
 let stdinQueue=[],stdinFeed=[],stdinWait=null,liveStdin=null;
 // ---- landing
 function buildGrid(f){
@@ -1021,8 +1027,10 @@ $("new").onclick=createNewFile;
 const dlg=$("dlg");
 function openSettings(){
  const c=cfg();$("sUrl").value=c.url;$("sTok").value=c.tok;$("sMsg").textContent="";
- $("sUrl").placeholder=localPage?"http://127.0.0.1:2000/api/v2/execute":"https://your-engine.example/api/v2/execute";
- $("engineHelp").textContent=localPage
+ $("sUrl").placeholder=isCodespacesPage?PISTON_PROXY_URL:(localPage?"http://127.0.0.1:2000/api/v2/execute":"https://your-engine.example/api/v2/execute");
+ $("engineHelp").textContent=isCodespacesPage
+   ?"This Codespace uses its private Sprig runner and Piston service. Leave the default engine URL unchanged to use Piston. The execution service is private to this Codespace."
+   :localPage
    ?"Engine languages send your code to the configured execution service. A local Sprig install can use Piston on port 2000; a hosted site needs a publicly reachable Piston-compatible endpoint. Flix and Effekt require the local runner."
    :"The hosted site uses OnlineCompiler.io by default (PowerShell 7.6 on Linux and 45 other languages) through a private Cloudflare proxy. Code and input are sent to its sandbox; its privacy policy says run history is retained for up to 365 days. The free quota is 100,000 runs/month, shared across site users; set a per-key cap in the provider dashboard. The Cloudflare API-key secret must be configured by the site owner; never paste an API key here. Flix and Effekt still require Sprig’s local runner.";
  dlg.showModal();

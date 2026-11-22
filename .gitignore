@@ -2,6 +2,8 @@
 site/
 out/
 node_modules/
+.piston-data/
+.piston-src/
 .env
 .env.*
 !.env.example

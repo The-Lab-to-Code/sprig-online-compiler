@@ -1,0 +1,19 @@
+{
+  "name": "Sprig Codespace",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:4": {
+      "moby": true
+    }
+  },
+  "runArgs": ["--privileged"],
+  "forwardPorts": [3001],
+  "portsAttributes": {
+    "3001": {
+      "label": "Sprig editor and private runner",
+      "onAutoForward": "openBrowser",
+      "visibility": "private"
+    }
+  },
+  "postStartCommand": "bash .devcontainer/start-sprig.sh"
+}
