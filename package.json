@@ -1,0 +1,44 @@
+{
+  "name": "sprig-local-runner",
+  "version": "1.0.0",
+  "description": "Sprig online compiler and local runner",
+  "author": "The Lab to Code",
+  "private": true,
+  "main": "desktop/main.js",
+  "scripts": {
+    "build:windows": "electron-builder --win nsis --x64 --publish never"
+  },
+  "dependencies": {
+    "electron-updater": "6.8.11",
+    "node-pty": "1.1.0"
+  },
+  "devDependencies": {
+    "electron": "45.4.1",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "com.thelabtocode.sprig",
+    "productName": "Sprig",
+    "asar": false,
+    "npmRebuild": false,
+    "files": [
+      "desktop/**/*",
+      "server/**/*",
+      "functions/_lib/**/*",
+      "scripts/**/*",
+      "sprig-vendor/**/*",
+      "index.html",
+      "sprig-runner.js",
+      "package.json"
+    ],
+    "directories": { "output": "dist" },
+    "win": { "target": "nsis", "artifactName": "Sprig-Setup-${version}.${ext}" },
+    "nsis": { "oneClick": true, "perMachine": false },
+    "publish": {
+      "provider": "github",
+      "owner": "The-Lab-to-Code",
+      "repo": "sprig-online-compiler",
+      "releaseType": "release"
+    }
+  }
+}

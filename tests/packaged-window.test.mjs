@@ -1,0 +1,129 @@
+import assert from "node:assert/strict";
+import { spawn, execFileSync } from "node:child_process";
+import { once } from "node:events";
+import { mkdtempSync, rmSync } from "node:fs";
+import net from "node:net";
+import os from "node:os";
+import path from "node:path";
+import test from "node:test";
+
+const executable = process.env.SPRIG_PACKAGED_EXE;
+
+async function unusedPort() {
+  const listener = net.createServer();
+  listener.listen(0, "127.0.0.1");
+  await once(listener, "listening");
+  const port = listener.address().port;
+  await new Promise(resolve => listener.close(resolve));
+  return port;
+}
+
+test("packaged app opens an isolated editor window and runs code", {
+  skip: process.platform !== "win32" || !executable, timeout: 60000
+}, async () => {
+  const port = await unusedPort(), debugPort = await unusedPort();
+  const profile = mkdtempSync(path.join(os.tmpdir(), "sprig-desktop-test-"));
+  const env = { ...process.env, SPRIG_PORT: String(port) };
+  delete env.ELECTRON_RUN_AS_NODE;
+  const child = spawn(executable, ["--remote-debugging-port=" + debugPort, "--user-data-dir=" + profile], {
+    env,
+    stdio: ["ignore", "pipe", "pipe"], windowsHide: true
+  });
+  let logs = "", socket, runnerIds = [];
+  child.stdout.on("data", chunk => { logs += chunk; });
+  child.stderr.on("data", chunk => { logs += chunk; });
+  try {
+    let target;
+    for (let i = 0; i < 150 && !target; i++) {
+      if (child.exitCode !== null) throw new Error("Desktop app exited: " + logs);
+      try {
+        const pages = await (await fetch(`http://127.0.0.1:${debugPort}/json/list`)).json();
+        target = pages.find(page => page.type === "page" && page.url.startsWith(`http://127.0.0.1:${port}/`));
+      } catch {}
+      if (!target) await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    assert.ok(target, "Editor window did not appear: " + logs);
+    assert.match(target.url, /#editor$/);
+    socket = new WebSocket(target.webSocketDebuggerUrl);
+    await once(socket, "open");
+    let nextId = 0;
+    const pending = new Map();
+    socket.addEventListener("message", event => {
+      const message = JSON.parse(event.data), resolve = pending.get(message.id);
+      if (resolve) { pending.delete(message.id); resolve(message); }
+    });
+    const call = (method, params = {}) => new Promise(resolve => {
+      const id = ++nextId;
+      pending.set(id, resolve);
+      socket.send(JSON.stringify({ id, method, params }));
+    });
+    const evaluate = async expression => {
+      const response = await call("Runtime.evaluate", { expression, returnByValue: true });
+      assert.equal(response.error, undefined, JSON.stringify(response));
+      assert.equal(response.result.exceptionDetails, undefined, JSON.stringify(response));
+      return response.result.result.value;
+    };
+    let editorReady = false;
+    for (let i = 0; i < 100 && !editorReady; i++) {
+      editorReady = await evaluate('!!document.querySelector("#app") && document.readyState === "complete"');
+      if (!editorReady) await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    assert.equal(editorReady, true, "Editor did not finish loading: " + logs);
+    const features = await evaluate(`({
+      editor: getComputedStyle(document.querySelector("#app")).display,
+      node: typeof require,
+      open: typeof showOpenFilePicker,
+      save: typeof showSaveFilePicker,
+      folder: typeof showDirectoryPicker
+    })`);
+    assert.equal(features.editor, "flex");
+    assert.equal(features.node, "undefined");
+    assert.equal(features.open, "function");
+    assert.equal(features.save, "function");
+    assert.equal(features.folder, "function");
+    const original = await evaluate(`(() => {
+      const editor = document.querySelector("#code");
+      editor.focus(); editor.setSelectionRange(editor.value.length, editor.value.length); return editor.value;
+    })()`);
+    await call("Input.dispatchKeyEvent", { type: "rawKeyDown", key: "(", code: "Digit9", modifiers: 8, windowsVirtualKeyCode: 57 });
+    await call("Input.dispatchKeyEvent", { type: "keyUp", key: "(", code: "Digit9", modifiers: 8, windowsVirtualKeyCode: 57 });
+    assert.equal(await evaluate('document.querySelector("#code").value'), original + "()");
+    assert.equal(await evaluate('document.querySelector("#code").selectionStart'), original.length + 1);
+    assert.equal(await evaluate('document.execCommand("undo")'), true);
+    assert.equal(await evaluate('document.querySelector("#code").value'), original);
+    await evaluate('tabs[active].dirty = false');
+    await evaluate('document.querySelector("#run").click()');
+    let output = "";
+    for (let i = 0; i < 100 && !output.includes("Hello, Ada!"); i++) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      output = await evaluate('document.querySelector("#out").textContent');
+    }
+    assert.match(output, /Hello, Ada!/);
+    runnerIds = JSON.parse(execFileSync("powershell.exe", ["-NoProfile", "-Command",
+      `ConvertTo-Json -InputObject @(Get-CimInstance Win32_Process -Filter 'ParentProcessId = ${child.pid}' | Where-Object { $_.CommandLine -match 'sprig-runner\\.js' } | ForEach-Object { $_.ProcessId }) -Compress`], { encoding: "utf8" }));
+    assert.equal(runnerIds.length, 1);
+    socket.send(JSON.stringify({ id: ++nextId, method: "Page.close" }));
+    let timer;
+    try {
+      await Promise.race([once(child, "close"), new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error("Desktop did not close")), 10000);
+      })]);
+    } finally { clearTimeout(timer); }
+    assert.equal(child.exitCode, 0, logs);
+    const remaining = execFileSync("powershell.exe", ["-NoProfile", "-Command",
+      `$p = Get-CimInstance Win32_Process -Filter 'ProcessId = ${runnerIds[0]}'; if ($p -and $p.ParentProcessId -eq ${child.pid} -and $p.CommandLine -match 'sprig-runner\\.js') { 'running' }`], { encoding: "utf8" });
+    assert.equal(remaining.trim(), "", "Runner was not stopped with the window");
+  } finally {
+    if (socket && socket.readyState === WebSocket.OPEN) socket.close();
+    if (child.exitCode === null) {
+      runnerIds = JSON.parse(execFileSync("powershell.exe", ["-NoProfile", "-Command",
+        `ConvertTo-Json -InputObject @(Get-CimInstance Win32_Process -Filter 'ParentProcessId = ${child.pid}' | Where-Object { $_.CommandLine -match 'sprig-runner\\.js' } | ForEach-Object { $_.ProcessId }) -Compress`], { encoding: "utf8" }));
+      const closed = once(child, "close");
+      execFileSync("powershell.exe", ["-NoProfile", "-Command", `Stop-Process -Id ${child.pid}`]);
+      await closed;
+    }
+    for (const id of runnerIds) execFileSync("powershell.exe", ["-NoProfile", "-Command",
+      `$p = Get-CimInstance Win32_Process -Filter 'ProcessId = ${id}'; if ($p -and $p.ParentProcessId -eq ${child.pid} -and $p.CommandLine -match 'sprig-runner\\.js') { Stop-Process -Id ${id} }`]);
+    rmSync(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
+  }
+});

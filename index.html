@@ -10,23 +10,15 @@
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171b19;--surface:#1d211f;--panel:#222724;--text:#edf2ef;--muted:#9aa59f;--line:#303733;--accent:#66c49b;--accent2:#66c49b;--ink:#04261b;--err:#f87171;--ok:#34d399}}
 :root[data-theme="dark"]{--bg:#171b19;--surface:#1d211f;--panel:#222724;--text:#edf2ef;--muted:#9aa59f;--line:#303733;--accent:#66c49b;--accent2:#66c49b;--ink:#04261b;--err:#f87171;--ok:#34d399}
 :root[data-theme="light"]{--bg:#f4f6f5;--surface:#fff;--panel:#edf1ef;--text:#17201b;--muted:#68756f;--line:#dde4e0;--accent:#16845f;--accent2:#16845f;--ink:#fff;--err:#dc2626;--ok:#059669}
-*{box-sizing:border-box;transition:background-color .2s,border-color .2s,color .2s,transform .2s,opacity .2s}html{scroll-behavior:smooth}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
-.animate-fade{animation:fadeIn .4s ease-out both}
-.animate-slide{animation:slideUp .5s ease-out both}
 .loading-spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-radius:50%;border-top-color:#fff;animation:spin .8s linear infinite;margin-right:8px;vertical-align:middle}
-#landing,#app{animation:fadeIn .3s ease-in-out}
-section{animation:slideUp .6s ease-out both}
-section:nth-child(2){animation-delay:.1s}
-section:nth-child(3){animation-delay:.2s}
-section:nth-child(4){animation-delay:.3s}
 body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 button,select,input,textarea{font:inherit;color:inherit}
 a{color:var(--accent)}
 .mono{font-family:ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace}
-.btn{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:7px 13px;cursor:pointer;font-size:14px;transition:.15s;user-select:none}
+.btn{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:7px 13px;cursor:pointer;font-size:14px;user-select:none}
 .btn:hover{border-color:var(--accent);transform:translateY(-1px)}
 .btn:active{transform:translateY(0) scale(.98)}
 .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--ink);border:0;font-weight:700}
@@ -40,15 +32,16 @@ a{color:var(--accent)}
 .nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);background:color-mix(in srgb,var(--bg) 78%,transparent);border-bottom:1px solid transparent}
 .nav .in{display:flex;align-items:center;gap:22px;max-width:1120px;margin:0 auto;padding:14px 22px}
 .nav .links{display:flex;gap:20px;flex:1;font-size:14px}.nav .links a{color:var(--muted);text-decoration:none}.nav .links a:hover{color:var(--text)}
+#mobileRequest{display:none;color:var(--muted);text-decoration:none;font-size:14px;white-space:nowrap}
 .wrap{max-width:1120px;margin:0 auto;padding:0 22px;position:relative}
 .hero{display:grid;grid-template-columns:1fr 1.1fr;gap:44px;align-items:center;padding:70px 0 50px}
 .pill{display:inline-block;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:3px 13px;font-size:13px;color:var(--muted);margin-bottom:18px}
 .pill b{color:var(--accent)}
-.hero h1{font-size:clamp(36px,5.6vw,62px);line-height:1.04;letter-spacing:-.035em;margin:0 0 18px;animation:slideUp .8s cubic-bezier(0.2, 0.8, 0.2, 1) both}
+.hero h1{font-size:clamp(36px,5.6vw,62px);line-height:1.04;letter-spacing:-.035em;margin:0 0 18px}
 .grad{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero p{color:var(--muted);font-size:18px;margin:0 0 28px;max-width:470px;animation:slideUp .8s cubic-bezier(0.2, 0.8, 0.2, 1) .1s both}
-.cta{display:flex;gap:12px;flex-wrap:wrap;animation:slideUp .8s cubic-bezier(0.2, 0.8, 0.2, 1) .2s both}
-.term{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 30px 80px -30px #000a;animation:fadeIn 1s ease-out .3s both}
+.hero p{color:var(--muted);font-size:18px;margin:0 0 28px;max-width:470px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.term{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 30px 80px -30px #000a}
 .term .bar{display:flex;gap:7px;align-items:center;padding:11px 14px;background:var(--panel);border-bottom:1px solid var(--line)}
 .term .bar i{width:11px;height:11px;border-radius:50%;background:var(--line)}
 .term .bar span{margin-left:8px;font-size:12px;color:var(--muted)}
@@ -82,33 +75,46 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:0 20px 40px}
 #app{display:none;height:100vh;height:100dvh;flex-direction:column;background:var(--vb);color:var(--vt);font:13px/1.4 "Segoe UI",system-ui,-apple-system,sans-serif}
 #app[data-vs=dark]{--vb:#1e1e1e;--vside:#252526;--vact:#333;--vtab:#2d2d2d;--vbd:#3c3c3c;--vt:#ccc;--vdim:#858585;--vsel:#04395e;--vhov:#2a2d2e;--vin:#3c3c3c;--vgut:#858585;--verr:#f48771;--vok:#89d185;--vpanel:#1e1e1e}
 #app[data-vs=light]{--vb:#fff;--vside:#f3f3f3;--vact:#2c2c2c;--vtab:#ececec;--vbd:#e5e5e5;--vt:#3b3b3b;--vdim:#767676;--vsel:#e4e6f1;--vhov:#e8e8e8;--vin:#fff;--vgut:#237893;--verr:#e51400;--vok:#388a34;--vpanel:#fff}
-.shell{flex:1;display:flex;min-height:0;position:relative}
+.shell{flex:1;display:flex;min-height:0;position:relative;--side-width:250px;--ai-width:360px}
 .act{width:48px;background:var(--vact);display:flex;flex-direction:column;align-items:center;flex:none}
-.act button{width:48px;height:48px;background:none;border:0;border-left:2px solid transparent;color:#858585;cursor:pointer;display:grid;place-items:center;font-size:20px}
+.act button{width:48px;height:48px;background:none;border:0;border-left:2px solid transparent;color:#858585;cursor:pointer;display:grid;place-items:center;font-size:20px;position:relative}
 .act button:hover,.act button.on{color:#fff}.act button.on{border-left-color:#fff}
 .act svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .sp{flex:1}
-#side{width:250px;background:var(--vside);display:flex;flex-direction:column;overflow:auto;border-right:1px solid var(--vbd);flex:none}
+#side{width:var(--side-width);background:var(--vside);display:flex;flex-direction:column;overflow:auto;border-right:1px solid var(--vbd);flex:none}
+.sidebar-resize{position:absolute;top:0;bottom:0;width:8px;cursor:col-resize;touch-action:none;z-index:11}
+.sidebar-resize:hover,.sidebar-resize:focus-visible,.sidebar-resize.on{background:var(--accent);outline:0}
+.sidebar-resize[hidden]{display:none}
+#sideResize{left:calc(48px + var(--side-width) - 4px);z-index:6}
+#aiResize{left:-4px}
 #side .sh{padding:10px 20px;font-size:11px;letter-spacing:.05em;color:var(--vdim)}
 #side .st{padding:4px 12px;font-size:11px;font-weight:700;letter-spacing:.04em;background:var(--vhov);margin-top:6px}
 #side .row{padding:2px 12px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:22px}
 #side .row:hover{background:var(--vhov)}#side .row.on{background:var(--vsel)}
+#side #tree .row,#side #openEd .row{display:flex;align-items:center}
 #side .file-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
-#side .file-action{display:none;background:none;border:0;color:var(--vdim);cursor:pointer;font:inherit;font-size:11px;padding:0 4px}
-#side .row:hover .file-action{display:block}
+#side .file-action{opacity:0;flex:none;background:none;border:0;color:var(--vdim);cursor:pointer;font:inherit;font-size:11px;padding:0 4px}
+#side .row:hover .file-action,#side .row:focus-within .file-action{opacity:1}
 #side .file-action:hover{color:var(--vt);background:var(--vbd)}
 #side .hint{padding:10px 14px;color:var(--vdim)}
-.vbtn{background:#0e639c;color:#fff;border:0;padding:6px 12px;border-radius:2px;cursor:pointer;margin:8px 12px 0 0;font:inherit}.vbtn:hover{background:#1177bb}
+.vbtn{background:var(--accent);color:var(--ink);border:0;padding:6px 12px;border-radius:2px;cursor:pointer;margin:8px 12px 0 0;font:inherit}.vbtn:hover{filter:brightness(1.08)}
 #side .btns{padding:6px 12px}
 .mainc{flex:1;display:flex;flex-direction:column;min-width:0}
 .tabbar{display:flex;background:var(--vside);height:35px;flex:none;align-items:stretch}
 #tabs{display:flex;overflow-x:auto;scrollbar-width:none}
-.tab{display:flex;align-items:center;gap:8px;padding:0 10px 0 14px;background:var(--vtab);color:var(--vdim);cursor:pointer;border-right:1px solid var(--vside);white-space:nowrap;border-top:1px solid transparent;transition:all .2s ease}
+.tab{display:flex;align-items:center;gap:8px;padding:0 10px 0 14px;background:var(--vtab);color:var(--vdim);cursor:pointer;border-right:1px solid var(--vside);white-space:nowrap;border-top:1px solid transparent}
 .tab.on{background:var(--vb);color:var(--vt);border-top-color:#007acc;padding-left:16px}
 .tab .x{width:18px;text-align:center;border-radius:4px;font-weight:400;font-size:15px}.tab .x:hover{background:#ffffff22}
 .runb{background:none;border:0;color:var(--vt);cursor:pointer;padding:0 14px;font-size:14px}.runb:hover{background:var(--vhov)}.runb.stop{color:var(--verr)}
 #crumb{padding:2px 16px;color:var(--vdim);font-size:12px;flex:none}
 .ed{flex:1;display:flex;min-height:0;background:var(--vb)}
+.ed[hidden],#crumb[hidden],#emptyEditor[hidden]{display:none}
+#emptyEditor{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;color:var(--vdim)}
+#emptyEditor h2{margin:0;color:var(--vt);font-size:18px;font-weight:600}
+#emptyEditor p{margin:0}
+#emptyEditor .actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+#emptyEditor button{font:inherit}
+.runbtn:disabled,.act button:disabled,.chipb:disabled{opacity:.45;cursor:not-allowed}
 #gut{margin:0;padding:6px 10px 6px 0;text-align:right;color:var(--vgut);font:14px/21px Consolas,"Cascadia Code","Courier New",monospace;overflow:hidden;user-select:none;min-width:56px;opacity:.75}
 .cw{position:relative;flex:1;min-width:0}
 #hl,#code{position:absolute;inset:0;margin:0;border:0;padding:6px 14px 6px 6px;font:14px/21px Consolas,"Cascadia Code","Courier New",monospace;tab-size:2;white-space:pre;letter-spacing:0}
@@ -129,6 +135,61 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:0 20px 40px}
 #tin::placeholder{color:var(--vdim)}
 #frame{flex:1;border:0;background:#fff}
 #panel[data-p=out] #frame,#panel[data-p=pv] #termwrap{display:none}
+#aiSidebar{position:relative;width:var(--ai-width);min-width:0;flex:none;display:flex;flex-direction:column;background:var(--vside);border-left:1px solid var(--vbd);animation:aiEnter .18s ease-out}
+#aiSidebar[hidden]{display:none}
+#aiHead{height:40px;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--vbd);font-size:11px;letter-spacing:.05em}
+#aiHead button,#aiActions button{background:none;border:1px solid transparent;border-radius:4px;color:var(--vt);font:inherit;cursor:pointer;padding:5px 8px}
+#aiHead button:hover,#aiActions button:hover:not(:disabled){background:var(--vhov);border-color:var(--vbd)}
+#aiHead button:disabled,#aiActions button:disabled{opacity:.45;cursor:not-allowed}
+#aiUnread{position:absolute;right:7px;top:7px;width:9px;height:9px;border-radius:50%;background:#58cf9e;box-shadow:0 0 0 2px var(--vact)}
+#aiUnread[hidden]{display:none}
+#aiOutput{flex:1;min-height:0;overflow:auto;overflow-wrap:anywhere;padding:16px;font:13px/1.55 "Segoe UI",system-ui,sans-serif}
+.ai-entry{margin-bottom:18px;animation:aiEnter .2s ease-out}
+.ai-entry-name{font-weight:600;margin-bottom:5px;color:var(--vt)}
+.ai-entry-body{white-space:pre-wrap}
+.ai-entry-user .ai-entry-body{background:var(--vin);border:1px solid var(--vbd);border-radius:8px;padding:8px 10px}
+.ai-inline{font:12px Consolas,"Cascadia Code",monospace;background:var(--vin);border-radius:3px;padding:1px 3px}
+.ai-code{margin:8px 0;border:1px solid var(--vbd);border-radius:7px;overflow:hidden;background:var(--vb)}
+.ai-code-head{display:flex;align-items:center;padding:4px 8px;background:var(--vtab);color:var(--vdim);font-size:11px}
+.ai-copy{margin-left:auto;background:none;border:0;color:var(--vt);cursor:pointer;font:inherit;padding:2px 4px}
+.ai-copy:hover{color:var(--vok)}
+.ai-code pre{margin:0;padding:10px;overflow:auto;white-space:pre;font:12px/1.5 Consolas,"Cascadia Code",monospace}
+.ai-activity{background:none;border:0;border-radius:0;padding:0;margin:6px 0;color:var(--vdim);font-size:12px}
+.ai-activity summary{font-weight:400;cursor:pointer}
+.ai-activity ul{margin:5px 0 0;padding-left:18px}
+.ai-verification{margin:6px 0;color:var(--vdim);font-size:12px}
+.ai-verification[data-status="broken"]{color:var(--verr)}
+.ai-test-error{margin:6px 0;color:var(--vdim);font-size:12px}
+.ai-test-error summary{cursor:pointer}
+.ai-test-error pre{white-space:pre-wrap;overflow-wrap:anywhere}
+.ai-working{display:inline-flex;align-items:center;gap:7px;margin:4px 0 2px;color:var(--vdim);font-size:12px}
+.ai-working[hidden]{display:none}
+.ai-working::before{content:"";width:7px;height:7px;background:var(--vok);border-radius:50%;animation:aiPulse 1.3s ease-in-out infinite}
+@keyframes aiEnter{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes aiPulse{50%{opacity:.35;transform:scale(.75)}}
+#aiCompose{padding:12px;border-top:1px solid var(--vbd)}
+#aiCompose p{margin:0 0 8px;color:var(--vdim);font-size:12px}
+#aiCompose details{background:none;border:0;border-radius:0;padding:0;margin:0 0 8px;color:var(--vdim);font-size:12px}
+#aiCompose summary{font-weight:400}
+#aiCompose details p{margin:6px 0}
+#aiNotifications{background:var(--vin);border:1px solid var(--vbd);border-radius:4px;padding:4px 8px;color:var(--vt);font:inherit;cursor:pointer}
+#aiPrompt{display:block;width:100%;min-height:74px;max-height:180px;resize:vertical;background:var(--vin);border:1px solid var(--vbd);border-radius:5px;padding:8px;color:var(--vt);font:inherit}
+#aiPrompt:focus{outline:1px solid var(--accent)}
+#app input[type=checkbox]{accent-color:var(--accent)}
+#aiContext{display:flex;align-items:center;gap:8px;margin:10px 0;color:var(--vt);font-size:12px;cursor:pointer}
+#aiUseEditor{appearance:none;display:grid;place-content:center;flex:none;width:16px;height:16px;margin:0;background:var(--vin);border:1px solid var(--vdim);border-radius:4px;cursor:pointer;transition:background .16s ease,border-color .16s ease}
+#aiUseEditor::after{content:"";width:7px;height:4px;border-left:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:translateY(-1px) rotate(-45deg) scale(0)}
+#aiUseEditor:checked{background:var(--accent);border-color:var(--accent)}
+#aiUseEditor:checked::after{transform:translateY(-1px) rotate(-45deg) scale(1)}
+#aiUseEditor:hover{border-color:var(--accent)}
+#aiUseEditor:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(forced-colors:active){#aiUseEditor{appearance:auto}#aiUseEditor::after{content:none}}
+#aiActions{display:flex;gap:3px;flex-wrap:wrap;margin:5px 0}
+#aiActions #aiGenerate{background:var(--accent);color:var(--ink)}
+#aiActions #aiGenerate:hover:not(:disabled){filter:brightness(1.08)}
+#aiStatus{min-height:1.4em;margin:4px 0 0;color:var(--vdim);font-size:12px}
+#aiStatus[data-error="true"]{color:var(--verr)}
+@media(max-width:850px){#aiSidebar:not([hidden]){position:absolute;z-index:10;right:0;top:0;bottom:0;box-shadow:-8px 0 24px #0005}}
 .sbar{display:flex;gap:14px;align-items:center;height:22px;padding:0 10px;background:#007acc;color:#fff;font-size:12px;flex:none}
 .sbar .clk{cursor:pointer;padding:0 4px}.sbar .clk:hover{background:#ffffff2a}
 #qp{display:none;position:fixed;inset:0;z-index:50;justify-content:center;align-items:flex-start;padding-top:60px}
@@ -142,6 +203,7 @@ dialog::backdrop{background:#0008}
 dialog label{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px}
 dialog input,dialog select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 11px;outline:0}
 dialog p{color:var(--muted);font-size:13.5px}
+#trashList{max-height:40vh;overflow:auto}
 [data-vs=dark]{--tk:#569cd6;--ts:#ce9178;--tn:#b5cea8;--tc:#6a9955;--tf:#dcdcaa;--tt:#4ec9b0}
 [data-vs=light]{--tk:#0000ff;--ts:#a31515;--tn:#098658;--tc:#008000;--tf:#795e26;--tt:#267f99}
 #hl i,.term pre i{font-style:normal}
@@ -149,7 +211,7 @@ dialog p{color:var(--muted);font-size:13.5px}
 *{scrollbar-width:thin;scrollbar-color:#79797966 transparent}
 .dot{display:inline-block;width:8px;height:8px;border-radius:2px;flex:none}
 #side .row{display:flex;align-items:center;gap:7px}
-#grip{height:4px;margin:-2px 0;position:relative;z-index:3;cursor:ns-resize;flex:none;transition:background .15s}#grip:hover,#grip.on{background:#007acc}
+#grip{height:4px;margin:-2px 0;position:relative;z-index:3;cursor:ns-resize;flex:none;transition:background .15s}#grip:hover,#grip.on{background:var(--accent)}
 .tab{font-size:13px}.tab.on{box-shadow:inset 0 -1px 0 var(--vb)}.tab .tab-name{cursor:text}
 .act button:hover{background:#ffffff12}
 .sbar span{white-space:nowrap}
@@ -172,14 +234,14 @@ section{scroll-margin-top:70px}
 .tl{display:flex;align-items:center;gap:2px}.tlogo{font-weight:800;letter-spacing:-.02em;margin-right:10px;color:var(--vt);cursor:pointer}
 .tlogo:before{content:"";display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:7px;vertical-align:-2px;background:linear-gradient(135deg,#34d399,#22d3ee)}
 .mb{background:none;border:0;color:var(--vt);padding:4px 9px;border-radius:5px;cursor:pointer;font:inherit}.mb:hover{background:#ffffff1c}
-.cmd{display:flex;align-items:center;gap:8px;justify-content:center;height:26px;background:var(--vin);border:1px solid var(--vbd);color:var(--vdim);border-radius:7px;cursor:pointer;font:inherit}.cmd:hover{border-color:#007acc}
+.cmd{display:flex;align-items:center;gap:8px;justify-content:center;height:26px;background:var(--vin);border:1px solid var(--vbd);color:var(--vdim);border-radius:7px;cursor:pointer;font:inherit}.cmd:hover{border-color:var(--accent)}
 .cmd svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 kbd{font:11px Consolas,monospace;border:1px solid var(--vbd);border-radius:4px;padding:0 5px;color:var(--vdim)}
 .tr{display:flex;justify-content:flex-end;align-items:center;gap:8px}
 .chipb{background:none;border:1px solid var(--vbd);color:var(--vt);border-radius:6px;padding:3px 10px;cursor:pointer;font:inherit}.chipb:hover{background:#ffffff14}.chipb:after{content:" ▾";color:var(--vdim)}
 .runbtn{background:#2ea043;color:#fff;border:0;border-radius:6px;padding:4px 16px;font:inherit;font-weight:600;cursor:pointer}.runbtn:hover{background:#3fb950}.runbtn.stop{background:#d73a49}
 #menu{display:none;position:fixed;z-index:60;min-width:230px;background:var(--vside);border:1px solid var(--vbd);border-radius:7px;box-shadow:0 10px 30px #0008;padding:4px 0;color:var(--vt)}
-.mi{display:flex;justify-content:space-between;gap:30px;padding:5px 16px;cursor:pointer}.mi:hover{background:#094771;color:#fff}.mi em{color:var(--vdim);font-style:normal}.mi:hover em{color:#cde}
+.mi{display:flex;justify-content:space-between;gap:30px;padding:5px 16px;cursor:pointer}.mi:hover{background:var(--vsel);color:var(--vt)}.mi em{color:var(--vdim);font-style:normal}.mi:hover em{color:var(--vt)}
 #side .sh{display:flex;justify-content:space-between;align-items:center;padding:6px 8px 6px 20px;font-size:11px;letter-spacing:.06em}
 .sa{display:flex;gap:2px}.sa button{background:none;border:0;color:var(--vt);cursor:pointer;width:26px;height:26px;border-radius:5px;display:grid;place-items:center}.sa button:hover{background:var(--vhov)}
 .sa svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -223,6 +285,63 @@ body{background:var(--bg)}
 details{border-radius:8px}
 #landing:before,#landing:after{display:none}
 
+#landing .nav .in,#landing .wrap{max-width:1040px}
+#landing .hero{grid-template-columns:1fr 1fr;gap:64px;padding:76px 0 58px}
+#landing .pill{padding:0;border:0;border-radius:0;background:none;color:var(--accent);font:600 12px/1.5 ui-monospace,Consolas,monospace;letter-spacing:.04em}
+#landing .hero h1{font-size:clamp(38px,4.5vw,56px);line-height:1.08;letter-spacing:-.04em}
+#landing .hero p{font-size:16px;line-height:1.65}
+#landing .btn.big{padding:10px 17px;font-size:14px;border-radius:6px}
+#landing .btn:hover,#landing .chip:hover{transform:none}
+#landing .term{border-radius:6px;box-shadow:none}
+#landing .term .bar{padding:9px 14px}
+#landing .term pre{min-height:120px;padding:20px}
+#landing .term .res{min-height:54px;padding:14px 20px}
+#landing .stats{display:flex;flex-wrap:wrap;align-items:baseline;gap:14px 36px;margin:0;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+#landing .stats div{display:flex;align-items:baseline;gap:7px;padding:0;border:0;background:none;text-align:left}
+#landing .stats b{font-size:16px}
+#landing .stats span{font-size:13px}
+#landing #features,#landing #languages,#landing #how,#landing #faq{padding:64px 0 0}
+#landing h2.sec{font-size:24px;letter-spacing:-.02em;text-align:left}
+#landing .sub{text-align:left;margin:0 0 24px;max-width:none;font-size:15px}
+#landing .feat{grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;margin:0}
+#landing .feat div{padding:14px 0 0;background:none;border:0;border-top:1px solid var(--line);border-radius:0}
+#landing .feat h3{margin:0 0 7px;font-size:15px}
+#landing .feat p{font-size:14px;line-height:1.6}
+#landing .search{margin:0 0 18px;width:min(420px,100%);border-radius:5px}
+#landing .grid{justify-content:flex-start;gap:7px;margin-bottom:16px}
+#landing .chip{padding:6px 10px;border-radius:5px;font-size:13px;text-align:left}
+#landing .chip:focus-visible,#landing .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#landing .legend{text-align:left;margin:0 0 6px;font-size:13px}
+#requestPage{max-width:680px;margin:0 auto;padding:60px 22px 80px}
+#requestPage h1{font-size:clamp(30px,5vw,42px);line-height:1.15;letter-spacing:-.03em;margin:0 0 12px}
+#requestPage p{color:var(--muted)}
+#requestForm{display:grid;gap:8px;margin-top:28px}
+#requestForm label{font-weight:600;font-size:14px;margin-top:10px}
+#requestForm input,#requestForm textarea{width:100%;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:6px;color:var(--text)}
+#requestForm textarea{resize:vertical;min-height:120px}
+#requestForm input:focus,#requestForm textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
+#requestForm button{justify-self:start;margin-top:12px}
+#requestForm button:disabled{opacity:.6;cursor:wait}
+#requestStatus{min-height:1.6em;margin:4px 0 0}
+#requestStatus[data-state="error"]{color:var(--err)}
+#requestStatus[data-state="success"]{color:var(--ok)}
+#landing .steps{gap:28px;margin:0}
+#landing .steps div{border-left:0;border-top:1px solid var(--line);padding:14px 0 0}
+#landing .steps h3{font-size:15px}
+#landing details{max-width:none;margin:0;padding:14px 0;border:0;border-top:1px solid var(--line);border-radius:0;background:none}
+#landing details:last-child{border-bottom:1px solid var(--line)}
+#landing footer{text-align:left;max-width:1040px;margin:64px auto 0;padding:20px 22px 32px;border-top:1px solid var(--line)}
+@media(max-width:820px){
+  #landing .nav .in{gap:8px;padding-left:12px;padding-right:12px}
+  #landing .nav .logo{margin-right:auto}
+  #landing .nav .btn{font-size:13px;padding:6px 8px;white-space:nowrap}
+  #mobileRequest{display:block}
+  #landing .hero{grid-template-columns:1fr;gap:28px;padding:44px 0}
+  #landing .hero h1{font-size:40px}
+  #landing .feat{grid-template-columns:1fr;gap:20px}
+  #landing #features,#landing #languages,#landing #how,#landing #faq{padding-top:48px}
+}
+
 #app[data-vs=dark]{--vb:#171a18;--vside:#1d211f;--vact:#202421;--vtab:#242824;--vbd:#303531;--vt:#dde5e0;--vdim:#929c96;--vsel:#29352f;--vhov:#282d2a;--vin:#202420;--vpanel:#171a18;--vtitle:#1d211f}
 #app[data-vs=light]{--vb:#fff;--vside:#f5f7f6;--vact:#eef1ef;--vtab:#ecefeb;--vbd:#dde3df;--vt:#2a322e;--vdim:#738078;--vsel:#e3ebe6;--vhov:#eef2ef;--vin:#fff;--vpanel:#fff;--vtitle:#f5f7f6}
 .title{height:40px;padding:0 8px;box-shadow:none}
@@ -255,87 +374,145 @@ details{border-radius:8px}
 .qi.on,.qi:hover{background:var(--vsel)}
 dialog{border-radius:9px}
 @media(max-width:820px){.hero h1{font-size:42px}.hero{padding-top:36px}.stats{margin-bottom:46px}.feat{margin-bottom:48px}}
+
+/* Motion is limited to feedback and newly opened surfaces. */
+@keyframes surfaceIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+#landing,#app{animation:fadeIn .18s ease-out}
+#qp .qbox,#menu,dialog[open]{animation:surfaceIn .18s cubic-bezier(.2,0,0,1)}
+dialog[open]::backdrop{animation:fadeIn .18s ease-out}
+#emptyEditor:not([hidden]){animation:fadeIn .18s ease-out}
+.btn,.chip,.nav .links a,.act button,.mb,.cmd,.chipb,.runbtn,.vbtn,.ptab,.tab,#side .row,.qi,.mi,.sa button,.sbar .clk{
+  transition:background-color .16s ease,border-color .16s ease,color .16s ease,filter .16s ease,transform .16s ease;
+}
+.tab .x{transition:opacity .16s ease,background-color .16s ease}
+@media(hover:hover){
+  #landing .btn:hover,#landing .chip:hover{transform:translateY(-1px)}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  #landing .btn:hover,#landing .chip:hover,.btn:active{transform:none}
+}
 </style>
 </head>
 <body>
 <div id="landing">
   <div class="nav"><div class="in">
     <div class="logo" data-go>sprig<b>.</b></div>
-    <div class="links"><a href="#features">Features</a><a href="#languages">Languages</a><a href="#how">How it works</a><a href="#faq">FAQ</a></div>
+    <div class="links"><a href="#features">About</a><a href="#languages">Languages</a><a href="#how">Getting started</a><a href="#faq">FAQ</a><a href="#request">Request</a></div>
+    <a id="mobileRequest" href="#request">Request</a>
     <button class="btn" data-theme-btn>Theme</button><button class="btn primary" data-go>Open editor</button>
   </div></div>
+  <div id="homeContent">
   <div class="wrap">
     <section class="hero">
       <div>
-        <span class="pill"><b>New</b> · Open folders and run locally</span>
-        <h1>Write code. Hit run.<br><span class="grad">See what happens.</span></h1>
-        <p>A small compiler that works right in your browser. Try JavaScript, Python, Lua, and a bunch more. Open real files, add input, and save when you’re done.</p>
-        <div class="cta"><button class="btn primary big" data-go>Open the online editor →</button><a class="btn big" href="#languages" style="text-decoration:none;color:var(--text)">Browse languages</a></div>
+        <span class="pill">YOUR PLACE TO CODE</span>
+        <h1>Write code.<br>See the output.</h1>
+        <p>Write, run, and save your code in one place. Try a built-in language, use the tools on your computer, or run online.</p>
+        <div class="cta"><button class="btn primary big" data-go>Open editor</button><a class="btn big" href="#languages" style="text-decoration:none;color:var(--text)">Browse languages</a></div>
       </div>
       <div class="term" id="dTerm" data-vs="dark">
-        <div class="bar"><i></i><i></i><i></i><span id="dName" class="mono">hello.py</span></div>
-        <pre id="dCode" class="mono"></pre>
-        <div class="res mono" id="dRes"></div>
+        <div class="bar"><span class="mono">hello.js</span></div>
+        <pre class="mono">console.log("Hello, world!");</pre>
+        <div class="res mono">Hello, world!</div>
       </div>
     </section>
     <section class="stats">
       <div><b id="nLang">80+</b><span>language modes</span></div>
-      <div><b id="nLocal">9</b><span>built-in runtimes</span></div>
-      <div><b>0</b><span>installs or sign-ups</span></div>
-      <div><b>∞</b><span>runtimes via your own engine</span></div>
+      <div><b id="nLocal">9</b><span>browser tools</span></div>
+      <div><span>Local and online execution</span></div>
     </section>
     <section id="features">
-      <h2 class="sec">Just the useful parts</h2>
-      <p class="sub">A plain editor, real files, and quick runs. No account maze.</p>
+      <h2 class="sec">What you can do</h2>
+      <p class="sub">Everything you need to try an idea or work on a file.</p>
       <div class="feat">
-        <div><h3>Quick starts</h3><p>JavaScript, Python, Lua, and a few other languages run without an upload or setup.</p></div>
-        <div><h3>Stop when needed</h3><p>Runs in a worker and times out, so a loop should not freeze the whole page.</p></div>
-        <div><h3>Use real files</h3><p>Open a file or folder, edit it, and save straight back. Works in Chrome, Edge, and Opera.</p></div>
-        <div><h3>More runtimes</h3><p>Connect a local runner or Piston-compatible engine when you need extra compilers.</p></div>
-        <div><h3>Type in the terminal</h3><p>Stdin is the terminal itself. Press Enter to add a line, then run. A waiting program takes the next line as you type it.</p></div>
-        <div><h3>Light or dark</h3><p>Follow your system, or switch themes whenever you feel like it.</p></div>
+        <div><h3>Write and run</h3><p>Start with an example or your own code, then see what it does.</p></div>
+        <div><h3>Work with files</h3><p>Open a file or folder and save your changes. Folder access depends on your browser.</p></div>
+        <div><h3>Choose how to run</h3><p>Use your browser, your computer, or an online service like TIO or Wandbox.</p></div>
       </div>
     </section>
     <section id="languages">
-      <h2 class="sec">Pick a language</h2>
-      <p class="sub">Choose one and it opens in the editor.</p>
+      <h2 class="sec">Languages</h2>
+      <p class="sub">Find a language and start coding.</p>
       <input class="search" id="q" placeholder="Search languages…" aria-label="Search languages">
       <div class="grid" id="grid"></div>
-      <div class="legend">Browser-builtins and local runtimes are both supported.</div>
+      <div class="legend">The languages you can run depend on the engine you choose.</div>
+      <div class="legend" id="langCatalogStatus">Sprig loads available languages and compiler versions for you.</div>
+      <a href="#request">Request a language</a>
     </section>
     <section id="how">
-      <h2 class="sec">How it works</h2><p class="sub">Three small steps.</p>
+      <h2 class="sec">Getting started</h2><p class="sub">Ready to try it?</p>
       <div class="steps">
-        <div><h3>Pick a language</h3><p>Use a starter snippet or open your own file.</p></div>
+        <div><h3>Pick a language</h3><p>Start with an example or open a file.</p></div>
         <div><h3>Hit Run</h3><p>Press Ctrl or ⌘ + Enter. Output appears below the code.</p></div>
-        <div><h3>Save</h3><p>Keep changes in the original file, or download a copy.</p></div>
+        <div><h3>Save your work</h3><p>Press Ctrl+S to save an open file in supported browsers, or download a copy.</p></div>
       </div>
     </section>
     <section id="faq">
-      <h2 class="sec" style="margin-bottom:24px">A few answers</h2>
+      <h2 class="sec" style="margin-bottom:24px">Common questions</h2>
       <details><summary>Which runtimes are local?</summary><p>JavaScript and the built-in browser runtimes stay in the tab. Compiled languages can run through the local Sprig runner or a Piston-compatible server.</p></details>
-      <details><summary>Does my code get uploaded?</summary><p>Browser runs stay here. Hosted engine languages use OnlineCompiler.io by default; its <a href="https://onlinecompiler.io/privacy" target="_blank" rel="noopener">privacy policy</a> says execution history, including code and input, is retained for up to 365 days.</p></details>
-      <details><summary>Can the list grow?</summary><p>Open Settings and choose Sync languages. Installed runtimes from a compatible engine will appear in the language menu.</p></details>
+      <details><summary>Does my code get uploaded?</summary><p>Browser runs stay in your tab. Wandbox and TIO receive source code and input when you choose those providers, or when Auto chooses them, and run a program. Custom engines receive code sent to the endpoint you configure.</p></details>
+      <details><summary>Can the list grow?</summary><p>Hosted Sprig loads distinct language families from TIO and compiler versions from Wandbox and TIO. Open Settings and choose Sync languages to refresh them or load runtimes from your own engine.</p></details>
+      <details><summary>Starter example license</summary><p>TIO starter examples are from <a href="https://github.com/TryItOnline/tryitonline">Try It Online</a>.</p><pre style="white-space:pre-wrap">MIT License
+
+Copyright (c) 2017 TryItOnline
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</pre></details>
     </section>
-    <section class="final"><h2 class="sec">Ready when you are.</h2><p class="sub">Open the editor and try something.</p><button class="btn primary big" data-go>Open editor →</button></section>
   </div>
   <footer>Sprig, the Online Compiler.</footer>
+  </div>
+  <main id="requestPage" hidden>
+    <a href="#home">← Back to home</a>
+    <h1>Request a language</h1>
+    <p>What language would you like to see in Sprig?</p>
+    <form id="requestForm" action="https://formspree.io/f/xoedpvle" method="POST">
+      <input type="hidden" name="_subject" value="Sprig language request">
+      <label for="requestLanguage">Language</label>
+      <input id="requestLanguage" name="language" required maxlength="100" autocomplete="off">
+      <label for="requestDetails">Details <span style="font-weight:400">(optional)</span></label>
+      <textarea id="requestDetails" name="details" maxlength="2000" placeholder="Anything we should know?"></textarea>
+      <label for="requestEmail">Your email <span style="font-weight:400">(optional)</span></label>
+      <input id="requestEmail" name="email" type="email" maxlength="254" autocomplete="email">
+      <p>Your request is sent through Formspree to the Sprig maintainer. Please don’t include sensitive information.</p>
+      <button class="btn primary" id="requestSubmit" type="submit">Send request</button>
+      <p id="requestStatus" role="status" aria-live="polite"></p>
+    </form>
+  </main>
 </div>
 
 <div id="app" data-vs="dark">
   <div class="title">
-    <div class="tl"><span class="tlogo">sprig</span><button class="mb" data-menu="file">File</button><button class="mb" data-menu="run">Run</button><button class="mb" data-menu="view">View</button></div>
+    <div class="tl"><span class="tlogo">sprig</span><button class="mb" data-menu="file">File</button><button class="mb" data-menu="run">Run</button><button class="mb" data-menu="view">View</button><button class="mb" id="requestLink">Request</button></div>
     <button class="cmd" id="cmdBtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg><span>Search commands</span><kbd>F1</kbd></button>
-    <div class="tr"><button class="chipb" id="langChip">JavaScript</button><button class="runbtn" id="run" title="Run (Ctrl+Enter)">▶ Run</button></div>
+    <div class="tr"><button class="chipb" id="langChip">JavaScript</button><select id="versionSel" aria-label="Compiler or implementation version" title="Compiler or implementation version" style="display:none;max-width:180px;height:28px;padding:2px 6px;background:var(--vtab);border:1px solid var(--vbd);border-radius:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></select><button class="runbtn" id="run" title="Run (Ctrl+Enter)">▶ Run</button></div>
   </div>
   <div class="shell">
     <div class="act">
       <button id="abEx" class="on" title="Explorer"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg></button>
       <button id="abRun" title="Run (Ctrl+Enter)"><svg viewBox="0 0 24 24"><path d="M7 4l12 8-12 8z"/></svg></button>
+      <button id="abAi" title="Sprig AI" aria-label="Sprig AI" aria-controls="aiSidebar" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H9l-5 4z"/><path d="M8 9h8M8 13h5"/></svg><span id="aiUnread" hidden aria-hidden="true"></span></button>
       <button id="abHome" title="Back to home page"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg></button>
       <span class="sp"></span>
       <button id="abTheme" title="Toggle light/dark theme"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4v16" /><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
-      <button id="abSet" title="Settings (engine)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></button>
+      <button id="abSet" title="Settings (engine)" aria-label="Settings (engine)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2h4l.5 2.7 1.5.6 2.2-1.5 2 2-1.5 2.2.6 1.5 2.7.5v4l-2.7.5-.6 1.5 1.5 2.2-2 2-2.2-1.5-1.5.6L14 22h-4l-.5-2.7-1.5-.6-2.2 1.5-2-2L5.3 16l-.6-1.5L2 14v-4l2.7-.5.6-1.5-1.5-2.2 2-2L8 5.3l1.5-.6z"/><circle cx="12" cy="12" r="3"/></svg></button>
     </div>
     <div id="side">
       <div class="sh"><span>EXPLORER</span><span class="sa"><button id="new" title="New File"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><button id="open" title="Open File"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg></button><button id="dir" title="Open Folder"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></button></span></div>
@@ -344,15 +521,34 @@ dialog{border-radius:9px}
       <div id="tree"><div class="empty">You haven’t opened a folder yet.<br><button class="vbtn" id="dir2">Open Folder</button></div></div>
       
     </div>
+    <div id="sideResize" class="sidebar-resize" role="separator" aria-label="Resize Explorer" aria-controls="side" aria-orientation="vertical" tabindex="0"></div>
     <div class="mainc">
       <div class="tabbar"><div id="tabs"></div><span class="sp"></span></div>
       <div id="crumb"></div>
+      <div id="emptyEditor" hidden>
+        <h2>No file open</h2>
+        <p>Open a file or create one to get started.</p>
+        <div class="actions"><button class="btn primary" id="emptyNew">New file</button><button class="btn" id="emptyOpen">Open file</button></div>
+      </div>
       <div class="ed"><pre id="gut">1</pre><div class="cw"><pre id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea></div></div><div id="grip" title="Drag to resize"></div>
       <div id="panel" data-p="out">
         <div class="phead"><button class="ptab on" data-p="out">TERMINAL</button><button class="ptab" data-p="pv">PREVIEW</button><span id="spill" class="spill"></span><span class="sp"></span><a id="clear">Clear</a></div>
         <div id="termwrap"><pre id="out"></pre><form id="termline" autocomplete="off"><span>›</span><input id="tin" placeholder="Type stdin and press Enter" spellcheck="false" autocomplete="off" autocapitalize="off"></form></div><iframe id="frame" sandbox="allow-scripts allow-modals" title="Preview"></iframe>
       </div>
     </div>
+    <aside id="aiSidebar" aria-label="Sprig AI" hidden>
+      <div id="aiResize" class="sidebar-resize" role="separator" aria-label="Resize Sprig AI" aria-controls="aiSidebar" aria-orientation="vertical" tabindex="0"></div>
+      <div id="aiHead"><strong>SPRIG AI</strong><span class="sp"></span><button type="button" id="aiNew" title="Start a new chat">New chat</button><button type="button" id="aiClose" aria-label="Close Sprig AI">×</button></div>
+      <div id="aiOutput" aria-live="polite">Ask about your code, request a change, or get help with an error. Sprig AI runs on your computer, with no API key. It tries to test and fix supported code up to five times. If it can't test the code, it'll say so. If the tests keep failing, it'll mark the code broken. Always review the result.</div>
+      <div id="aiCompose">
+        <p>Runs on your computer · No API key · Remembers up to ten recent exchanges. Long messages may be shortened, and older ones may be left out when the conversation gets too long.</p>
+        <details><summary>Setting up Sprig AI</summary><p>On 64-bit Windows, run <code>powershell -ExecutionPolicy Bypass -File .\scripts\setup-local-ai.ps1</code> once to install the model (about 2.1 GB). To test code, start Docker Desktop and run <code>powershell -ExecutionPolicy Bypass -File .\scripts\setup-ai-testing.ps1</code> (several GB). Then restart Sprig. You can follow along under Activity. A passing test isn't a guarantee; unsupported or unavailable tests are marked untested. The hosted site only has basic offline error hints.</p><button type="button" id="aiNotifications">Enable desktop notifications</button></details>
+        <textarea id="aiPrompt" maxlength="4000" aria-label="Ask AI" placeholder="Ask a coding question or describe a change"></textarea>
+        <label id="aiContext"><input type="checkbox" id="aiUseEditor" checked> Include current file as context</label>
+        <div id="aiActions"><button type="button" id="aiGenerate">Send</button><button type="button" id="aiExplain">Explain error</button><button type="button" id="aiCancel" disabled>Stop</button><button type="button" id="aiApply" disabled>Replace editor</button></div>
+        <div id="aiStatus" role="status" aria-live="polite"></div>
+      </div>
+    </aside>
   </div>
   <div class="sbar"><span id="sbRun">Ready</span><span class="sp"></span><span id="pos">Ln 1, Col 1</span><span>Spaces: 2</span><span>UTF-8</span><span class="clk" id="sbLang" title="Select language mode">JavaScript</span><span id="sbEng"></span></div>
   <div id="menu"></div>
@@ -360,27 +556,49 @@ dialog{border-radius:9px}
 </div>
 
 <dialog id="dlg">
-  <h3 style="margin:0 0 4px">Remote engine</h3>
-  <p id="engineHelp">Engine languages send your code to the configured execution service. A local Sprig install can use Piston on port 2000; a hosted site needs a publicly reachable Piston-compatible endpoint. Flix and Effekt require the local runner.</p>
-  <label for="sUrl">Execute URL</label><input id="sUrl" placeholder="https://your-engine.example/api/v2/execute">
-  <label for="sTok">Authorization token (optional; custom engines only)</label><input id="sTok" type="password" placeholder="Never paste an API key here">
-  <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap"><button class="btn primary" id="sSave">Save</button><button class="btn" id="sSync">Sync languages</button><button class="btn" id="sClose">Close</button></div>
+  <h3 style="margin:0 0 4px">Settings</h3>
+  <div role="tablist" aria-label="Settings sections" style="display:flex;gap:8px;margin:12px 0">
+    <button class="btn" id="settingsEngineTab" role="tab" aria-selected="true" aria-controls="settingsEngine">Engine</button>
+    <button class="btn" id="settingsRestoreTab" role="tab" aria-selected="false" aria-controls="settingsRestore">Restore</button>
+  </div>
+  <div id="settingsEngine" role="tabpanel">
+  <label for="sProvider">Where should your code run?</label>
+  <select id="sProvider">
+    <option value="auto">Auto - choose for each language</option>
+    <option value="wandbox">Wandbox - online, no key needed</option>
+    <option value="tio">TIO - online, lots of languages</option>
+    <option value="local">Local runner - built-in terminal</option>
+    <option value="terminal">Your terminal - Windows</option>
+    <option value="piston">Local Piston</option>
+    <option value="custom">Your own Piston-compatible engine</option>
+  </select>
+  <p id="engineHelp">Wandbox receives source code and input when you run a program. Its availability and usage limits are managed by the third-party service.</p>
+  <div id="customEngineFields">
+    <label for="sUrl">Execute URL</label><input id="sUrl" placeholder="https://your-engine.example/api/v2/execute">
+    <label for="sTok">Authorization token (optional)</label><input id="sTok" type="password" placeholder="Leave blank if not needed">
+  </div>
+  <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap"><button class="btn primary" id="sSave">Save</button><button class="btn" id="sSync">Sync languages</button></div>
   <p id="sMsg" style="min-height:20px"></p>
+  </div>
+  <div id="settingsRestore" role="tabpanel" hidden>
+    <p>Deleted items go to .sprig-trash in your open folder. Restoring won't overwrite an existing item, and the trash copy stays until you remove it yourself.</p>
+    <div id="trashList"></div>
+  </div>
+  <div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="btn" id="sClose">Close</button></div>
 </dialog>
 
 <dialog id="fileDlg">
   <h3 id="fileDlgTitle" style="margin:0 0 4px">File name</h3>
-  <p>Select a language; its file extension will be applied to the name.</p>
+  <p>Pick a language and we'll add its file extension.</p>
   <label for="fileType">File type</label><select id="fileType"></select>
   <label for="fileName">File name</label><input id="fileName" autocomplete="off">
   <div style="display:flex;gap:8px;margin-top:18px;justify-content:flex-end"><button class="btn" id="fileCancel">Cancel</button><button class="btn primary" id="fileConfirm">Continue</button></div>
 </dialog>
 
 <script>
-const isCodespacesPage=location.hostname.toLowerCase().endsWith(".app.github.dev");
-const localPage=location.protocol==="file:"||location.hostname==="127.0.0.1"||location.hostname==="localhost"||isCodespacesPage;
-const runnerBase=isCodespacesPage?location.origin:"http://127.0.0.1:3001";
-const CDN=localPage?runnerBase+"/vendor/":new URL("sprig-vendor/",location.href).href;
+const localPage=location.protocol==="file:"||location.hostname==="127.0.0.1"||location.hostname==="localhost";
+const localRunnerBase=location.protocol==="file:"?"http://127.0.0.1:3001":location.origin;
+const CDN=localPage?localRunnerBase+"/vendor/":new URL("sprig-vendor/",location.href).href;
 const SK=CDN;
 const TSLIB=CDN+"typescript.min.js",COFFEE=CDN+"coffeescript.min.js",LUALIB=CDN+"fengari-web.min.js",MARKED=CDN+"marked.min.js";
 // id|Name|runtime(@=local)|ext|code  (¶ = newline)
@@ -407,7 +625,7 @@ const DATA=[
 'dart|Dart|dart|dart|void main() {¶  print("Hello, World!");¶}',
 'haskell|Haskell|haskell|hs|main :: IO ()¶main = putStrLn "Hello, World!"','ocaml|OCaml|ocaml|ml|let () = print_endline "Hello, World!"',
 'fsharp|F#|fsharp.net|fs|printfn "Hello, World!"','fsi|F# Interactive|fsi|fsx|printfn "Hello, World!"',
-'elixir|Elixir|elixir|exs|IO.puts("Hello, World!")','erlang|Erlang|erlang|erl|-module(main).¶-export([main/0]).¶main() -> io:fwrite("Hello, World!\\n").',
+'elixir|Elixir|elixir|exs|IO.puts("Hello, World!")','erlang|Erlang|erlang|erl|¶main(_Args) -> io:format("Hello, World!~n").',
 'clojure|Clojure|clojure|clj|(println "Hello, World!")','julia|Julia|julia|jl|println("Hello, World!")','r|R|rscript|r|cat("Hello, World!\\n")',
 'octave|Octave|octave|m|disp("Hello, World!")','groovy|Groovy|groovy|groovy|println "Hello, World!"',
 'lisp|Common Lisp|lisp|lisp|(format t "Hello, World!~%")','racket|Racket|racket|rkt|#lang racket¶(displayln "Hello, World!")',
@@ -429,41 +647,92 @@ const DATA=[
 'brachylog|Brachylog|brachylog|brachylog|"Hello, World!"w','cjam|CJam|cjam|cjam|"Hello, World!"','golfscript|GolfScript|golfscript|gs|"Hello, World!"',
 'japt|Japt|japt|japt|"Hello, World!"','jelly|Jelly|jelly|jelly|“Hello, World!”','matl|MATL|matl|matl|\x27Hello, World!\x27','pyth|Pyth|pyth|pyth|"Hello, World!',
 'flix|Flix|flix|flix|def main(): Unit \\ IO =¶    println("Hello, World!")','effekt|Effekt|effekt|effekt|def main() = println("Hello, World!")',
-'vyxal|Vyxal|vyxal|vyxal|`Hello, World!`','husk|Husk|husk|husk|"Hello, World!"','osabie|05AB1E|osabie|abe|"Hello, World!"'
+'vyxal|Vyxal|vyxal|vyxal|`Hello, World!`','husk|Husk|husk|husk|"Hello, World!"','osabie|05AB1E|osabie|abe|"Hello, World!"',
+'lazyk|Lazy K|lazyk|lazyk|','vimscript|Vim script|vimscript|vim|'
 ];
 const L={},ORDER=[];
-function addLang(id,name,rt,ext,code){L[id]={id,name,rt,ext,s:(code||"").split("¶").join("\n"),local:rt[0]==="@"};ORDER.push(id)}
+function addLang(id,name,rt,ext,code,metadata){if(L[id])return;L[id]=Object.assign({id,name,rt,ext,s:(code||"").split("¶").join("\n"),local:rt[0]==="@"},metadata||{});ORDER.push(id)}
 DATA.forEach(d=>{const p=d.split("|");addLang(p[0],p[1],p[2],p[3],p[4])});
+L.erlang.tioOnly=true;
 const $=id=>document.getElementById(id);
 const out=$("out"),code=$("code"),frame=$("frame"),gut=$("gut"),app=$("app");
-let errFlag=false,job=null,tabs=[],active=-1,untitledN=0;
+let errFlag=false,job=null,tabs=[],active=-1,untitledN=0,runCancelled=false;
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 const PISTON_URL="http://127.0.0.1:2000/api/v2/execute";
-const PISTON_PROXY_URL=runnerBase+"/api/v2/piston/execute";
-const localRunnerUrl=()=>runnerBase+"/api/v2/execute";
+const PISTON_PROXY_URL=localRunnerBase+"/api/v2/piston/execute";
+const LOCAL_WANDBOX_URL=localRunnerBase+"/api/v2/wandbox/execute";
+const HOSTED_WANDBOX_URL=new URL("/api/v2/piston/execute",location.href).href;
+const LOCAL_TIO_URL=localRunnerBase+"/api/v2/tio/execute";
+const HOSTED_TIO_URL=new URL("/api/v2/tio/execute",location.href).href;
+const localRunnerUrl=()=>localRunnerBase+"/api/v2/execute";
 function isLoopbackUrl(url){
   try{return ["127.0.0.1","localhost","::1"].includes(new URL(url).hostname)}catch(e){return false}
 }
 function savedEngine(){return (store.get("sprig.url")||"").trim()}
 function engineIsAuto(url){
   if(!url)return true;
-  try{
-    const u=new URL(url);
-    return ((u.hostname==="127.0.0.1"||u.hostname==="localhost")&&u.port==="3001")||
-      (isCodespacesPage&&u.origin===runnerBase&&u.pathname==="/api/v2/piston/execute");
-  }catch(e){return false}
+  try{const u=new URL(url);return (u.hostname==="127.0.0.1"||u.hostname==="localhost")&&u.port==="3001"}catch(e){return false}
 }
 function isDefaultPiston(url){
   try{const u=new URL(url);return u.protocol==="http:"&&(u.hostname==="127.0.0.1"||u.hostname==="localhost")&&u.port==="2000"&&u.pathname.replace(/\/$/,"")==="/api/v2/execute"}catch(e){return false}
 }
-const hostedPistonUrl=()=>new URL("/api/v2/piston/execute",location.href).href;
-const cfg=()=>{const saved=savedEngine();return {url:saved&&!engineIsAuto(saved)?saved:(localPage?(isCodespacesPage?PISTON_PROXY_URL:PISTON_URL):hostedPistonUrl()),tok:store.get("sprig.tok")||""}};
+function selectedProvider(){
+  const saved=store.get("sprig.provider");
+  if(saved==="auto"||saved==="wandbox"||saved==="tio"||saved==="local"||saved==="terminal"||saved==="piston"||saved==="custom")return saved;
+  const engine=savedEngine();
+  if(engine&&!engineIsAuto(engine)&&!isDefaultPiston(engine))return "custom";
+  return localPage?"piston":"wandbox";
+}
+function providerUrl(provider){
+  if(provider==="wandbox")return localPage?LOCAL_WANDBOX_URL:HOSTED_WANDBOX_URL;
+  if(provider==="tio")return localPage?LOCAL_TIO_URL:HOSTED_TIO_URL;
+  if(provider==="local"||provider==="terminal")return localPage?localRunnerUrl():"";
+  if(provider==="piston")return localPage?PISTON_URL:"";
+  return savedEngine();
+}
+const cfg=()=>{const provider=selectedProvider();return {provider,url:providerUrl(provider),tok:provider==="custom"?(store.get("sprig.tok")||""):""}};
+const autoOnline=new Set();
+let catalogLoading=false,catalogReady=Promise.resolve();
+function runnerRuntime(l){return ({"@js":"node","@py":"python","@lua":"lua"})[l.rt]||l.rt}
+function designatedProvider(l){
+  if(l.local)return "browser";
+  if(l.tioOnly)return "tio";
+  return "wandbox";
+}
+function autoChoice(l){
+  const provider=designatedProvider(l);
+  if(provider==="browser")return provider;
+  if(!autoOnline.has(provider))return null;
+  return provider==="tio"?(l.tioKey&&l.tioVersions?.length?provider:null)
+    :(l.wandboxVersions?.length?provider:null);
+}
+function effectiveProvider(l,t){
+  const provider=selectedProvider();
+  if(provider==="auto")return catalogLoading?null:autoChoice(l);
+  if(provider==="terminal")return provider;
+  if(l.local&&!(provider==="tio"&&l.tioVersions))return "browser";
+  return provider;
+}
+const engineName=provider=>({browser:"browser",local:"local runner",terminal:"your terminal",piston:"local Piston",wandbox:"Wandbox",tio:"TIO",custom:"custom engine"})[provider]||provider;
+function executionTarget(l){
+  const provider=selectedProvider();
+  if(provider==="auto"){
+    if(catalogLoading)return "Auto: checking engines…";
+    const choice=autoChoice(l);
+    return choice?"Auto: "+engineName(choice)+" next":"Auto: no engine available";
+  }
+  if(provider==="terminal")return "Runs in your terminal";
+  if(l.tioOnly&&provider!=="tio")return "Select TIO provider";
+  if(l.local&&!(provider==="tio"&&l.tioVersions))return "Runs in browser";
+  if((l.rt==="flix"||l.rt==="effekt")&&!(provider==="tio"&&l.tioVersions))return localPage?"Runs on local runner":"Local runner required";
+  return provider==="wandbox"?"Runs via Wandbox":provider==="tio"?"Runs via TIO":provider==="local"?"Runs on local runner":provider==="piston"?"Runs via local Piston":"Runs on custom engine";
+}
 let stdinQueue=[],stdinFeed=[],stdinWait=null,liveStdin=null;
 // ---- landing
 function buildGrid(f){
   const g=$("grid");g.textContent="";f=(f||"").toLowerCase();
   ORDER.filter(id=>L[id].name.toLowerCase().includes(f)).forEach(id=>{
-    const c=document.createElement("div");c.className="chip";c.innerHTML="<i></i>";c.firstChild.className=L[id].local?"l":"";
+    const c=document.createElement("button");c.type="button";c.className="chip";c.innerHTML="<i></i>";c.firstChild.className=L[id].local?"l":"";
     c.append(L[id].name);c.onclick=()=>openEditor(id);g.appendChild(c)});
 }
 function updateStats(){$("nLang").textContent=ORDER.length+"+";$("nLocal").textContent=ORDER.filter(i=>L[i].local).length}
@@ -484,19 +753,39 @@ function hl(src,lc){
   return o+hesc(src.slice(last));
 }
 function dot(lang){const d=document.createElement("i");d.className="dot";let h=0;for(const c of lang)h=(h*31+c.charCodeAt(0))%360;d.style.background="hsl("+h+",62%,58%)";return d}
-const DEMOS=[["hello.py","def greet(name):\n    return f\"Hello, {name}!\"\n\nprint(greet(\"Ada\"))","Hello, Ada!"],
-["fib.js","const fib = n => n < 2 ? n : fib(n-1) + fib(n-2);\nconsole.log([...Array(10).keys()].map(fib));","[0,1,1,2,3,5,8,13,21,34]"],
-["main.flix","def main(): Unit \\ IO =\n    println(List.map(x -> x * x, 1 :: 2 :: 3 :: Nil))","Cons(1, Cons(4, Cons(9, Nil)))   (local runner)"],
-["squares.lua","for i = 1, 4 do print(i, i * i) end","1\t1\n2\t4\n3\t9\n4\t16"]];
-let di=0;
-(function demo(){const d=DEMOS[di++%DEMOS.length];$("dName").textContent=d[0];$("dRes").textContent="";const el=$("dCode");el.textContent="";let i=0;
-  const t=setInterval(()=>{el.innerHTML=hl(d[1].slice(0,++i),d[0].endsWith(".lua")?"--":d[0].endsWith(".py")?"#":"//");if(i>=d[1].length){clearInterval(t);setTimeout(()=>{$("dRes").textContent=d[2]},350);setTimeout(demo,4200)}},22)})();
 $("q").oninput=e=>buildGrid(e.target.value);
 // ---- routing / theme
-function route(){const ed=location.hash==="#editor";$("landing").style.display=ed?"none":"block";app.style.display=ed?"flex":"none"}
+function route(){
+  const ed=location.hash==="#editor",request=location.hash==="#request";
+  $("landing").style.display=ed?"none":"block";app.style.display=ed?"flex":"none";
+  $("homeContent").hidden=request;$("requestPage").hidden=!request;
+  if(ed&&typeof updateSidebarWidths==="function")updateSidebarWidths();
+  if(request)scrollTo(0,0);
+}
 function openEditor(id){if(id){const t=tabs[active];if(t&&!t.dirty&&!t.handle&&t.text===L[t.lang].s){t.lang=id;t.text=L[id].s;code.value=t.text;activate(active)}else newTab(nextName(),id,L[id].s)}location.hash="editor";route()}
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>openEditor());
+$("requestLink").onclick=()=>{location.hash="request";route()};
 addEventListener("hashchange",route);
+$("requestForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const form=$("requestForm"),button=$("requestSubmit"),status=$("requestStatus");
+  status.textContent="";status.dataset.state="";
+  if(!$("requestLanguage").value.trim()){status.textContent="Enter a language name.";status.dataset.state="error";$("requestLanguage").focus();return}
+  button.disabled=true;status.textContent="Sending request…";
+  try{
+    const response=await fetch(form.action,{method:"POST",body:new FormData(form),headers:{Accept:"application/json"}});
+    if(!response.ok){
+      let message="Request rejected (HTTP "+response.status+").";
+      if((response.headers.get("content-type")||"").includes("application/json")){
+        const data=await response.json();
+        if(Array.isArray(data.errors)&&data.errors.length)message=data.errors.map(error=>error.message).filter(Boolean).join(" ")||message;
+      }
+      throw new Error(message);
+    }
+    form.reset();status.dataset.state="success";status.textContent="Request submitted. Thank you!";
+  }catch(error){status.dataset.state="error";status.textContent="Could not send request: "+error.message}
+  finally{button.disabled=false}
+});
 const isDark=()=>{
   const r=document.documentElement;
   if(r.dataset.theme)return r.dataset.theme==="dark";
@@ -518,6 +807,244 @@ function write(t,c){if(c==="e")errFlag=true;const s=document.createElement("span
 const line=(t,c)=>write(t+"\n",c);
 function setPanel(p){$("panel").dataset.p=p;document.querySelectorAll(".ptab").forEach(b=>b.classList.toggle("on",b.dataset.p===p))}
 document.querySelectorAll(".ptab").forEach(b=>b.onclick=()=>setPanel(b.dataset.p));
+let aiSuggestion=null,aiBusy=false,aiController=null,aiHistory=[];
+const aiPageTitle=document.title;
+function clearAiUnread(){
+  $("aiUnread").hidden=true;document.title=aiPageTitle;
+  $("abAi").setAttribute("aria-label","Sprig AI");$("abAi").title="Sprig AI";
+}
+function notifyAiFinished(originalTab){
+  if(!document.hidden&&!$("aiSidebar").hidden&&active>=0&&tabs[active]===originalTab)return;
+  $("aiUnread").hidden=false;document.title="(Sprig AI ready) "+aiPageTitle;
+  $("abAi").setAttribute("aria-label","Sprig AI: response ready");$("abAi").title="Sprig AI: response ready";
+  if(document.hidden&&typeof Notification!=="undefined"&&Notification.permission==="granted"){
+    try{
+      const notice=new Notification("Sprig AI",{body:"Your AI request finished. Open Sprig AI to view it."});
+      notice.onclick=()=>{window.focus();showAi(true);notice.close()};
+    }catch(error){aiMessage("The AI request finished, but the desktop notification could not be shown: "+error.message,true)}
+  }
+}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!$("aiSidebar").hidden)clearAiUnread()});
+$("aiSidebar").addEventListener("pointerdown",clearAiUnread);
+$("aiNotifications").onclick=async()=>{
+  if(typeof Notification==="undefined"){aiMessage("Desktop notifications are not supported by this browser.",true);return}
+  try{
+    const permission=await Notification.requestPermission();
+    aiMessage(permission==="granted"?"Desktop notifications enabled.":permission==="denied"?"Desktop notifications are blocked in browser settings.":"Desktop notification permission was not granted.",permission!=="granted");
+  }catch(error){aiMessage("Could not enable desktop notifications: "+error.message,true)}
+};
+function appendAiEntry(role,text){
+  const entry=document.createElement("section"),heading=document.createElement("div"),body=document.createElement("div");
+  entry.className="ai-entry ai-entry-"+role;heading.className="ai-entry-name";body.className="ai-entry-body";
+  heading.textContent=role==="user"?"You":"Sprig AI";body.textContent=text;
+  entry.appendChild(heading);entry.appendChild(body);$("aiOutput").appendChild(entry);
+  return {entry,body};
+}
+function appendAiPlain(parent,text){
+  const inline=/`([^`\n]+)`|\*\*((?:`[^`\n]+`|[^*`\n]|\*(?!\*))+?)\*\*/g;let position=0,match;
+  while((match=inline.exec(text))){
+    parent.appendChild(document.createTextNode(text.slice(position,match.index)));
+    if(match[1]!==undefined){
+      const code=document.createElement("code");code.className="ai-inline";code.textContent=match[1];parent.appendChild(code);
+    }else{
+      const strong=document.createElement("strong");appendAiPlain(strong,match[2]);parent.appendChild(strong);
+    }
+    position=inline.lastIndex;
+  }
+  parent.appendChild(document.createTextNode(text.slice(position)));
+}
+function renderAiResponse(body,text){
+  body.textContent="";
+  const fences=/```([^\r\n`]*)\r?\n([\s\S]*?)```/g;let position=0,match;
+  while((match=fences.exec(text))){
+    appendAiPlain(body,text.slice(position,match.index).replace(/\r?\n$/,""));
+    const block=document.createElement("div"),header=document.createElement("div"),label=document.createElement("span");
+    const copy=document.createElement("button"),pre=document.createElement("pre"),code=document.createElement("code");
+    block.className="ai-code";header.className="ai-code-head";label.textContent=match[1].trim()||"code";
+    copy.className="ai-copy";copy.type="button";copy.textContent="Copy";copy.setAttribute("aria-label","Copy code");
+    const snippet=match[2];
+    copy.onclick=async()=>{
+      if(!navigator.clipboard||!navigator.clipboard.writeText){aiMessage("Clipboard access is unavailable in this browser.",true);return}
+      try{await navigator.clipboard.writeText(snippet);aiMessage("Code copied.")}
+      catch(error){aiMessage("Could not copy code: "+error.message,true)}
+    };
+    code.textContent=snippet;pre.appendChild(code);header.appendChild(label);header.appendChild(copy);
+    block.appendChild(header);block.appendChild(pre);body.appendChild(block);
+    position=fences.lastIndex;
+    if(text.slice(position,position+2)==="\r\n")position+=2;
+    else if(text[position]==="\n")position++;
+  }
+  appendAiPlain(body,text.slice(position));
+}
+function aiActivity(entry,includeEditor,mode){
+  const details=document.createElement("details"),summary=document.createElement("summary"),working=document.createElement("div"),list=document.createElement("ul");
+  details.className="ai-activity";summary.textContent="Activity";working.className="ai-working";working.textContent="Working";
+  details.appendChild(summary);details.appendChild(list);entry.appendChild(working);entry.appendChild(details);
+  const step=text=>{const item=document.createElement("li");item.textContent=text;list.appendChild(item)};
+  step(includeEditor?"Included the current file as context.":"Current file was not included.");
+  if(mode==="explain")step("Included terminal output.");
+  step("Waiting for the local runner.");
+  return {working,step};
+}
+function showAi(open){
+  $("aiSidebar").hidden=!open;$("abAi").setAttribute("aria-expanded",String(open));
+  $("abAi").classList.toggle("on",open);
+  if(typeof updateSidebarWidths==="function")updateSidebarWidths();
+  if(open){clearAiUnread();$("aiPrompt").focus()}
+}
+$("abAi").onclick=()=>showAi($("aiSidebar").hidden);
+$("aiClose").onclick=()=>showAi(false);
+$("aiNew").onclick=()=>{
+  if(aiBusy)return;
+  aiHistory=[];aiSuggestion=null;$("aiApply").disabled=true;$("aiPrompt").value="";
+  $("aiOutput").textContent="New chat. Ask about your code or request a change.";
+  aiMessage("");
+};
+function explainOfflineError(output){
+  const rules=[
+    [/spawn\s+\S+\s+ENOENT/i,"The program could not be found. Install the named runtime and restart the local runner, or select another engine."],
+    [/(could not reach|failed to fetch|networkerror|connection refused)/i,"The selected execution service could not be reached. Check that the runner or service is running and its address is correct."],
+    [/permission denied|EACCES/i,"The program was denied access to a file or executable. Check its permissions, or try a different execution engine if the error is on a remote service."],
+    [/module not found|cannot find module|modulenotfounderror|no module named/i,"A required module could not be found. Check the import name and install the dependency in the execution environment."],
+    [/referenceerror|nameerror/i,"A name was used that the program cannot find. Check its spelling, whether it was declared, and where it is in scope."],
+    [/syntaxerror|unexpected token|invalid syntax/i,"The program has a syntax error. Check the reported line and the lines immediately before it for missing brackets, quotes, or punctuation."],
+    [/indentationerror|taberror/i,"The indentation is inconsistent. Check the reported line and use consistent spaces for the block."],
+    [/typeerror/i,"An operation received a value of an unexpected type. Check the reported line and inspect the values involved."],
+    [/indexerror|index out of range|index out of bounds/i,"An index is outside the collection. Check the collection length and the index used on the reported line."],
+    [/zerodivisionerror|division by zero/i,"The program tried to divide by zero. Check the divisor before the division."]
+  ];
+  const match=rules.find(([pattern])=>pattern.test(output));
+  return match?match[1]:"No matching common error was found. Check the terminal's first error message and reported line; this offline explanation is not a diagnosis.";
+}
+function aiMessage(text,isError=false){$("aiStatus").textContent=text;$("aiStatus").dataset.error=String(isError)}
+function validAiVerification(value){
+  return value&&["passed","untested","broken"].includes(value.status)&&typeof value.message==="string"&&
+    (value.attempts===undefined||(Number.isInteger(value.attempts)&&value.attempts>=0&&value.attempts<=5))&&
+    (value.diagnostic===undefined||typeof value.diagnostic==="string")&&
+    (value.status!=="broken"||(value.attempts>=1&&typeof value.diagnostic==="string"));
+}
+async function askLocalAi(mode,prompt,source,language,terminal,signal,history,activity){
+  if(!localPage||location.protocol==="file:")throw new Error("Open Sprig through start-sprig.bat to use the local model.");
+  let response;
+  try{
+    response=await fetch(localRunnerBase+"/api/v2/ai/generate",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/x-ndjson"},signal,
+      body:JSON.stringify({mode,prompt,source,language,terminal,history})});
+  }catch(error){
+    if(signal.aborted)throw error;
+    throw new Error("The local Sprig runner is not reachable. Save your work, run start-sprig.bat, and use the opened page. Keep the runner window open.");
+  }
+  if(response.status===404)throw new Error("Restart start-sprig.bat to load the updated local AI runner.");
+  if(!response.ok||!(response.headers.get("content-type")||"").includes("application/x-ndjson")){
+    let data;
+    try{data=await response.json()}catch(error){throw new Error("The local runner returned an invalid AI response. Restart start-sprig.bat.")}
+    if(!response.ok)throw new Error(data.message||("Local AI failed (HTTP "+response.status+")."));
+    if(typeof data.text!=="string"||!data.text.trim())throw new Error("The local model returned an empty response.");
+    if(!validAiVerification(data.verification))throw new Error("Restart start-sprig.bat to enable AI code testing.");
+    activity.step("This runner does not support live activity. Save your work, start Sprig again, and use the newly opened page.");
+    if(Number.isInteger(data.omittedHistoryMessages)&&data.omittedHistoryMessages>0)
+      activity.step("Omitted "+data.omittedHistoryMessages+" older conversation messages to fit the local model's context.");
+    return data;
+  }
+  if(!response.body)throw new Error("The local runner did not provide an AI response stream.");
+  const reader=response.body.getReader(),decoder=new TextDecoder();
+  let buffer="",result;
+  const processLine=line=>{
+    let event;
+    try{event=JSON.parse(line)}catch(error){throw new Error("The local runner returned an invalid AI stream.")}
+    if(result!==undefined)throw new Error("The local runner sent an unexpected AI stream event.");
+    if(event.type==="progress"&&typeof event.message==="string")activity.step(event.message);
+    else if(event.type==="delta"&&typeof event.text==="string"){}
+    else if(event.type==="done"&&typeof event.text==="string"&&event.text.trim()){
+      if(!validAiVerification(event.verification))throw new Error("Restart start-sprig.bat to enable AI code testing.");
+      result={text:event.text,verification:event.verification};
+    }
+    else if(event.type==="error"&&typeof event.message==="string")throw new Error(event.message);
+    else throw new Error("The local runner returned an invalid AI stream event.");
+  };
+  try{
+    while(true){
+      const {done,value}=await reader.read();
+      buffer+=decoder.decode(value||new Uint8Array(),{stream:!done});
+      let end;
+      while((end=buffer.indexOf("\n"))!==-1){const line=buffer.slice(0,end);buffer=buffer.slice(end+1);if(line.trim())processLine(line)}
+      if(buffer.length>256*1024)throw new Error("The local runner returned an oversized AI stream event.");
+      if(done)break;
+    }
+    if(buffer.trim()||result===undefined)throw new Error("The AI response stream ended unexpectedly.");
+    return result;
+  }finally{reader.releaseLock()}
+}
+async function runAi(mode){
+  if(aiBusy)return;
+  if(active<0){aiMessage("Open or create a file first.",true);return}
+  const tab=tabs[active],source=code.value,language=L[tab.lang].name,prompt=$("aiPrompt").value.trim(),terminal=out.textContent;
+  if(mode==="generate"&&!prompt){aiMessage("Tell me what you'd like to make first.",true);$("aiPrompt").focus();return}
+  if(mode==="explain"&&!terminal.trim()){aiMessage("Run your code first, then I can help with the output.",true);return}
+  if(($("aiUseEditor").checked&&source.length>16000)||(mode==="explain"&&terminal.length>5000)){aiMessage("The file or terminal output is too long. Shorten it or leave out the current file, then try again.",true);return}
+  if(mode==="generate")$("aiPrompt").value="";
+  aiBusy=true;aiSuggestion=null;$("aiApply").disabled=true;$("aiGenerate").disabled=$("aiExplain").disabled=true;
+  $("aiOutput").setAttribute("aria-busy","true");
+  aiController=new AbortController();$("aiCancel").disabled=false;$("aiNew").disabled=true;
+  const question=mode==="explain"?"Explain the current terminal error.":prompt;
+  if(!aiHistory.length)$("aiOutput").textContent="";
+  appendAiEntry("user",question);
+  const reply=appendAiEntry("assistant",""),activity=aiActivity(reply.entry,$("aiUseEditor").checked,mode);
+  $("aiOutput").scrollTop=$("aiOutput").scrollHeight;
+  aiMessage("Thinking on your computer. This may take a few minutes…");
+  try{
+    const result=await askLocalAi(mode,prompt,$("aiUseEditor").checked?source:"",language,mode==="explain"?terminal:"",aiController.signal,aiHistory.slice(-20),activity);
+    const text=result.text;
+    renderAiResponse(reply.body,text);activity.step("Response received.");
+    const verification=document.createElement("div");verification.className="ai-verification";
+    const testStatus=result.verification.status,label=testStatus==="passed"?"Test passed":testStatus==="broken"?"Broken":"Untested";
+    const count=testStatus!=="broken"&&Number.isInteger(result.verification.attempts)&&result.verification.attempts>0
+      ?" ("+result.verification.attempts+" test"+(result.verification.attempts===1?"":"s")+")":"";
+    verification.dataset.status=testStatus;
+    verification.textContent=label+count+": "+result.verification.message;
+    reply.entry.appendChild(verification);activity.step(verification.textContent);
+    if(testStatus==="broken"&&result.verification.diagnostic){
+      const details=document.createElement("details"),summary=document.createElement("summary"),diagnostic=document.createElement("pre");
+      details.className="ai-test-error";summary.textContent="Last test error";diagnostic.textContent=result.verification.diagnostic;
+      details.appendChild(summary);details.appendChild(diagnostic);reply.entry.appendChild(details);
+    }
+    $("aiOutput").scrollTop=$("aiOutput").scrollHeight;
+    aiHistory.push({role:"user",content:question.slice(0,3000)},{role:"assistant",content:text.slice(0,3000)});
+    if(aiHistory.length>20)aiHistory.splice(0,aiHistory.length-20);
+    if(mode==="generate"){
+      const match=text.match(/```[^\r\n]*\r?\n([\s\S]*?)```/);
+      if(match&&match[1].trim()){aiSuggestion={tab,source,text:match[1].replace(/\s+$/,"")+"\n",broken:testStatus==="broken"};$("aiApply").disabled=false}
+      aiMessage(label+". "+result.verification.message+" Take a look before using it.",testStatus==="broken");
+    }else aiMessage(label+". "+result.verification.message+" Take a look before using it.",testStatus==="broken");
+  }catch(error){
+    if(aiController.signal.aborted){if(reply.body.textContent)reply.body.textContent+="\n\n[Response incomplete: request stopped.]";activity.step("Request stopped; any live response is incomplete.");aiMessage("Local AI request stopped.")}
+    else if(mode==="explain"){
+      if(reply.body.textContent)reply.body.textContent+="\n\n[Response incomplete.]\n\n";
+      reply.body.textContent+="Offline hint: "+explainOfflineError(terminal);activity.step("Local model request failed; any live response is incomplete. Displayed an offline hint.");
+      aiMessage("Local model request failed: "+error.message+" Showing a basic offline explanation instead.",true);
+    }else{if(reply.body.textContent)reply.body.textContent+="\n\n[Response incomplete.]";activity.step("The local request failed; any live response is incomplete.");aiMessage(error.message,true)}
+  }finally{
+    activity.working.hidden=true;$("aiOutput").setAttribute("aria-busy","false");
+    if(!aiController.signal.aborted)notifyAiFinished(tab);
+    aiController.abort();
+    aiBusy=false;aiController=null;$("aiCancel").disabled=true;$("aiNew").disabled=false;$("aiGenerate").disabled=$("aiExplain").disabled=false
+  }
+}
+$("aiGenerate").onclick=()=>runAi("generate");
+$("aiExplain").onclick=()=>runAi("explain");
+$("aiCancel").onclick=()=>{if(aiController)aiController.abort()};
+$("aiPrompt").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing){e.preventDefault();e.stopPropagation();runAi("generate")}};
+$("aiApply").onclick=()=>{
+  if(!aiSuggestion||active<0||tabs[active]!==aiSuggestion.tab||code.value!==aiSuggestion.source){
+    aiMessage("The original editor changed. Generate a new suggestion before replacing it.",true);$("aiApply").disabled=true;return;
+  }
+  if(fileChangeBlocked())return;
+  const prompt=aiSuggestion.broken
+    ?"This AI suggestion is broken: its isolated test failed. Replace the current editor contents anyway?"
+    :"Replace the current editor contents with this AI suggestion?";
+  if(!confirm(prompt))return;
+  code.value=aiSuggestion.text;code.dispatchEvent(new Event("input",{bubbles:true}));
+  aiSuggestion=null;$("aiApply").disabled=true;aiMessage("Added to your editor. It's not saved yet, so take a look before running it.");
+};
 $("clear").onclick=()=>{out.textContent="";stdinQueue=[];stdinFeed=[]};
 function consumeStdin(){const lines=stdinQueue.splice(0);stdinFeed=lines.slice();return lines.length?lines.join("\n")+"\n":""}
 function askStdin(prompt){
@@ -532,7 +1059,7 @@ $("termline").onsubmit=e=>{
   e.preventDefault();
   const line=$("tin").value;$("tin").value="";
   if(liveStdin){
-    write(line+"\n","i");
+    if(!liveStdin.pty)write(line+"\n","i");
     fetch(liveStdin.url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({session:liveStdin.session,data:line+"\n"})}).catch(()=>{});
     return;
   }
@@ -550,17 +1077,47 @@ out.addEventListener("mousedown",e=>{if(e.target===out)$("tin").focus()});
 // ---- tabs
 const nextName=()=>"Untitled-"+(++untitledN);
 function newTab(name,lang,text,handle,directory){tabs.push({name,lang,text,handle:handle||null,directory:directory||null,dirty:false});activate(tabs.length-1)}
+function updateEditorState(){
+  const hasTab=active>=0&&!!tabs[active];
+  $("emptyEditor").hidden=hasTab;
+  document.querySelector(".ed").hidden=!hasTab;
+  $("crumb").hidden=!hasTab;
+  $("sbLang").hidden=!hasTab;
+  $("pos").hidden=!hasTab;
+  $("langChip").disabled=!hasTab;
+  [$("run"),$("abRun")].forEach(button=>button.disabled=!hasTab&&!job);
+  if(!hasTab){$("langChip").textContent="No file";$("sbEng").textContent="";refreshVersionSelector()}
+}
+function refreshVersionSelector(){
+  const select=$("versionSel"),t=tabs[active],lang=t&&L[t.lang],provider=lang&&effectiveProvider(lang,t);
+  select.textContent="";
+  if(!t||!lang||(provider!=="wandbox"&&provider!=="tio")){select.style.display="none";return}
+  const versions=provider==="wandbox"?(lang.wandboxVersions||[]):(lang.tioVersions||[]);
+  if(!versions.length){select.style.display="none";return}
+  const field=provider==="wandbox"?"wandboxVersion":"tioVersion";
+  const fallback=provider==="wandbox"?lang.wandboxDefault:lang.tioDefault;
+  if(!versions.some(version=>version.id===t[field]))t[field]=fallback||versions[0].id;
+  versions.forEach(version=>{
+    const option=document.createElement("option");option.value=version.id;option.textContent=version.label||version.name||version.id;select.appendChild(option);
+  });
+  select.value=t[field];
+  select.title="Compiler or implementation version ("+engineName(provider)+")";
+  select.style.display=versions.length>1?"inline-block":"none";
+}
+ $("versionSel").onchange=()=>{const t=tabs[active],provider=t&&effectiveProvider(L[t.lang],t);if(t&&(provider==="wandbox"||provider==="tio")){t[provider==="wandbox"?"wandboxVersion":"tioVersion"]=$("versionSel").value;$("sbEng").textContent=executionTarget(L[t.lang]);refreshVersionSelector()}};
 function activate(i){
   if(active>=0&&tabs[active])tabs[active].text=code.value;
   active=i;const t=tabs[i];code.value=t.text;
-  $("sbLang").textContent=$("langChip").textContent=L[t.lang].name;$("sbEng").textContent=L[t.lang].local?"Runs in browser":"Runs on engine";
-  refresh();renderTabs();renderOpen();
+  $("sbLang").textContent=$("langChip").textContent=L[t.lang].name;$("sbEng").textContent=executionTarget(L[t.lang]);
+  refreshVersionSelector();refresh();renderTabs();renderOpen();updateEditorState();
 }
 function closeTab(i){
-  if(i===active)tabs[i].text=code.value;
+  if(active>=0)tabs[active].text=code.value;
   if(tabs[i].dirty&&!confirm("Discard unsaved changes to "+tabs[i].name+"?"))return;
+  const next=i===active?Math.min(i,tabs.length-2):active-(i<active?1:0);
   tabs.splice(i,1);active=-1;
-  if(!tabs.length)newTab(nextName(),"js",L.js.s);else activate(Math.min(i,tabs.length-1));
+  if(tabs.length)activate(next);
+  else{code.value="";renderTabs();renderOpen();updateEditorState()}
 }
 function renderTabs(){
   const bar=$("tabs");bar.textContent="";
@@ -572,7 +1129,14 @@ function renderTabs(){
 }
 function renderOpen(){
   const el=$("openEd");el.textContent="";
-  tabs.forEach((t,i)=>{const r=document.createElement("div");r.className="row"+(i===active?" on":"");r.append(dot(t.lang),document.createTextNode(t.name+(t.dirty?" ●":"")));r.onclick=()=>activate(i);el.appendChild(r)});
+  tabs.forEach((t,i)=>{
+    const r=document.createElement("div"),name=document.createElement("span"),rename=document.createElement("button"),remove=document.createElement("button");
+    r.className="row"+(i===active?" on":"");name.className="file-name";name.textContent=t.name+(t.dirty?" ●":"");
+    rename.className=remove.className="file-action";rename.type=remove.type="button";
+    rename.textContent="Rename";rename.title="Rename "+t.name;rename.onclick=e=>{e.stopPropagation();renameTab(i)};
+    remove.textContent="Delete";remove.title="Delete "+t.name;remove.onclick=e=>{e.stopPropagation();deleteOpenEditor(t)};
+    r.append(dot(t.lang),name,rename,remove);r.onclick=()=>activate(i);el.appendChild(r);
+  });
 }
 function setLang(id){
   const t=tabs[active],pristine=!code.value.trim()||ORDER.some(i=>L[i].s===code.value);
@@ -588,11 +1152,12 @@ function qp(items,ph,pick){
   const choose=k=>{const it=shown[k];close();if(it)pick(it);else code.focus()};
   el.style.display="flex";inp.value="";inp.placeholder=ph;sel=0;render();inp.focus();
   inp.oninput=()=>{sel=0;render()};
-  inp.onkeydown=e=>{if(e.key==="ArrowDown"){sel=Math.min(sel+1,shown.length-1);render();e.preventDefault()}else if(e.key==="ArrowUp"){sel=Math.max(sel-1,0);render();e.preventDefault()}else if(e.key==="Enter")choose(sel);else if(e.key==="Escape"){close();code.focus()}};
+  inp.onkeydown=e=>{if(e.key==="ArrowDown"){sel=Math.min(sel+1,shown.length-1);render();e.preventDefault()}else if(e.key==="ArrowUp"){sel=Math.max(sel-1,0);render();e.preventDefault()}else if(e.key==="Enter"){e.preventDefault();choose(sel)}else if(e.key==="Escape"){close();code.focus()}};
   el.onmousedown=e=>{if(e.target===el){close();code.focus()}};
 }
-function pickLang(){qp(ORDER.map(id=>({label:L[id].name,detail:L[id].local?"browser":"engine",id})),"Select language mode",it=>{setLang(it.id);code.focus()})}
-const CMDS=[["Run Code","Ctrl+Enter",()=>run()],["Stop","",()=>{if(job)job.kill()}],["New File","",()=>createNewFile()],["Rename File","F2",()=>renameTab(active)],["Open File…","Ctrl+O",()=>openFile()],["Open Folder…","",()=>openDir()],["Save","Ctrl+S",()=>save()],["Save As…","Ctrl+Shift+S",()=>saveAs()],["Change Language Mode","",()=>pickLang()],["Engine Settings","",()=>openSettings()],["Toggle Light/Dark Theme","",()=>toggleTheme()],["Go to Home Page","",()=>{location.hash="home";route();scrollTo(0,0)}],["Save All","Ctrl+Alt+S",()=>saveAll()]];
+function pickLang(){if(active<0){$("emptyNew").focus();return}qp(ORDER.map(id=>({label:L[id].name,detail:selectedProvider()==="terminal"?"your terminal":selectedProvider()==="auto"?({browser:"browser",tio:"TIO",wandbox:"engine"})[designatedProvider(L[id])]:L[id].tioOnly?"TIO":L[id].local?(selectedProvider()==="tio"&&L[id].tioVersions?"TIO":"browser"):"engine",id})),"Select language mode",it=>{setLang(it.id);code.focus()})}
+function stopJob(){if(job){if(job.external){line("Close the separate terminal window to stop your program.","i");return}runCancelled=true;job.kill()}}
+const CMDS=[["Run Code","Ctrl+Enter",()=>run()],["Stop","",stopJob],["New File","",()=>createNewFile()],["Rename File","F2",()=>renameTab(active)],["Open File…","Ctrl+O",()=>openFile()],["Open Folder…","",()=>openDir()],["Save","Ctrl+S",()=>save()],["Save As…","Ctrl+Shift+S",()=>saveAs()],["Change Language Mode","",()=>pickLang()],["Engine Settings","",()=>openSettings()],["Toggle Light/Dark Theme","",()=>toggleTheme()],["Go to Home Page","",()=>{location.hash="home";route();scrollTo(0,0)}],["Save All","Ctrl+Alt+S",()=>saveAll()]];
 function palette(){qp(CMDS.map(c=>({label:c[0],detail:c[1],fn:c[2]})),"Type a command",it=>it.fn())}
 const loaded={};
 function loadScript(src){return loaded[src]||(loaded[src]=new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=()=>{delete loaded[src];rej(new Error("Could not load runtime ("+src.split("/").pop()+"). Check your connection."))};document.head.appendChild(s)}))}
@@ -642,7 +1207,8 @@ async function runLua(src){
   console.log=(...a)=>line(a.join("\t"));console.error=(...a)=>line(a.join(" "),"e");
   try{fengari.load(src,"=lua")()}finally{console.log=old.log;console.error=old.error}
 }
-function getRemoteFilename(l){
+function getRemoteFilename(l,src=""){
+  if(l.rt==="erlang"){const module=src.match(/^\s*-module\s*\(\s*([a-z][a-zA-Z0-9_@]*)\s*\)\s*\./m);if(module)return module[1]+".erl"}
   if(l.rt==="java")return "Main.java";
   if(l.rt==="c")return "main.c";
   if(l.rt==="c++")return "main.cpp";
@@ -655,24 +1221,43 @@ function getRemoteFilename(l){
   return "main."+l.ext;
 }
 function showResult(j){
-  if(j.compile&&(j.compile.code!==0||j.compile.stderr)){write(j.compile.output||j.compile.stderr,"e");if(j.compile.code!==0)return}
+  if(j.compile){
+    const failed=j.compile.code!==0,stdout=j.compile.stdout||"",stderr=j.compile.stderr||"";
+    if(stdout||stderr){if(stdout)write(stdout,failed?"e":"i");if(stderr)write(stderr,failed?"e":"i")}
+    else if(j.compile.output)write(j.compile.output,failed?"e":"i");
+    else if(failed)line("Compilation failed (exit code "+j.compile.code+"); the engine returned no diagnostics.","e");
+    if(failed)return false;
+  }
   if(j.run){if(j.run.stdout)write(j.run.stdout);if(j.run.stderr)write(j.run.stderr,"e");if(j.run.code)line("\nexit code "+j.run.code,"i")}
+  return !!j.run&&!j.run.code;
 }
 function reachError(e,url){
   if(e.name==="AbortError")return new Error("The engine request timed out or was stopped.");
-  if(!e.message||/fetch|network|failed/i.test(e.message))return new Error("Could not reach "+url+".");
+  if(e.name==="TypeError"&&/failed to fetch|fetch failed|networkerror|load failed/i.test(e.message||"")){
+    if(localPage&&url.startsWith(localRunnerBase+"/"))return new Error("The local Sprig runner is not reachable. Save your work, run start-sprig.bat, and use the opened page. Keep the runner window open.");
+    return new Error("Could not reach "+url+". Check that the selected engine is running and accessible.");
+  }
   return e;
 }
-async function postExecute(url,tok,l,src,input,signal){
+async function postExecute(url,tok,l,src,input,signal,provider,selectedVersion){
+  let language=l.rt,version="*";
+  if(provider==="wandbox"&&l.wandboxVersions&&l.wandboxVersions.length){
+    const selected=selectedVersion||l.wandboxDefault||l.wandboxVersions[0].id;
+    language="wandbox:"+encodeURIComponent(selected);
+  }else if(provider==="tio"){
+    if(!l.tioKey)throw new Error("TIO does not support this language. Sync languages and try again.");
+    language="tio:"+encodeURIComponent(l.tioKey);
+    version=selectedVersion||l.tioDefault||"*";
+  }
   const r=await fetch(url,{method:"POST",signal,headers:Object.assign({"Content-Type":"application/json"},tok?{Authorization:tok}:{}),
-    body:JSON.stringify({language:l.rt,version:"*",files:[{name:getRemoteFilename(l),content:src}],stdin:input})});
+    body:JSON.stringify({language,version,files:[{name:getRemoteFilename(l,src),content:src}],stdin:input})});
   const responseText=await r.text();
   let j;try{j=JSON.parse(responseText)}catch(e){throw new Error("Engine returned an invalid response (HTTP "+r.status+")."+(responseText?"\n"+responseText.slice(0,500):""))}
   if(!r.ok||(j.message&&!j.run))throw new Error(j.message||("Engine request failed (HTTP "+r.status+")"));
   return j;
 }
 const LOCAL_RTS=new Set("bash dash c c++ python python2 python3 node javascript ruby php perl rscript lua julia groovy dart swift kotlin scala rust java go pascal haskell nim crystal zig vlang awk forth powershell pwsh sqlite3 clojure emacs elixir erlang octave racket smalltalk effekt flix".split(" "));
-async function runLocalStream(url,l,src,input){
+async function runLocalStream(url,l,src,input,allowInstall=true){
   const session=Math.random().toString(36).slice(2);
   const stdinUrl=url.replace(/execute\/?$/,"stdin");
   const closeStdin=input.length>0;
@@ -684,7 +1269,7 @@ async function runLocalStream(url,l,src,input){
   let r;
   try{
     r=await fetch(url,{method:"POST",signal:ctrl.signal,headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({language:l.rt,version:"*",files:[{name:getRemoteFilename(l),content:src}],stdin:input,interactive:true,closeStdin,session})});
+      body:JSON.stringify({language:l.rt,version:"*",files:[{name:getRemoteFilename(l),content:src}],stdin:input,interactive:true,closeStdin,session,allowInstall})});
     if(!r.ok){const t=await r.text();let j={};try{j=JSON.parse(t)}catch(e){}throw new Error(j.message||("Local runner failed (HTTP "+r.status+")"))}
     const reader=r.body.getReader();const dec=new TextDecoder();let buf="";
     while(true){
@@ -693,40 +1278,90 @@ async function runLocalStream(url,l,src,input){
       while((idx=buf.indexOf("\n"))>=0){
         const row=buf.slice(0,idx);buf=buf.slice(idx+1);if(!row.trim())continue;
         let msg;try{msg=JSON.parse(row)}catch(e){continue}
+        if(msg.pty&&liveStdin)liveStdin.pty=true;
         if(msg.stdout)write(msg.stdout);
         if(msg.stderr)write(msg.stderr,"e");
         if(msg.compile&&(msg.compile.code!==0||msg.compile.stderr))write(msg.compile.output||msg.compile.stderr,"e");
         if(msg.message)throw new Error(msg.message);
-        if(typeof msg.exit==="number"&&msg.exit)line("\nexit code "+msg.exit,"i");
+        if(typeof msg.exit==="number"){
+          if(msg.exit)line("\nexit code "+msg.exit,"i");
+          reader.cancel().catch(error=>console.warn("Could not close the completed local run stream:",error));
+          return msg.exit===0;
+        }
       }
     }
+    throw new Error("The local runner ended without an exit status.");
   }catch(e){
-    if(ctrl.signal.aborted)throw new Error("Stopped");
+    if(ctrl.signal.aborted)throw new Error(runCancelled?"Stopped":"Local runner request timed out.");
     throw reachError(e,url);
   }finally{clearTimeout(to);liveStdin=null;$("tin").placeholder="Type stdin and press Enter"}
 }
-async function runRemote(l,src,input){
-  const custom=savedEngine();const auto=engineIsAuto(custom);const pistonDefault=!custom||isDefaultPiston(custom);const localOnly=l.rt==="flix"||l.rt==="effekt";
+async function runNativeTerminal(l,src){
+  if(!localPage||location.protocol==="file:")throw new Error("Open the Sprig app or local runner to use your terminal.");
+  job={external:true};
+  line("Opening your terminal…","i");
+  const url=localRunnerBase+"/api/v2/native-terminal";
+  let response;
+  try{response=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({language:runnerRuntime(l),source:src})})}
+  catch(error){throw reachError(error,url)}
+  if(response.status===404)throw new Error("Restart Sprig to enable running in your terminal.");
+  let result;
+  try{result=await response.json()}catch(error){throw new Error("Sprig couldn't read the terminal response.")}
+  if(!response.ok||result.ok!==true)throw new Error(result.message||"Sprig couldn't open your terminal.");
+  line("Your program is running in a separate terminal. Use that window for input and to stop it.","i");
+  return "external";
+}
+async function runRemote(l,src,input,provider=selectedProvider(),tab=tabs[active],auto=false){
+  if(provider==="terminal")return runNativeTerminal(l,src);
+  const url=providerUrl(provider),hasTio=provider==="tio"&&Array.isArray(l.tioVersions)&&l.tioVersions.length>0;
+  const selectedVersion=provider==="wandbox"?tab&&tab.wandboxVersion:provider==="tio"?tab&&tab.tioVersion:undefined;
+  const localOnly=(l.rt==="flix"||l.rt==="effekt")&&!hasTio;
   const targets=[];
-  if(!localPage){
-    if(localOnly)throw new Error(l.name+" requires the Sprig local runner and is not available on the hosted site.");
-    if(!custom)targets.push({url:hostedPistonUrl(),tok:"",stream:false});
-    else if(auto||pistonDefault||isLoopbackUrl(custom))
-      throw new Error("The hosted site cannot use a localhost engine. Open Settings and enter a publicly reachable Piston-compatible Execute URL.");
-    else targets.push({url:custom,tok:store.get("sprig.tok")||"",stream:false});
-  }else if(localOnly)targets.push({url:localRunnerUrl(),tok:"",stream:true});
-  else if(!auto&&!pistonDefault)targets.push({url:custom,tok:store.get("sprig.tok")||"",stream:false});
-  else{targets.push({url:PISTON_PROXY_URL,tok:"",stream:false});if(LOCAL_RTS.has(l.rt))targets.push({url:localRunnerUrl(),tok:"",stream:true})}
+  if(l.rt==="erlang"&&provider==="wandbox")throw new Error("Erlang uses TIO. Select TIO or Auto in Settings.");
+  if(l.tioOnly&&provider!=="tio"&&!auto)throw new Error("Select TIO in Settings to run this language.");
+  if(provider==="local"){
+    if(!localPage)throw new Error("The local runner is only available when Sprig is running on your computer.");
+    targets.push({url:localRunnerUrl(),tok:"",stream:true});
+  }else if(localOnly&&!auto){
+    if(!localPage)throw new Error(l.name+" requires the Sprig local runner and is not available on the hosted site.");
+    targets.push({url:localRunnerUrl(),tok:"",stream:true});
+  }else if(provider==="wandbox"){
+    if(!l.wandboxVersions||!l.wandboxVersions.length)throw new Error("Wandbox does not support this language. Select TIO in Settings.");
+    targets.push({url,tok:"",stream:false});
+  }else if(provider==="tio"){
+    if(!l.tioKey)throw new Error("TIO does not support this language. Sync languages and try again.");
+    targets.push({url,tok:"",stream:false});
+  }else if(provider==="custom"){
+    if(!url)throw new Error("Enter a Piston-compatible Execute URL in Settings.");
+    if(!localPage&&isLoopbackUrl(url))throw new Error("The hosted site cannot reach a localhost engine. Enter a publicly reachable Execute URL.");
+    targets.push({url,tok:store.get("sprig.tok")||"",stream:false});
+  }else if(provider==="piston"&&localPage){
+    targets.push({url:PISTON_PROXY_URL,tok:"",stream:false});
+    if(!auto&&LOCAL_RTS.has(l.rt))targets.push({url:localRunnerUrl(),tok:"",stream:true});
+  }else{
+    throw new Error("Local Piston is only available when Sprig is running on your computer.");
+  }
   let last;
   for(let i=0;i<targets.length;i++){
     const t=targets[i];
     try{
-      if(t.stream){await runLocalStream(t.url,l,src,input);return}
-      line(localPage?(i?"Piston did not run it. Trying the local runner…":"Sending to Piston…"):(t.url===hostedPistonUrl()?"Sending to OnlineCompiler.io…":"Sending to the configured engine…"),"i");
-      const ctrl=new AbortController();const to=setTimeout(()=>ctrl.abort(),40000);
+      if(t.stream)return await runLocalStream(t.url,provider==="local"?Object.assign({},l,{rt:runnerRuntime(l)}):l,src,input,!auto);
+      const message=provider==="wandbox"?"Sending code to Wandbox…":provider==="tio"?"Sending code to TIO…":provider==="piston"?(i?"Piston did not run it. Trying the local runner…":"Sending to Piston…"):"Sending to the configured engine…";
+      line(message,"i");
+      if(provider==="tio")line("TIO uses its own compiler and libraries, which may not support newer language features or match your local version.","i");
+      const ctrl=new AbortController();const to=setTimeout(()=>ctrl.abort(),provider==="wandbox"||provider==="tio"?60000:20000);
       job={kill(){line("\n■ Stopped","i");ctrl.abort()}};
-      let j;try{j=await postExecute(t.url,t.tok,l,src,input,ctrl.signal)}finally{clearTimeout(to)}
-      showResult(j);return;
+      let j;try{j=await postExecute(t.url,t.tok,l,src,input,ctrl.signal,provider,selectedVersion)}finally{clearTimeout(to)}
+      const success=showResult(j);
+      if(auto&&provider==="wandbox"&&!success&&j.compile&&j.compile.code!==0&&
+        /\/opt\/wandbox\/[^\n]*permission denied/i.test(j.compile.stderr||j.compile.output||""))
+        throw new Error("Wandbox's compiler could not start. Select a different compiler version or provider in Settings.");
+      if(provider==="tio"&&l.rt==="erlang"&&!success&&/^\s*main\s*\(\s*\)\s*->/m.test(src))
+        line("TIO runs Erlang as an escript and requires main/1. To keep main/0, add: main(_Args) -> main().","i");
+      if(provider==="tio"&&l.rt==="koka"&&!success&&/\bpub\s+fun\b/.test(src))
+        line("TIO's Koka compiler may not support the 'pub fun' syntax accepted by newer Koka versions.","i");
+      return success;
     }catch(e){
       last=reachError(e,t.url);
       if(e.name==="AbortError")throw last;
@@ -744,9 +1379,9 @@ async function runPy(src){
   job={kill(){stopped=true;Sk.execLimit=0;line("\n■ Stopped","i");if(stdinWait){const w=stdinWait;stdinWait=null;w.reject(new Error("Stopped"))}}};
   await Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody("<stdin>",false,src,true));
 }
-async function execute(l,src,input){
+async function execute(l,src,input,provider=effectiveProvider(l,tabs[active]),tab=tabs[active],auto=false){
   const k=l.rt.slice(1);
-  if(!l.local)return runRemote(l,src,input);
+  if(provider!=="browser")return runRemote(l,src,input,provider,tab,auto);
   if(k==="js")return runWorker("js",src,input,15000);
   if(k==="ts"){await loadScript(TSLIB);return runWorker("js",ts.transpileModule(src,{compilerOptions:{target:"ES2020"}}).outputText,input,15000)}
   if(k==="coffee"){await loadScript(COFFEE);return runWorker("js",CoffeeScript.compile(src,{bare:true}),input,15000)}
@@ -763,18 +1398,49 @@ function setRunning(on){
   [$("run"),$("abRun")].forEach(b=>b.classList.toggle("stop",on));
   $("run").innerHTML=on?'<i class="loading-spinner"></i>Stop':"▶ Run";
   $("sbRun").textContent=on?"Running…":"Ready";
+  updateEditorState();
 }
 async function run(){
-  if(job){job.kill();return}
-  tabs[active].text=code.value;const l=L[tabs[active].lang];
+  if(job){stopJob();return}
+  if(active<0){$("emptyNew").focus();return}
+  const tab=tabs[active];tab.text=code.value;const l=L[tab.lang],src=code.value,auto=selectedProvider()==="auto";
   frame.srcdoc="";out.textContent="";errFlag=false;setPanel("out");pill("run","Running…");
-  setRunning(true);job={kill(){}};const t0=performance.now();
+  runCancelled=false;setRunning(true);job={kill(){line("\n■ Stopped","i")}};
   const input=consumeStdin();if(input)write(input,"i");
+  let provider,t0,runTab;
   try{
-    await execute(l,code.value,input);
-    const ms=Math.round(performance.now()-t0);if($("panel").dataset.p==="out")line("\n— done in "+ms+" ms","o");pill(errFlag?"err":"ok",errFlag?"Finished with errors":"Done in "+ms+" ms");
-  }catch(e){if(!e||e.message!=="Stopped"){line((e&&e.message)||String(e),"e");pill("err","Failed")}}
-  finally{job=null;setRunning(false)}
+    if(auto&&catalogLoading&&!l.local){
+      line("Auto is checking available engines…","i");
+      let cancelWait;const stopped=new Promise(resolve=>{cancelWait=resolve});
+      job={kill(){line("\n■ Stopped","i");cancelWait()}};
+      await Promise.race([catalogReady,stopped]);if(runCancelled)return;
+    }
+    runTab=Object.assign({},tab);provider=auto?autoChoice(l):effectiveProvider(l,runTab);
+    if(provider==="terminal"&&input){
+      stdinQueue.unshift(...stdinFeed);stdinFeed=[];
+      throw new Error("Clear the queued input first, then type it in your terminal when the program asks.");
+    }
+    if(!provider){
+      throw new Error("The designated "+engineName(designatedProvider(l))+" engine is unavailable for "+l.name+". Sync languages or check the provider in Settings.");
+    }
+    if(auto)line("Auto chose "+engineName(provider)+".","i");
+    t0=performance.now();
+    const success=await execute(l,src,input,provider,runTab,auto);
+    const ms=Math.round(performance.now()-t0);
+    if(!runCancelled){
+      if(success==="external"){pill("ok","Opened terminal");return}
+      const localMessages=provider==="local"&&success===true&&errFlag;
+      if($("panel").dataset.p==="out")line("\n— done in "+ms+" ms","o");
+      pill(success===false||(errFlag&&!localMessages)?"err":"ok",success===false||(errFlag&&!localMessages)?"Finished with errors":localMessages?"Finished with messages":"Done in "+ms+" ms");
+    }
+  }catch(e){
+    if(!runCancelled&&(!e||e.message!=="Stopped")){line((e&&e.message)||String(e),"e");pill("err","Failed")}
+  }
+  finally{
+    job=null;setRunning(false);
+    if(runCancelled)pill("","Stopped");
+    if(active>=0){$("sbEng").textContent=executionTarget(L[tabs[active].lang]);refreshVersionSelector()}
+  }
 }
 $("run").onclick=$("abRun").onclick=run;
 // ---- editor behaviour
@@ -782,10 +1448,52 @@ function refresh(){
   const n=code.value.split("\n").length;let s="";for(let i=1;i<=n;i++)s+=i+"\n";gut.textContent=s;gut.scrollTop=code.scrollTop;const lid=tabs[active]?tabs[active].lang:"js";$("hl").innerHTML=(code.value.length>3e5?hesc(code.value):hl(code.value,LCM[lid]))+"\n";
   const p=code.selectionStart,b=code.value.slice(0,p).split("\n");$("pos").textContent="Ln "+b.length+", Col "+(b[b.length-1].length+1);
 }
-code.addEventListener("input",()=>{const t=tabs[active];if(!t.dirty){t.dirty=true;renderTabs();renderOpen()}refresh()});
+code.addEventListener("input",()=>{const t=tabs[active];if(!t.dirty){t.dirty=true;renderTabs();renderOpen()}refresh();if(L[t.lang].rt==="erlang"){$("sbEng").textContent=executionTarget(L[t.lang]);refreshVersionSelector()}});
 ["keyup","click"].forEach(e=>code.addEventListener(e,refresh));
 code.addEventListener("scroll",()=>{gut.scrollTop=code.scrollTop;const h=$("hl");h.scrollTop=code.scrollTop;h.scrollLeft=code.scrollLeft});
-code.addEventListener("keydown",e=>{if(e.key==="Tab"&&!e.ctrlKey){e.preventDefault();document.execCommand("insertText",false,"  ")}});
+function handleAutoPairs(e){
+  if(e.isComposing||e.ctrlKey||e.altKey||e.metaKey)return;
+  const pairs={"(":")","[":"]","{":"}","'":"'","\"":"\"","`":"`"};
+  const start=code.selectionStart,end=code.selectionEnd,text=code.value,key=e.key;
+  const replace=(from,to,value,selectionStart,selectionEnd)=>{
+    code.setSelectionRange(from,to);
+    if(!document.execCommand("insertText",false,value)){
+      code.setRangeText(value,from,to,"end");
+      code.dispatchEvent(new Event("input",{bubbles:true}));
+    }
+    code.setSelectionRange(selectionStart,selectionEnd);
+    refresh();
+  };
+  if(key==="Backspace"&&start===end&&start>0&&pairs[text[start-1]]===text[start]){
+    e.preventDefault();replace(start-1,start+1,"",start-1,start-1);return;
+  }
+  if(start===end&&key.length===1&&text[start]===key&&Object.values(pairs).includes(key)){
+    e.preventDefault();code.setSelectionRange(start+1,start+1);refresh();return;
+  }
+  if(!Object.hasOwn(pairs,key))return;
+  const close=pairs[key],selected=text.slice(start,end);
+  if(start===end){
+    const next=text[start]||"",previous=text[start-1]||"";
+    if(next&&!/[\s)\]};,:]/.test(next))return;
+    if(key===close){
+      let slashes=0;for(let i=start-1;i>=0&&text[i]==="\\";i--)slashes++;
+      if(slashes%2||/[\w]/.test(previous))return;
+      const line=text.slice(text.lastIndexOf("\n",start-1)+1,start);
+      let open=false;
+      for(let i=0;i<line.length;i++){
+        if(line[i]==="\\"){i++;continue}
+        if(line[i]===key)open=!open;
+      }
+      if(open)return;
+    }
+  }
+  e.preventDefault();
+  replace(start,end,key+selected+close,start+1,start+1+selected.length);
+}
+code.addEventListener("keydown",e=>{
+  if(e.key==="Tab"&&!e.ctrlKey){e.preventDefault();document.execCommand("insertText",false,"  ");return}
+  handleAutoPairs(e);
+});
 document.addEventListener("keydown",e=>{
   if(app.style.display!=="flex")return;
   const m=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
@@ -798,13 +1506,14 @@ document.addEventListener("keydown",e=>{
 });
 addEventListener("beforeunload",e=>{if(tabs.some(t=>t.dirty)){e.preventDefault();e.returnValue=""}});
 $("sbLang").onclick=pickLang;
-$("abEx").onclick=()=>{const s=$("side");s.style.display=s.style.display==="none"?"flex":"none";$("abEx").classList.toggle("on",s.style.display!=="none")};
+$("abEx").onclick=()=>{const s=$("side");s.style.display=s.style.display==="none"?"flex":"none";$("abEx").classList.toggle("on",s.style.display!=="none");updateSidebarWidths()};
 const goHome=()=>{location.hash="home";route();scrollTo(0,0)};
 $("abHome").onclick=goHome;
 document.querySelector(".tlogo").onclick=goHome;
 // ---- files
-const hasFS="showOpenFilePicker" in window;
-let folderHandle=null;
+const hasOpenPicker="showOpenFilePicker" in window,hasSavePicker="showSaveFilePicker" in window;
+let folderHandle=null,trashBusy=false;
+function fileChangeBlocked(){if(!trashBusy)return false;line("Wait for the trash operation to finish.","e");return true}
 const EXT_LANG_ALIASES={"c++":"cpp","h++":"cpp",cxx:"cpp",cc:"cpp",hxx:"cpp",hpp:"cpp",pyw:"py",mjs:"node",cjs:"node",kts:"kotlin"};
 function extLang(name){
   const lower=name.toLowerCase(),suffix=lower.includes(".")?lower.slice(lower.lastIndexOf(".")+1):"";
@@ -861,21 +1570,46 @@ async function writeFileHandle(handle,text){
   try{await writable.write(text);await writable.close()}
   catch(error){if(writable.abort)await writable.abort();throw error}
 }
-function openTab(name,text,h,directory){newTab(name,extLang(name)||tabs[active].lang,text,h,directory);tabs[active].dirty=false;renderTabs()}
+async function openTab(name,text,h,directory){
+  if(fileChangeBlocked())return;
+  if(h){
+    for(const tab of tabs){
+      if(tab.handle&&(tab.handle===h||(typeof tab.handle.isSameEntry==="function"&&await tab.handle.isSameEntry(h)))){
+        const index=tabs.indexOf(tab);
+        if(index<0)continue;
+        if(directory)tab.directory=directory;
+        activate(index);return;
+      }
+    }
+  }
+  newTab(name,extLang(name)||(tabs[active]&&tabs[active].lang)||"js",text,h,directory);tabs[active].dirty=false;renderTabs();
+}
 async function openFile(){
   try{
-    if(hasFS){const[h]=await showOpenFilePicker();const f=await h.getFile();openTab(f.name,await f.text(),h)}
-    else{const i=document.createElement("input");i.type="file";i.onchange=async()=>{const f=i.files[0];if(f)openTab(f.name,await f.text())};i.click()}
+    if(hasOpenPicker){const[h]=await showOpenFilePicker();const f=await h.getFile();await openTab(f.name,await f.text(),h)}
+    else{const i=document.createElement("input");i.type="file";i.onchange=async()=>{try{const f=i.files[0];if(f)await openTab(f.name,await f.text())}catch(e){line("Open failed: "+e.message,"e")}};i.click()}
   }catch(e){if(e.name!=="AbortError")line("Open failed: "+e.message,"e")}
 }
 function tabContents(index){return index===active?code.value:tabs[index].text}
-async function writeTo(h,t,text){t.text=text;await writeFileHandle(h,text);t.dirty=false;renderTabs();renderOpen();$("sbRun").textContent="Saved "+h.name}
-async function save(){if(active<0)return;try{const t=tabs[active];if(t.handle)await writeTo(t.handle,t,tabContents(active));else await saveAs(active)}catch(e){if(e.name!=="AbortError")line("Save failed: "+e.message,"e")}}
+const pendingWrites=new WeakMap();
+async function writeTo(h,t,text){
+  const previous=pendingWrites.get(t);
+  const writing=(async()=>{
+    if(previous)await previous;
+    await writeFileHandle(h,text);
+    const index=tabs.indexOf(t);
+    if(index>=0){t.text=tabContents(index);t.dirty=t.text!==text}
+    renderTabs();renderOpen();$("sbRun").textContent="Saved "+h.name+(t.dirty?" (new changes unsaved)":"");
+  })();
+  pendingWrites.set(t,writing);
+  try{await writing}finally{if(pendingWrites.get(t)===writing)pendingWrites.delete(t)}
+}
+async function save(){if(active<0||fileChangeBlocked())return;try{const t=tabs[active];if(t.handle)await writeTo(t.handle,t,tabContents(active));else await saveAs(active)}catch(e){if(e.name!=="AbortError")line("Save failed: "+e.message,"e")}}
 async function saveAs(index=active){
-  if(index<0||!tabs[index])return;
+  if(index<0||!tabs[index]||fileChangeBlocked())return;
   const t=tabs[index],text=tabContents(index),name=/^Untitled/.test(t.name)?"main."+L[t.lang].ext:t.name;
   try{
-    if(hasFS){const h=await showSaveFilePicker({suggestedName:name});t.handle=h;t.directory=null;t.name=h.name;t.lang=extLang(h.name)||t.lang;await writeTo(h,t,text)}
+    if(hasSavePicker){const h=await showSaveFilePicker({suggestedName:name});await writeTo(h,t,text);t.handle=h;t.directory=null;t.name=h.name;t.lang=extLang(h.name)||t.lang;renderTabs();renderOpen()}
     else{downloadFile(t,text,name)}
   }catch(e){if(e.name!=="AbortError")line("Save failed: "+e.message,"e")}
 }
@@ -893,35 +1627,42 @@ function saveAllName(tab,index,used){
   used.add(name.toLowerCase());return name;
 }
 async function saveAll(){
-  if(!tabs.length)return;
+  if(!tabs.length||fileChangeBlocked())return;
   tabs[active].text=code.value;
   try{
-    const unsaved=tabs.map((tab,index)=>({tab,index})).filter(item=>!item.tab.handle);
-    if(!hasFS){
+    const changed=tabs.filter(tab=>tab.dirty);
+    if(!changed.length){line("No unsaved changes.","i");return}
+    const unsaved=changed.filter(tab=>!tab.handle);
+    if(unsaved.length&&!folderHandle&&!("showDirectoryPicker" in window)){
       const used=new Set();
-      tabs.forEach((tab,index)=>downloadFile(tab,tabContents(index),saveAllName(tab,index,used)));
+      for(const tab of changed){
+        const index=tabs.indexOf(tab);if(index<0)continue;
+        if(tab.handle)await writeTo(tab.handle,tab,tabContents(index));
+        else downloadFile(tab,tabContents(index),saveAllName(tab,index,used));
+      }
       return;
     }
-    const alreadySaved=new Set(tabs.filter(tab=>tab.handle));
+    const alreadySaved=changed.filter(tab=>tab.handle);
     let directory=null,used=new Set();
     if(unsaved.length){
       directory=folderHandle||await showDirectoryPicker({mode:"readwrite"});
       for await(const[name]of directory.entries())used.add(name.toLowerCase());
-      for(const{tab,index}of unsaved){
+      for(const tab of unsaved){
+        const index=tabs.indexOf(tab);if(index<0)continue;
         const name=saveAllName(tab,index,used);
         const handle=await directory.getFileHandle(name,{create:true});
         await writeTo(handle,tab,tabContents(index));tab.name=name;tab.handle=handle;tab.directory=directory;
       }
     }
-    for(let index=0;index<tabs.length;index++){
-      const tab=tabs[index];
-      if(tab.handle&&alreadySaved.has(tab))await writeTo(tab.handle,tab,tabContents(index));
+    for(const tab of alreadySaved){
+      const index=tabs.indexOf(tab);if(index>=0)await writeTo(tab.handle,tab,tabContents(index));
     }
     renderTabs();renderOpen();
-    line("Saved all open files.","i");
+    line("Saved all modified files.","i");
   }catch(e){if(e.name!=="AbortError")line("Save all failed: "+e.message,"e")}
 }
 async function createNewFile(){
+  if(fileChangeBlocked())return;
   try{
     const activeLang=tabs[active]?tabs[active].lang:"js";
     const result=await askFileName("New file name","main."+L[activeLang].ext,activeLang);
@@ -933,7 +1674,7 @@ async function createNewFile(){
       handle=await folderHandle.getFileHandle(name,{create:true});
       await writeFileHandle(handle,text);
     }
-    openTab(name,text,handle,folderHandle);
+    await openTab(name,text,handle,folderHandle);
     if(folderHandle)await listDir(folderHandle,$("tree"),0);
   }catch(e){if(e.name!=="AbortError")line("New file failed: "+e.message,"e")}
 }
@@ -949,15 +1690,15 @@ async function renameFileInDirectory(directory,handle,oldName,newName,text){
   catch(e){line("Created "+newName+" but could not remove "+oldName+": "+e.message,"e")}
   return renamed;
 }
-function updateOpenFileReferences(oldHandle,newHandle,name,directory,language){
+function updateOpenFileReferences(oldHandle,newHandle,name,directory,language,matchingTabs=[]){
   tabs.forEach(t=>{
-    if(t.handle===oldHandle){t.handle=newHandle;t.name=name;t.directory=directory||null;t.lang=language||extLang(name)||t.lang}
+    if(t.handle===oldHandle||matchingTabs.includes(t)){t.handle=newHandle;t.name=name;t.directory=directory||null;t.lang=language||extLang(name)||t.lang}
   });
   renderTabs();renderOpen();
   if(tabs[active])activate(active);
 }
 async function renameTab(index){
-  if(index<0||!tabs[index])return;
+  if(index<0||!tabs[index]||fileChangeBlocked())return;
   const t=tabs[index],result=await askFileName("Rename file",t.name,t.lang);
   if(!result||result.name===t.name)return;
   const{name,lang}=result;
@@ -989,63 +1730,398 @@ async function renameTab(index){
   }catch(e){if(e.name!=="AbortError")line("Rename failed: "+e.message,"e")}
 }
 async function renameTreeFile(directory,handle,oldName,el,depth){
+  if(fileChangeBlocked())return;
   const result=await askFileName("Rename file",oldName,extLang(oldName)||tabs[active]?.lang);
   if(!result||result.name===oldName)return;
   const{name,lang}=result;
   try{
-    const file=await handle.getFile(),text=await file.text();
-    const renamed=await renameFileInDirectory(directory,handle,oldName,name,text);
-    updateOpenFileReferences(handle,renamed,name,directory,lang);
+    const matchingTabs=await tabsInEntry(handle);
+    if(matchingTabs.some(tab=>tab.dirty||pendingWrites.has(tab)))throw new Error("Save or close modified files before renaming them.");
+    const file=await handle.getFile();
+    const renamed=await renameFileInDirectory(directory,handle,oldName,name,file);
+    updateOpenFileReferences(handle,renamed,name,directory,lang,matchingTabs);
     await listDir(directory,el,depth);
-  }catch(e){if(e.name!=="AbortError")line("Rename failed: "+e.message,"e")}
+  }catch(e){if(e.name!=="AbortError"){const message="Rename failed: "+e.message;line(message,"e");alert(message)}}
+}
+const TRASH_NAME=".sprig-trash",TRASH_MARKER="Sprig trash v1";
+function validTrashName(name){return typeof name==="string"&&!!name&&name!=="."&&name!==".."&&!/[\/\\]/.test(name)}
+async function trashDirectory(create){
+  if(!folderHandle)throw new Error("Open a folder first.");
+  let trash;
+  try{trash=await folderHandle.getDirectoryHandle(TRASH_NAME)}
+  catch(error){
+    if(error.name!=="NotFoundError")throw error;
+    if(!create)return null;
+    trash=await folderHandle.getDirectoryHandle(TRASH_NAME,{create:true});
+    for await(const entry of trash.entries())throw new Error("The .sprig-trash folder already contains files and cannot be used.");
+    const marker=await trash.getFileHandle("marker",{create:true});
+    await writeFileHandle(marker,TRASH_MARKER);
+    return trash;
+  }
+  let marker;
+  try{marker=await trash.getFileHandle("marker")}
+  catch(error){
+    if(error.name==="NotFoundError")throw new Error("The existing .sprig-trash folder is not managed by Sprig.");
+    throw error;
+  }
+  if(await (await marker.getFile()).text()!==TRASH_MARKER)throw new Error("The existing .sprig-trash folder is not managed by Sprig.");
+  return trash;
+}
+async function snapshotEntry(handle){
+  if(handle.kind==="file")return {handle,kind:"file",file:await handle.getFile()};
+  const children=[];
+  for await(const[name,child]of handle.entries())children.push({name,snapshot:await snapshotEntry(child)});
+  return {handle,kind:"directory",children};
+}
+async function copySnapshot(snapshot,parent,name){
+  await assertNameAvailable(parent,name);
+  if(snapshot.kind==="file"){
+    const file=await parent.getFileHandle(name,{create:true});
+    await writeFileHandle(file,snapshot.file);
+    return;
+  }
+  const directory=await parent.getDirectoryHandle(name,{create:true});
+  for(const child of snapshot.children)await copySnapshot(child.snapshot,directory,child.name);
+}
+async function sameFileContent(first,second){
+  if(first.size!==second.size)return false;
+  for(let offset=0;offset<first.size;offset+=1048576){
+    const a=new Uint8Array(await first.slice(offset,offset+1048576).arrayBuffer());
+    const b=new Uint8Array(await second.slice(offset,offset+1048576).arrayBuffer());
+    if(a.some((value,index)=>value!==b[index]))return false;
+  }
+  return true;
+}
+async function verifySnapshot(snapshot,backup){
+  if(snapshot.kind==="file"){
+    const current=await snapshot.handle.getFile();
+    const copy=await backup.getFile();
+    return current.lastModified===snapshot.file.lastModified&&
+      await sameFileContent(snapshot.file,current)&&await sameFileContent(snapshot.file,copy);
+  }
+  const current=new Map();
+  for await(const[name,child]of snapshot.handle.entries())current.set(name,child);
+  if(current.size!==snapshot.children.length)return false;
+  for(const child of snapshot.children){
+    const handle=current.get(child.name);
+    const copy=child.snapshot.kind==="file"?await backup.getFileHandle(child.name):await backup.getDirectoryHandle(child.name);
+    if(!handle||handle.kind!==child.snapshot.kind||!await handle.isSameEntry(child.snapshot.handle)||!await verifySnapshot(child.snapshot,copy))return false;
+  }
+  return true;
+}
+async function tabsInEntry(handle){
+  const found=[];
+  for(const tab of tabs){
+    if(!tab.handle)continue;
+    const matches=handle.kind==="file"
+      ? await handle.isSameEntry(tab.handle)
+      : await handle.resolve(tab.handle)!==null;
+    if(matches)found.push(tab);
+  }
+  return found;
+}
+function validTrashMetadata(info){
+  return info&&validTrashName(info.name)&&(info.kind==="file"||info.kind==="directory")&&Array.isArray(info.path)&&
+    info.path.every(validTrashName)&&info.path[0]!==TRASH_NAME;
+}
+async function deleteTreeEntry(directory,handle,name,el,depth){
+  if(fileChangeBlocked())return;
+  trashBusy=true;
+  let removed=false;
+  try{
+    const path=folderHandle&&await folderHandle.resolve(directory);
+    if(!path)throw new Error("Open the item's folder in Explorer before deleting it.");
+    const affected=await tabsInEntry(handle);
+    if(affected.some(tab=>tab.dirty||pendingWrites.has(tab)))throw new Error("Save or close modified files in this item before deleting it.");
+    const label=handle.kind==="directory"?"folder and everything inside it":"file";
+    if(!confirm("Move "+label+" \""+name+"\" to Sprig trash? You can restore it in Settings."))return;
+    const trash=await trashDirectory(true);
+    const id="item-"+crypto.randomUUID(),backup=await trash.getDirectoryHandle(id,{create:true});
+    const snapshot=await snapshotEntry(handle);
+    await copySnapshot(snapshot,backup,"content");
+    const info={name,kind:handle.kind,path,deletedAt:new Date().toISOString(),restored:false};
+    await writeFileHandle(await backup.getFileHandle("info.json",{create:true}),JSON.stringify(info));
+    const current=handle.kind==="file"?await directory.getFileHandle(name):await directory.getDirectoryHandle(name);
+    const copy=handle.kind==="file"?await backup.getFileHandle("content"):await backup.getDirectoryHandle("content");
+    if(!await current.isSameEntry(handle)||!await verifySnapshot(snapshot,copy))throw new Error("The item or its backup changed during copying. The original was not deleted; a copy remains in Sprig trash.");
+    const finalAffected=await tabsInEntry(handle);
+    if(finalAffected.some(tab=>tab.dirty||pendingWrites.has(tab)))throw new Error("An open file changed during backup. The original was not deleted; a copy remains in Sprig trash.");
+    await directory.removeEntry(name,handle.kind==="directory"?{recursive:true}:undefined);
+    removed=true;
+    for(const tab of finalAffected){
+      const index=tabs.indexOf(tab);if(index<0)continue;
+      if(tab.dirty){tab.handle=null;tab.directory=null;line("Unsaved changes to "+tab.name+" remain open as an unsaved file.","i")}
+      else closeTab(index);
+    }
+    renderTabs();renderOpen();
+    if(el)await listDir(directory,el,depth);
+    else await listDir(folderHandle,$("tree"),0);
+    line("Moved "+name+" to Sprig trash. Restore it in Settings.","i");
+  }catch(error){const message=(removed?"Moved "+name+" to Sprig trash, but updating Explorer failed: ":"Delete failed: ")+error.message;line(message,"e");alert(message)}
+  finally{trashBusy=false}
+}
+async function deleteOpenEditor(tab){
+  if(fileChangeBlocked())return;
+  const index=tabs.indexOf(tab);if(index<0)return;
+  if(!tab.handle){
+    if(tab.dirty||confirm("Delete the unsaved file \""+tab.name+"\"?"))closeTab(index);
+    return;
+  }
+  try{
+    const path=folderHandle&&await folderHandle.resolve(tab.handle);
+    if(!path||!path.length)throw new Error("Open the folder containing this file in Explorer before deleting it.");
+    let directory=folderHandle;
+    for(const part of path.slice(0,-1))directory=await directory.getDirectoryHandle(part);
+    await deleteTreeEntry(directory,tab.handle,path[path.length-1],null,0);
+  }catch(error){const message="Delete failed: "+error.message;line(message,"e");alert(message)}
+}
+async function readTrashItem(backup){
+  const info=JSON.parse(await (await (await backup.getFileHandle("info.json")).getFile()).text());
+  if(!validTrashMetadata(info))throw new Error("Invalid trash metadata in "+backup.name+".");
+  return info;
+}
+async function restoreTrashItem(backup,info){
+  if(fileChangeBlocked())return;
+  trashBusy=true;
+  let copying=false;
+  try{
+    if(!validTrashMetadata(info))throw new Error("Invalid trash metadata.");
+    let parent=folderHandle;
+    for(const part of info.path)parent=await parent.getDirectoryHandle(part);
+    await assertNameAvailable(parent,info.name);
+    const source=info.kind==="file"?await backup.getFileHandle("content"):await backup.getDirectoryHandle("content");
+    copying=true;
+    const snapshot=await snapshotEntry(source);
+    await copySnapshot(snapshot,parent,info.name);
+    const restored=info.kind==="file"?await parent.getFileHandle(info.name):await parent.getDirectoryHandle(info.name);
+    if(!await verifySnapshot(snapshot,restored))throw new Error("The backup or restored item changed during copying");
+    info.restored=true;
+    await writeFileHandle(await backup.getFileHandle("info.json"),JSON.stringify(info));
+    await listDir(folderHandle,$("tree"),0);
+    line("Restored "+info.name+". The backup remains in .sprig-trash.","i");
+    await renderTrash();
+  }catch(error){$("trashList").textContent="Restore failed: "+error.message+". The backup remains in .sprig-trash."+(copying?" A partial item may remain at the original location.":"");line($("trashList").textContent,"e")}
+  finally{trashBusy=false}
+}
+async function renderTrash(){
+  const list=$("trashList");list.textContent="";
+  if(!folderHandle){list.textContent="Open a folder to see its deleted items.";return}
+  try{
+    const trash=await trashDirectory(false);
+    if(!trash){list.textContent="No deleted items in this folder.";return}
+    let count=0;
+    for await(const[id,backup]of trash.entries()){
+      if(id==="marker")continue;
+      if(backup.kind!=="directory"||!/^item-[0-9a-f-]{36}$/i.test(id))throw new Error("Unexpected item in .sprig-trash: "+id);
+      let info;
+      try{info=await readTrashItem(backup)}
+      catch(error){const warning=document.createElement("p");warning.textContent="Incomplete backup "+id+": "+error.message;list.appendChild(warning);count++;continue}
+      if(info.restored)continue;
+      count++;
+      const row=document.createElement("div"),label=document.createElement("span"),button=document.createElement("button");
+      row.style.cssText="display:flex;align-items:center;gap:8px;margin:8px 0";
+      label.style.cssText="flex:1;overflow-wrap:anywhere";label.textContent=[...info.path,info.name].join(" / ");
+      button.className="btn";button.textContent="Restore";button.onclick=()=>restoreTrashItem(backup,info);
+      row.append(label,button);list.appendChild(row);
+    }
+    if(!count)list.textContent="No deleted items in this folder.";
+  }catch(error){list.textContent="Could not read Sprig trash: "+error.message}
 }
 async function listDir(h,el,depth){
   el.textContent="";const items=[];for await(const[n,x]of h.entries())items.push([n,x]);
   items.sort((a,b)=>a[1].kind===b[1].kind?a[0].localeCompare(b[0]):a[1].kind==="directory"?-1:1);
   items.forEach(([n,x])=>{
+    if(h===folderHandle&&n===TRASH_NAME)return;
     const row=document.createElement("div");row.className="row";row.style.paddingLeft=(12+depth*14)+"px";
+    row.title="Triple-click to move to Sprig trash";
     const label=document.createElement("span");label.className="file-name";label.textContent=(x.kind==="directory"?"▸ ":"   ")+n;row.appendChild(label);el.appendChild(row);
+    const remove=document.createElement("button");remove.className="file-action";remove.type="button";remove.title="Delete "+n;remove.textContent="Delete";
+    remove.onclick=e=>{e.stopPropagation();deleteTreeEntry(h,x,n,el,depth)};
     if(x.kind==="directory"){const sub=document.createElement("div");sub.style.display="none";el.appendChild(sub);let open=false;
-      row.onclick=async()=>{open=!open;label.textContent=(open?"▾ ":"▸ ")+n;sub.style.display=open?"block":"none";if(open&&!sub.children.length)await listDir(x,sub,depth+1)}}
+      row.appendChild(remove);
+      row.onclick=async e=>{if(e.detail===3){await deleteTreeEntry(h,x,n,el,depth);return}if(e.detail>1)return;
+        try{open=!open;label.textContent=(open?"▾ ":"▸ ")+n;sub.style.display=open?"block":"none";if(open&&!sub.children.length)await listDir(x,sub,depth+1)}
+        catch(error){line("Open folder failed: "+error.message,"e")}}}
     else{
       const rename=document.createElement("button");rename.className="file-action";rename.type="button";rename.title="Rename file";rename.textContent="Rename";
       rename.onclick=e=>{e.stopPropagation();renameTreeFile(h,x,n,el,depth)};
-      row.appendChild(rename);
-      row.onclick=async()=>{try{const f=await x.getFile();openTab(f.name,await f.text(),x,h)}catch(e){line("Open failed: "+e.message,"e")}}
+      row.append(rename,remove);
+      row.onclick=async e=>{if(e.detail===3){await deleteTreeEntry(h,x,n,el,depth);return}if(e.detail>1)return;
+        try{const f=await x.getFile(),text=await f.text();if(!trashBusy)await openTab(f.name,text,x,h)}catch(error){line("Open failed: "+error.message,"e")}}
     }
   });
-  if(!items.length)el.textContent="(empty)";
+  if(!el.children.length)el.textContent="(empty)";
 }
 async function openDir(){
+  if(fileChangeBlocked())return;
   if(!("showDirectoryPicker" in window)){line("Folder access needs Chrome, Edge or Opera.","e");return}
-  try{const d=await showDirectoryPicker({mode:"readwrite"});folderHandle=d;$("side").style.display="flex";await listDir(d,$("tree"),0)}
+  try{const d=await showDirectoryPicker({mode:"readwrite"});if(fileChangeBlocked())return;folderHandle=d;$("side").style.display="flex";updateSidebarWidths();await listDir(d,$("tree"),0)}
   catch(e){if(e.name!=="AbortError")line("Folder failed: "+e.message,"e")}
 }
 $("open").onclick=openFile;$("dir").onclick=openDir;$("dir2").onclick=openDir;
 $("new").onclick=createNewFile;
+$("emptyNew").onclick=createNewFile;$("emptyOpen").onclick=openFile;
 // ---- settings
 const dlg=$("dlg");
+function settingsSection(restore){
+ $("settingsEngine").hidden=restore;$("settingsRestore").hidden=!restore;
+ $("settingsEngineTab").setAttribute("aria-selected",String(!restore));
+ $("settingsRestoreTab").setAttribute("aria-selected",String(restore));
+ if(restore)renderTrash();
+}
 function openSettings(){
- const c=cfg();$("sUrl").value=c.url;$("sTok").value=c.tok;$("sMsg").textContent="";
- $("sUrl").placeholder=isCodespacesPage?PISTON_PROXY_URL:(localPage?"http://127.0.0.1:2000/api/v2/execute":"https://your-engine.example/api/v2/execute");
- $("engineHelp").textContent=isCodespacesPage
-   ?"This Codespace uses its private Sprig runner and Piston service. Leave the default engine URL unchanged to use Piston. The execution service is private to this Codespace."
-   :localPage
-   ?"Engine languages send your code to the configured execution service. A local Sprig install can use Piston on port 2000; a hosted site needs a publicly reachable Piston-compatible endpoint. Flix and Effekt require the local runner."
-   :"The hosted site uses OnlineCompiler.io by default (PowerShell 7.6 on Linux and 45 other languages) through a private Cloudflare proxy. Code and input are sent to its sandbox; its privacy policy says run history is retained for up to 365 days. The free quota is 100,000 runs/month, shared across site users; set a per-key cap in the provider dashboard. The Cloudflare API-key secret must be configured by the site owner; never paste an API key here. Flix and Effekt still require Sprig’s local runner.";
+ $("sUrl").value=savedEngine();$("sTok").value=store.get("sprig.tok")||"";$("sMsg").textContent="";
+ $("sUrl").placeholder="https://your-engine.example/api/v2/execute";
+ $("sProvider").value=selectedProvider();
+ $("sProvider").querySelector('option[value="piston"]').hidden=!localPage;
+ $("sProvider").querySelector('option[value="local"]').hidden=!localPage;
+ $("sProvider").querySelector('option[value="terminal"]').hidden=!localPage;
+ refreshEngineSettings();
+ settingsSection(false);
  dlg.showModal();
 }
 $("abSet").onclick=openSettings;$("sClose").onclick=()=>dlg.close();
-function saveCfg(){store.set("sprig.url",$("sUrl").value.trim());store.set("sprig.tok",$("sTok").value.trim())}
-$("sSave").onclick=()=>{saveCfg();dlg.close()};
+$("settingsEngineTab").onclick=()=>settingsSection(false);$("settingsRestoreTab").onclick=()=>settingsSection(true);
+function refreshEngineSettings(){
+ const provider=$("sProvider").value;
+ $("customEngineFields").style.display=provider==="custom"?"":"none";
+ $("sSync").textContent=provider==="auto"?"Check engines and sync languages":provider==="wandbox"?"Sync compiler versions":provider==="tio"?"Sync TIO languages":"Sync languages";
+ $("engineHelp").textContent=provider==="auto"
+   ?"Auto uses the listed engine for each language: your browser, Wandbox, or TIO. Erlang uses TIO. Wandbox and TIO receive your code and input. Auto won't switch engines based on speed or use your custom engine."
+   :provider==="wandbox"
+   ?"Wandbox receives your code and input when you run it. You don't need an API key, but Wandbox sets its own limits and availability."
+   :provider==="tio"
+     ?"TIO receives your code and input when you run it. You don't need an API key. It's a public service, so its availability and limits can change."
+   :provider==="piston"
+     ?"Local Piston needs Piston running on this computer. Flix and Effekt use Sprig's local runner instead."
+   :provider==="local"
+     ?"The local runner uses tools installed on this computer. On Windows, PowerShell confirmations appear in Sprig's terminal. Other Windows dialogs stay separate. Don't enter passwords here."
+   :provider==="terminal"
+     ?"Open a separate Windows terminal and run with the tools installed on your computer. The program has your normal permissions and runs from a temporary folder. Use that terminal for input and to stop it."
+     :"Your code and input go to the engine you enter here. The hosted site can't reach localhost. Flix and Effekt need Sprig's local runner.";
+ $("engineHelp").textContent+=" Available versions and libraries depend on the engine, and may differ from your computer.";
+}
+$("sProvider").onchange=refreshEngineSettings;
+function saveCfg(){
+ const provider=$("sProvider").value,url=$("sUrl").value.trim();
+ if(provider==="custom"){
+   if(!url){$("sMsg").textContent="Enter a Piston-compatible Execute URL.";return false}
+   let parsed;
+   try{parsed=new URL(url)}catch(e){$("sMsg").textContent="Enter a valid engine URL.";return false}
+   if(parsed.protocol!=="http:"&&parsed.protocol!=="https:"){$("sMsg").textContent="The engine URL must use HTTP or HTTPS.";return false}
+   if(!localPage&&isLoopbackUrl(url)){$("sMsg").textContent="A hosted site cannot use a localhost engine.";return false}
+ }
+ if(provider==="piston"&&!localPage){$("sMsg").textContent="Local Piston is only available on your computer.";return false}
+ if(provider==="local"&&!localPage){$("sMsg").textContent="The local runner is only available on your computer.";return false}
+ if(provider==="terminal"&&!localPage){$("sMsg").textContent="Your terminal is only available on your computer.";return false}
+ store.set("sprig.provider",provider);store.set("sprig.url",url);store.set("sprig.tok",$("sTok").value.trim());
+ if(provider==="auto"&&!catalogLoading)syncAllEngines().then(messages=>{$("langCatalogStatus").textContent=messages.join(" · ")});
+ if(active>=0){$("sbEng").textContent=executionTarget(L[tabs[active].lang]);refreshVersionSelector()}
+ return true;
+}
+function runtimeListUrl(provider,url){
+ if(provider==="local"||provider==="terminal")return localRunnerBase+"/api/v2/available-runtimes";
+ if(provider==="wandbox")return localPage?LOCAL_WANDBOX_URL.replace(/execute\/?$/,"runtimes"):HOSTED_WANDBOX_URL.replace(/execute\/?$/,"runtimes");
+ if(provider==="tio")return localPage?LOCAL_TIO_URL.replace(/execute\/?$/,"runtimes"):HOSTED_TIO_URL.replace(/execute\/?$/,"runtimes");
+ if(provider==="piston")return PISTON_PROXY_URL.replace(/execute\/?$/,"runtimes");
+ return url.replace(/execute\/?$/,"runtimes");
+}
+async function fetchRuntimeList(endpoint,headers){
+ const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);
+ try{
+   const response=await fetch(endpoint,{headers,signal:controller.signal});
+   let data;try{data=await response.json()}catch(e){throw new Error("Engine returned an invalid runtime list.")}
+   if(!response.ok)throw new Error(data.message||("Runtime request failed (HTTP "+response.status+")."));
+   if(!Array.isArray(data))throw new Error("Engine returned an invalid runtime list.");
+   return data;
+ }catch(error){if(controller.signal.aborted)throw new Error("Runtime discovery timed out.");throw error}
+ finally{clearTimeout(timeout)}
+}
+async function syncRuntimeOptions(provider,url,tok){
+ const endpoint=runtimeListUrl(provider,url);
+ if(!endpoint)throw new Error("Set an Execute URL before syncing languages.");
+ const rts=await fetchRuntimeList(endpoint,provider==="custom"&&tok?{Authorization:tok}:{});
+ let added=0,versions=0;const known=new Set(ORDER.map(i=>L[i].rt));
+ const localAliases={python:"@py",python3:"@py",node:"@js",javascript:"@js",typescript:"@ts",coffeescript:"@coffee",lua:"@lua"};
+ const matchingModes=(base,provider)=>ORDER.map(key=>L[key]).filter(lang=>
+   lang.rt===base||lang.rt===localAliases[base]||localAliases[lang.rt]===base||
+   (provider==="wandbox"&&base==="csharp"&&lang.rt==="csharp.net")||
+   (provider==="tio"&&((base==="fsharp.net"&&lang.rt==="fsi")||(base==="tio:my-basic"&&lang.rt==="basic"))));
+ rts.forEach(x=>{
+   if(x&&x.provider==="wandbox"&&typeof x.baseLanguage==="string"&&Array.isArray(x.versions)){
+     versions+=x.versions.length;
+     const modes=matchingModes(x.baseLanguage,"wandbox");
+     if(modes.length){
+       modes.forEach(mode=>{
+         const available=mode.rt==="csharp.net"?x.versions.filter(version=>/^dotnetcore-/i.test(version.id)):x.versions;
+         if(!available.length)return;
+         if(!mode.s&&typeof x.starter==="string")mode.s=x.starter;
+         mode.wandboxVersions=available;
+         mode.wandboxDefault=available.some(version=>version.id===x.defaultVersion)?x.defaultVersion:available[available.length-1].id;
+       });
+     }else if(!known.has(x.baseLanguage)){
+       known.add(x.baseLanguage);
+       addLang("wb_"+encodeURIComponent(x.baseLanguage),x.displayName||x.baseLanguage,x.baseLanguage,x.ext||"txt","",{
+         s:typeof x.starter==="string"?x.starter:"",wandboxVersions:x.versions,wandboxDefault:x.defaultVersion
+       });added++;
+     }
+   }else if(x&&x.provider==="tio"&&typeof x.tioKey==="string"&&Array.isArray(x.versions)){
+     versions+=x.versions.length;
+     const modes=matchingModes(x.baseLanguage,"tio");
+     if(modes.length){
+       modes.forEach(mode=>{
+         const available=mode.rt==="fsi"?x.versions.filter(version=>version.id==="fs-core"):x.versions;
+         if(!available.length)return;
+         if(!mode.s&&typeof x.starter==="string")mode.s=x.starter;
+         mode.tioKey=x.tioKey;mode.tioVersions=available;
+         mode.tioDefault=available.some(version=>version.id===x.defaultVersion)?x.defaultVersion:available[0].id;
+       });
+     }else{
+       const id="tio_"+encodeURIComponent(x.tioKey);
+       if(!L[id]){
+         const rt=x.baseLanguage||("tio:"+x.tioKey);
+         addLang(id,x.displayName||x.tioKey,rt,x.ext||"txt","",{
+           s:typeof x.starter==="string"?x.starter:"",tioKey:x.tioKey,tioVersions:x.versions,tioDefault:x.defaultVersion,tioOnly:true
+         });added++;
+       }
+     }
+   }else if(x&&typeof x.language==="string"&&!known.has(x.language)){
+     known.add(x.language);
+     addLang("rt_"+x.language,x.name||x.language[0].toUpperCase()+x.language.slice(1),x.language,(x.aliases&&x.aliases[0])||x.language,"");
+     added++;
+   }
+ });
+ return {found:rts.length,added,versions};
+}
+function syncAllEngines(){
+ if(catalogLoading)return catalogReady;
+ catalogLoading=true;
+ if(active>=0){$("sbEng").textContent=executionTarget(L[tabs[active].lang]);refreshVersionSelector()}
+ catalogReady=(async()=>{
+   const messages=[];
+   for(const provider of ["wandbox","tio"]){
+     try{
+       const result=await syncRuntimeOptions(provider,providerUrl(provider),"");
+       autoOnline.add(provider);
+       messages.push((provider==="wandbox"?"Wandbox":"TIO")+": "+result.found+" language families");
+     }catch(error){autoOnline.delete(provider);messages.push(provider+" unavailable: "+error.message)}
+   }
+   return messages;
+ })().finally(()=>{
+   catalogLoading=false;buildGrid($("q").value);updateStats();
+   if(active>=0){$("sbEng").textContent=executionTarget(L[tabs[active].lang]);refreshVersionSelector()}
+ });
+ return catalogReady;
+}
+$("sSave").onclick=()=>{if(saveCfg())dlg.close()};
 $("sSync").onclick=async()=>{
-  saveCfg();const c=cfg(),m=$("sMsg");m.textContent="Contacting engine…";
+  if(!saveCfg())return;
+  const c=cfg(),m=$("sMsg");m.textContent="Loading language and compiler options…";
   try{
-    const r=await fetch(c.url.replace(/execute\/?$/,"runtimes"),{headers:c.tok?{Authorization:c.tok}:{}});
-    const rts=await r.json();let n=0;const known=new Set(ORDER.map(i=>L[i].rt));
-    rts.forEach(x=>{if(!known.has(x.language)){known.add(x.language);addLang("rt_"+x.language,x.language[0].toUpperCase()+x.language.slice(1),x.language,(x.aliases&&x.aliases[0])||x.language,"");n++}});
-    buildGrid($("q").value);updateStats();
-    m.textContent="Done. "+rts.length+" runtimes found, "+n+" new languages added.";
+    if(c.provider==="auto"){m.textContent=(await syncAllEngines()).join(" · ");return}
+    const result=await syncRuntimeOptions(c.provider,c.url,c.tok);
+    buildGrid($("q").value);updateStats();refreshVersionSelector();
+    m.textContent="Done. "+result.found+" language groups and "+result.versions+" versions found; "+result.added+" new languages added.";
   }catch(e){m.textContent="Sync failed: "+e.message}
 };
 // ---- menus / title bar
@@ -1054,10 +2130,61 @@ const closeMenu=()=>{$("menu").style.display="none"};
 function openMenu(btn){const m=$("menu");m.textContent="";
   MN[btn.dataset.menu].forEach(i=>{const c=CMDS[i],r=document.createElement("div");r.className="mi";const a=document.createElement("span"),b=document.createElement("em");a.textContent=c[0];b.textContent=c[1];r.append(a,b);r.onclick=()=>{closeMenu();c[2]()};m.appendChild(r)});
   const q=btn.getBoundingClientRect();m.style.left=q.left+"px";m.style.top=q.bottom+2+"px";m.style.display="block"}
-document.querySelectorAll(".mb").forEach(b=>b.onclick=e=>{e.stopPropagation();openMenu(b)});
+document.querySelectorAll(".mb[data-menu]").forEach(b=>b.onclick=e=>{e.stopPropagation();openMenu(b)});
 document.addEventListener("click",closeMenu);
 $("cmdBtn").onclick=palette;$("langChip").onclick=pickLang;
 // ---- resizable panel
+(function(){
+  const shell=document.querySelector(".shell"),side=$("side"),ai=$("aiSidebar");
+  const sideGrip=$("sideResize"),aiGrip=$("aiResize");
+  let sideWidth=250,aiWidth=360;
+  function limit(kind){
+    const width=shell.clientWidth;
+    const other=kind==="side"
+      ? (innerWidth>850&&!ai.hidden?aiWidth:0)
+      : (innerWidth>850&&side.style.display!=="none"?sideWidth:0);
+    return Math.max(0,Math.min(700,width-48-160-other));
+  }
+  function setWidth(kind,value){
+    const max=limit(kind),min=Math.min(150,max),width=Math.round(Math.max(min,Math.min(max,value)));
+    if(kind==="side")sideWidth=width;else aiWidth=width;
+    shell.style.setProperty(kind==="side"?"--side-width":"--ai-width",width+"px");
+    const grip=kind==="side"?sideGrip:aiGrip;
+    grip.setAttribute("aria-valuemin",String(Math.round(min)));
+    grip.setAttribute("aria-valuemax",String(Math.round(max)));
+    grip.setAttribute("aria-valuenow",String(width));
+  }
+  window.updateSidebarWidths=()=>{
+    sideGrip.hidden=side.style.display==="none";
+    if(!shell.clientWidth)return;
+    setWidth("side",sideWidth);setWidth("ai",aiWidth);
+    setWidth("side",sideWidth);
+  };
+  function bind(grip,kind,direction){
+    const current=()=>kind==="side"?sideWidth:aiWidth;
+    grip.addEventListener("pointerdown",e=>{
+      if(e.button!==0)return;
+      e.preventDefault();grip.setPointerCapture(e.pointerId);grip.classList.add("on");
+      const start=e.clientX,width=current(),id=e.pointerId;
+      const move=ev=>{if(ev.pointerId===id)setWidth(kind,width+direction*(ev.clientX-start))};
+      const end=ev=>{
+        if(ev.pointerId!==id)return;
+        grip.classList.remove("on");grip.removeEventListener("pointermove",move);
+        grip.removeEventListener("pointerup",end);grip.removeEventListener("pointercancel",end);
+      };
+      grip.addEventListener("pointermove",move);grip.addEventListener("pointerup",end);grip.addEventListener("pointercancel",end);
+    });
+    grip.addEventListener("keydown",e=>{
+      if(e.key!=="ArrowLeft"&&e.key!=="ArrowRight"&&e.key!=="Home"&&e.key!=="End")return;
+      e.preventDefault();
+      const value=e.key==="Home"?0:e.key==="End"?limit(kind):current()+(e.key==="ArrowRight"?1:-1)*direction*(e.shiftKey?50:10);
+      setWidth(kind,value);
+    });
+  }
+  bind(sideGrip,"side",1);bind(aiGrip,"ai",-1);
+  addEventListener("resize",updateSidebarWidths);
+  updateSidebarWidths();
+})();
 (function(){const g=$("grip"),pn=$("panel");
   g.addEventListener("pointerdown",e=>{e.preventDefault();g.setPointerCapture(e.pointerId);g.classList.add("on");
     const mv=ev=>{const r=pn.parentElement.getBoundingClientRect();pn.style.height=Math.max(80,Math.min(r.height-160,r.bottom-ev.clientY))+"px"};
@@ -1067,6 +2194,10 @@ $("cmdBtn").onclick=palette;$("langChip").onclick=pickLang;
 const savedTheme=store.get("sprig.theme");
 if(savedTheme)document.documentElement.dataset.theme=savedTheme;
 applyTheme();buildGrid();updateStats();newTab(nextName(),"js",L.js.s);route();
+{
+  $("langCatalogStatus").textContent="Loading language families and compiler versions…";
+  syncAllEngines().then(messages=>{$("langCatalogStatus").textContent=messages.join(" · ")});
+}
 </script>
 </body>
 </html>
