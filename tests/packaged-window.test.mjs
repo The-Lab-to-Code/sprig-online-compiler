@@ -81,6 +81,41 @@ test("packaged app opens an isolated editor window and runs code", {
     assert.equal(features.open, "function");
     assert.equal(features.save, "function");
     assert.equal(features.folder, "function");
+    const routing = await evaluate(`({
+      javascript: autoChoice(L.js), c: autoChoice(L.c), powershell: autoChoice(L.pwsh),
+      flix: autoChoice(L.flix),
+      catalogRequests: performance.getEntriesByType("resource").filter(entry => /\\/api\\/v2\\/.*\\/runtimes/.test(entry.name)).length
+    })`);
+    assert.deepEqual(routing, { javascript: "browser", c: "wandbox", powershell: "tio", flix: "local", catalogRequests: 0 });
+    await evaluate(`(() => {
+      window.savedFetch = window.fetch;
+      window.fetch = async (url, options) => {
+        if (!String(url).endsWith("/api/v2/ai/generate")) return window.savedFetch(url, options);
+        return new Response(new ReadableStream({ start(controller) { window.testAiStream = controller; } }),
+          { headers: { "Content-Type": "application/x-ndjson" } });
+      };
+      showAi(true); document.querySelector("#aiPrompt").value = "Make a test program";
+      runAi("generate");
+    })()`);
+    for (let i = 0; i < 50 && !await evaluate('!!window.testAiStream'); i++) await new Promise(resolve => setTimeout(resolve, 50));
+    assert.equal(await evaluate('!!window.testAiStream'), true);
+    assert.equal(await evaluate('document.querySelector(".ai-progress").getAttribute("aria-valuenow")'), "0");
+    await evaluate(`window.testAiStream.enqueue(new TextEncoder().encode(JSON.stringify({
+      type:"progress",message:"Finished isolated test 1 of 5.",completedTests:1
+    })+"\\n"))`);
+    for (let i = 0; i < 50 && await evaluate('document.querySelector(".ai-progress").getAttribute("aria-valuenow")') !== "20"; i++)
+      await new Promise(resolve => setTimeout(resolve, 50));
+    assert.equal(await evaluate('document.querySelector(".ai-progress").getAttribute("aria-valuenow")'), "20");
+    assert.match(await evaluate('getComputedStyle(document.querySelector(".ai-progress-dial")).backgroundImage'), /conic-gradient/);
+    await evaluate(`(() => {
+      window.testAiStream.enqueue(new TextEncoder().encode(JSON.stringify({
+        type:"done",text:"Done",verification:{status:"passed",message:"Test passed.",attempts:1}
+      })+"\\n")); window.testAiStream.close();
+    })()`);
+    for (let i = 0; i < 50 && await evaluate('aiBusy'); i++) await new Promise(resolve => setTimeout(resolve, 50));
+    assert.equal(await evaluate('aiBusy'), false);
+    assert.equal(await evaluate('document.querySelector(".ai-progress").getAttribute("aria-valuenow")'), "100");
+    await evaluate('window.fetch = window.savedFetch; showAi(false)');
     const original = await evaluate(`(() => {
       const editor = document.querySelector("#code");
       editor.focus(); editor.setSelectionRange(editor.value.length, editor.value.length); return editor.value;

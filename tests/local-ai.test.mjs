@@ -57,11 +57,11 @@ test("AI repairs use each diagnostic and stop immediately when a test passes", a
 });
 
 test("five failed tests return the fifth tested candidate as broken", async () => {
-  const checks = [], repairs = [], progress = [];
+  const checks = [], repairs = [], progress = [], completedTests = [];
   const result = await verifyAiResponse("Python", { text: "code 1" }, async (text, diagnostic) => {
     repairs.push({ text, diagnostic });
     return { text: "code " + (repairs.length + 1) };
-  }, undefined, message => progress.push(message), async (_language, text) => {
+  }, undefined, (message, count) => { progress.push(message); if (count !== undefined) completedTests.push(count); }, async (_language, text) => {
     checks.push(text);
     return { status: "failed", diagnostic: "error in " + text };
   });
@@ -73,6 +73,7 @@ test("five failed tests return the fifth tested candidate as broken", async () =
   assert.equal(result.verification.attempts, 5);
   assert.equal(result.verification.diagnostic, "error in code 5");
   assert.match(progress.at(-1), /five.*failed/i);
+  assert.deepEqual(completedTests, [1, 2, 3, 4, 5]);
 });
 
 test("a failed or incomplete repair returns the last tested failure and its count", async () => {
@@ -332,7 +333,7 @@ test("runner delivers progress and response fragments before the completion even
   const stub = `const ai=require("./server/local-ai");
     ai.generateLocalAi=async (payload,signal,stream)=>{
       if (stream) {
-        stream.progress("Model ready"); stream.delta("Hi");
+        stream.progress("Test complete", 2); stream.delta("Hi");
         await new Promise(resolve=>setTimeout(resolve,150));
         stream.delta("!");
       }
@@ -370,6 +371,7 @@ test("runner delivers progress and response fragments before the completion even
     }
     const events = (first + remaining).trim().split("\n").map(line => JSON.parse(line));
     assert.deepEqual(events.map(event => event.type), ["progress", "delta", "delta", "done"]);
+    assert.equal(events[0].completedTests, 2);
     assert.equal(events.at(-1).text, "Hi!");
     assert.equal(events.at(-1).verification.status, "broken");
     const jsonResponse = await fetch(base + "/api/v2/ai/generate", {

@@ -19,6 +19,8 @@ const compilers = [
   { name: "gcc-head", language: "C++", version: "17 experimental" },
   { name: "gcc-13.2.0", language: "C++", version: "13.2.0" },
   { name: "nodejs-20.17.0", language: "JavaScript", version: "20.17.0" },
+  { name: "mono-6.12", language: "C#", version: "6.12" },
+  { name: "dotnetcore-8.0", language: "C#", version: "8.0" },
   { name: "vim-9.1", language: "Vim script", version: "9.1" },
   { name: "lazyk", language: "Lazy K", version: "" },
   { name: "openssl-3", language: "OpenSSL", version: "3" }
@@ -138,6 +140,13 @@ test("execution accepts a selected compiler version", async () => {
   }, fetchImpl);
   const compileCall = calls.find(call => call.url.endsWith("/compile.json"));
   assert.equal(JSON.parse(compileCall.init.body).compiler, "gcc-13.2.0");
+});
+
+test("C# .NET chooses a .NET compiler without requiring catalog sync", async () => {
+  const { calls, fetchImpl } = fakeFetchFor();
+  await execute({ language: "csharp.net", files: [{ name: "main.cs", content: "class P {}" }] }, fetchImpl);
+  const compileCall = calls.find(call => call.url.endsWith("/compile.json"));
+  assert.equal(JSON.parse(compileCall.init.body).compiler, "dotnetcore-8.0");
 });
 
 test("compiler errors are returned in Piston response form", async () => {

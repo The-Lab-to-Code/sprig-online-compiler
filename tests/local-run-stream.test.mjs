@@ -66,3 +66,8 @@ test("a nonzero exit finishes the run and reports the failure", async () => {
   assert.equal(await run(), false);
   assert.ok(output.some(item => item.text.includes("exit code 2")));
 });
+
+test("malformed output events fail instead of reporting success", async () => {
+  const response = new Response('not-json\n{"exit":0}\n');
+  await assert.rejects(localRun(response).run(), /invalid output event/);
+});

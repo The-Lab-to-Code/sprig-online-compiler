@@ -164,9 +164,10 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:0 20px 40px}
 .ai-test-error pre{white-space:pre-wrap;overflow-wrap:anywhere}
 .ai-working{display:inline-flex;align-items:center;gap:7px;margin:4px 0 2px;color:var(--vdim);font-size:12px}
 .ai-working[hidden]{display:none}
-.ai-working::before{content:"";width:7px;height:7px;background:var(--vok);border-radius:50%;animation:aiPulse 1.3s ease-in-out infinite}
+.ai-progress{display:inline-flex;align-items:center;gap:5px}
+.ai-progress-dial{width:14px;height:14px;border-radius:50%;background:conic-gradient(var(--accent) var(--progress),var(--vbd) 0);position:relative}
+.ai-progress-dial::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--vside)}
 @keyframes aiEnter{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-@keyframes aiPulse{50%{opacity:.35;transform:scale(.75)}}
 #aiCompose{padding:12px;border-top:1px solid var(--vbd)}
 #aiCompose p{margin:0 0 8px;color:var(--vdim);font-size:12px}
 #aiCompose details{background:none;border:0;border-radius:0;padding:0;margin:0 0 8px;color:var(--vdim);font-size:12px}
@@ -438,7 +439,7 @@ dialog[open]::backdrop{animation:fadeIn .18s ease-out}
       <input class="search" id="q" placeholder="Search languages…" aria-label="Search languages">
       <div class="grid" id="grid"></div>
       <div class="legend">The languages you can run depend on the engine you choose.</div>
-      <div class="legend" id="langCatalogStatus">Sprig loads available languages and compiler versions for you.</div>
+      <div class="legend" id="langCatalogStatus">Sync languages in Settings to see more languages and compiler versions.</div>
       <a href="#request">Request a language</a>
     </section>
     <section id="how">
@@ -648,7 +649,7 @@ const DATA=[
 'japt|Japt|japt|japt|"Hello, World!"','jelly|Jelly|jelly|jelly|“Hello, World!”','matl|MATL|matl|matl|\x27Hello, World!\x27','pyth|Pyth|pyth|pyth|"Hello, World!',
 'flix|Flix|flix|flix|def main(): Unit \\ IO =¶    println("Hello, World!")','effekt|Effekt|effekt|effekt|def main() = println("Hello, World!")',
 'vyxal|Vyxal|vyxal|vyxal|`Hello, World!`','husk|Husk|husk|husk|"Hello, World!"','osabie|05AB1E|osabie|abe|"Hello, World!"',
-'lazyk|Lazy K|lazyk|lazyk|','vimscript|Vim script|vimscript|vim|'
+'lazyk|Lazy K|lazyk|lazyk|','vimscript|Vim script|vimscript|vim|echo "Hello, World!"'
 ];
 const L={},ORDER=[];
 function addLang(id,name,rt,ext,code,metadata){if(L[id])return;L[id]=Object.assign({id,name,rt,ext,s:(code||"").split("¶").join("\n"),local:rt[0]==="@"},metadata||{});ORDER.push(id)}
@@ -681,7 +682,7 @@ function selectedProvider(){
   if(saved==="auto"||saved==="wandbox"||saved==="tio"||saved==="local"||saved==="terminal"||saved==="piston"||saved==="custom")return saved;
   const engine=savedEngine();
   if(engine&&!engineIsAuto(engine)&&!isDefaultPiston(engine))return "custom";
-  return localPage?"piston":"wandbox";
+  return "auto";
 }
 function providerUrl(provider){
   if(provider==="wandbox")return localPage?LOCAL_WANDBOX_URL:HOSTED_WANDBOX_URL;
@@ -691,24 +692,24 @@ function providerUrl(provider){
   return savedEngine();
 }
 const cfg=()=>{const provider=selectedProvider();return {provider,url:providerUrl(provider),tok:provider==="custom"?(store.get("sprig.tok")||""):""}};
-const autoOnline=new Set();
+const autoWandbox=new Set("bash c c++ csharp csharp.net java go rust ruby php perl swift scala haskell ocaml elixir julia rscript groovy lisp pascal d nim zig crystal python python2 node typescript sqlite3 ponylang lazyk vimscript".split(" "));
+const autoTio=new Set("erlang kotlin dart fsharp.net fsi clojure octave racket emacs prolog fortran cobol vlang raku awk dash powershell basic.net basic forth lolcode rockstar befunge93 brachylog cjam golfscript japt jelly matl pyth husk osabie".split(" "));
+const autoLocal=new Set(["flix","effekt","smalltalk"]);
 let catalogLoading=false,catalogReady=Promise.resolve();
 function runnerRuntime(l){return ({"@js":"node","@py":"python","@lua":"lua"})[l.rt]||l.rt}
 function designatedProvider(l){
   if(l.local)return "browser";
+  if(autoLocal.has(l.rt))return "local";
   if(l.tioOnly)return "tio";
-  return "wandbox";
+  if(l.id==="tsdeno")return null;
+  if(l.wandboxVersions?.length||autoWandbox.has(l.rt))return "wandbox";
+  if(l.tioKey||autoTio.has(l.rt))return "tio";
+  return null;
 }
-function autoChoice(l){
-  const provider=designatedProvider(l);
-  if(provider==="browser")return provider;
-  if(!autoOnline.has(provider))return null;
-  return provider==="tio"?(l.tioKey&&l.tioVersions?.length?provider:null)
-    :(l.wandboxVersions?.length?provider:null);
-}
+function autoChoice(l){return designatedProvider(l)}
 function effectiveProvider(l,t){
   const provider=selectedProvider();
-  if(provider==="auto")return catalogLoading?null:autoChoice(l);
+  if(provider==="auto")return autoChoice(l);
   if(provider==="terminal")return provider;
   if(l.local&&!(provider==="tio"&&l.tioVersions))return "browser";
   return provider;
@@ -717,9 +718,8 @@ const engineName=provider=>({browser:"browser",local:"local runner",terminal:"yo
 function executionTarget(l){
   const provider=selectedProvider();
   if(provider==="auto"){
-    if(catalogLoading)return "Auto: checking engines…";
     const choice=autoChoice(l);
-    return choice?"Auto: "+engineName(choice)+" next":"Auto: no engine available";
+    return choice?"Auto: "+engineName(choice)+" next":"Auto: no engine configured";
   }
   if(provider==="terminal")return "Runs in your terminal";
   if(l.tioOnly&&provider!=="tio")return "Select TIO provider";
@@ -878,13 +878,26 @@ function renderAiResponse(body,text){
 }
 function aiActivity(entry,includeEditor,mode){
   const details=document.createElement("details"),summary=document.createElement("summary"),working=document.createElement("div"),list=document.createElement("ul");
-  details.className="ai-activity";summary.textContent="Activity";working.className="ai-working";working.textContent="Working";
+  const progress=document.createElement("span"),dial=document.createElement("span"),percentage=document.createElement("span");
+  details.className="ai-activity";summary.textContent="Activity";working.className="ai-working";working.textContent="Thinking";
+  progress.className="ai-progress";dial.className="ai-progress-dial";progress.setAttribute("role","progressbar");
+  progress.setAttribute("aria-valuemin","0");progress.setAttribute("aria-valuemax","100");
+  progress.setAttribute("title","Progress counts completed code tests, up to five. It is not a time estimate.");
+  let completed=0;
+  const setProgress=(value,finished=false)=>{
+    if(finished)completed=100;
+    else if(Number.isInteger(value)&&value>=0&&value<=5)completed=Math.max(completed,value*20);
+    percentage.textContent=completed+"%";dial.setAttribute("style","--progress:"+completed+"%");
+    progress.setAttribute("aria-valuenow",String(completed));
+    progress.setAttribute("aria-valuetext",finished?"Response complete":(completed/20)+" of up to 5 code tests complete");
+  };
+  setProgress(0);progress.appendChild(dial);progress.appendChild(percentage);working.appendChild(progress);
   details.appendChild(summary);details.appendChild(list);entry.appendChild(working);entry.appendChild(details);
   const step=text=>{const item=document.createElement("li");item.textContent=text;list.appendChild(item)};
   step(includeEditor?"Included the current file as context.":"Current file was not included.");
   if(mode==="explain")step("Included terminal output.");
   step("Waiting for the local runner.");
-  return {working,step};
+  return {working,step,setProgress};
 }
 function showAi(open){
   $("aiSidebar").hidden=!open;$("abAi").setAttribute("aria-expanded",String(open));
@@ -952,7 +965,7 @@ async function askLocalAi(mode,prompt,source,language,terminal,signal,history,ac
     let event;
     try{event=JSON.parse(line)}catch(error){throw new Error("The local runner returned an invalid AI stream.")}
     if(result!==undefined)throw new Error("The local runner sent an unexpected AI stream event.");
-    if(event.type==="progress"&&typeof event.message==="string")activity.step(event.message);
+    if(event.type==="progress"&&typeof event.message==="string"){activity.step(event.message);activity.setProgress(event.completedTests)}
     else if(event.type==="delta"&&typeof event.text==="string"){}
     else if(event.type==="done"&&typeof event.text==="string"&&event.text.trim()){
       if(!validAiVerification(event.verification))throw new Error("Restart start-sprig.bat to enable AI code testing.");
@@ -993,6 +1006,7 @@ async function runAi(mode){
   aiMessage("Thinking on your computer. This may take a few minutes…");
   try{
     const result=await askLocalAi(mode,prompt,$("aiUseEditor").checked?source:"",language,mode==="explain"?terminal:"",aiController.signal,aiHistory.slice(-20),activity);
+    activity.setProgress(0,true);
     const text=result.text;
     renderAiResponse(reply.body,text);activity.step("Response received.");
     const verification=document.createElement("div");verification.className="ai-verification";
@@ -1096,7 +1110,10 @@ function refreshVersionSelector(){
   if(!versions.length){select.style.display="none";return}
   const field=provider==="wandbox"?"wandboxVersion":"tioVersion";
   const fallback=provider==="wandbox"?lang.wandboxDefault:lang.tioDefault;
-  if(!versions.some(version=>version.id===t[field]))t[field]=fallback||versions[0].id;
+  if(!versions.some(version=>version.id===t[field])){
+    const saved=store.get("sprig.version."+provider+"."+lang.id);
+    t[field]=versions.some(version=>version.id===saved)?saved:(fallback||versions[0].id);
+  }
   versions.forEach(version=>{
     const option=document.createElement("option");option.value=version.id;option.textContent=version.label||version.name||version.id;select.appendChild(option);
   });
@@ -1104,7 +1121,7 @@ function refreshVersionSelector(){
   select.title="Compiler or implementation version ("+engineName(provider)+")";
   select.style.display=versions.length>1?"inline-block":"none";
 }
- $("versionSel").onchange=()=>{const t=tabs[active],provider=t&&effectiveProvider(L[t.lang],t);if(t&&(provider==="wandbox"||provider==="tio")){t[provider==="wandbox"?"wandboxVersion":"tioVersion"]=$("versionSel").value;$("sbEng").textContent=executionTarget(L[t.lang]);refreshVersionSelector()}};
+ $("versionSel").onchange=()=>{const t=tabs[active],provider=t&&effectiveProvider(L[t.lang],t);if(t&&(provider==="wandbox"||provider==="tio")){t[provider==="wandbox"?"wandboxVersion":"tioVersion"]=$("versionSel").value;store.set("sprig.version."+provider+"."+t.lang,$("versionSel").value);$("sbEng").textContent=executionTarget(L[t.lang]);refreshVersionSelector()}};
 function activate(i){
   if(active>=0&&tabs[active])tabs[active].text=code.value;
   active=i;const t=tabs[i];code.value=t.text;
@@ -1155,7 +1172,7 @@ function qp(items,ph,pick){
   inp.onkeydown=e=>{if(e.key==="ArrowDown"){sel=Math.min(sel+1,shown.length-1);render();e.preventDefault()}else if(e.key==="ArrowUp"){sel=Math.max(sel-1,0);render();e.preventDefault()}else if(e.key==="Enter"){e.preventDefault();choose(sel)}else if(e.key==="Escape"){close();code.focus()}};
   el.onmousedown=e=>{if(e.target===el){close();code.focus()}};
 }
-function pickLang(){if(active<0){$("emptyNew").focus();return}qp(ORDER.map(id=>({label:L[id].name,detail:selectedProvider()==="terminal"?"your terminal":selectedProvider()==="auto"?({browser:"browser",tio:"TIO",wandbox:"engine"})[designatedProvider(L[id])]:L[id].tioOnly?"TIO":L[id].local?(selectedProvider()==="tio"&&L[id].tioVersions?"TIO":"browser"):"engine",id})),"Select language mode",it=>{setLang(it.id);code.focus()})}
+function pickLang(){if(active<0){$("emptyNew").focus();return}qp(ORDER.map(id=>({label:L[id].name,detail:selectedProvider()==="terminal"?"your terminal":selectedProvider()==="auto"?({browser:"browser",tio:"TIO",wandbox:"engine",local:"local runner"})[designatedProvider(L[id])]||"choose an engine":L[id].tioOnly?"TIO":L[id].local?(selectedProvider()==="tio"&&L[id].tioVersions?"TIO":"browser"):"engine",id})),"Select language mode",it=>{setLang(it.id);code.focus()})}
 function stopJob(){if(job){if(job.external){line("Close the separate terminal window to stop your program.","i");return}runCancelled=true;job.kill()}}
 const CMDS=[["Run Code","Ctrl+Enter",()=>run()],["Stop","",stopJob],["New File","",()=>createNewFile()],["Rename File","F2",()=>renameTab(active)],["Open File…","Ctrl+O",()=>openFile()],["Open Folder…","",()=>openDir()],["Save","Ctrl+S",()=>save()],["Save As…","Ctrl+Shift+S",()=>saveAs()],["Change Language Mode","",()=>pickLang()],["Engine Settings","",()=>openSettings()],["Toggle Light/Dark Theme","",()=>toggleTheme()],["Go to Home Page","",()=>{location.hash="home";route();scrollTo(0,0)}],["Save All","Ctrl+Alt+S",()=>saveAll()]];
 function palette(){qp(CMDS.map(c=>({label:c[0],detail:c[1],fn:c[2]})),"Type a command",it=>it.fn())}
@@ -1245,9 +1262,9 @@ async function postExecute(url,tok,l,src,input,signal,provider,selectedVersion){
     const selected=selectedVersion||l.wandboxDefault||l.wandboxVersions[0].id;
     language="wandbox:"+encodeURIComponent(selected);
   }else if(provider==="tio"){
-    if(!l.tioKey)throw new Error("TIO does not support this language. Sync languages and try again.");
-    language="tio:"+encodeURIComponent(l.tioKey);
-    version=selectedVersion||l.tioDefault||"*";
+    const key=l.tioKey||({fsi:"f#", "fsharp.net":"f#", basic:"my-basic", "basic.net":"visual basic .net", emacs:"emacs lisp", befunge93:"befunge-93", vlang:"v", osabie:"05ab1e"})[l.rt]||l.rt;
+    language="tio:"+encodeURIComponent(key);
+    version=selectedVersion||l.tioDefault||(l.rt==="fsi"?"fs-core":"*");
   }
   const r=await fetch(url,{method:"POST",signal,headers:Object.assign({"Content-Type":"application/json"},tok?{Authorization:tok}:{}),
     body:JSON.stringify({language,version,files:[{name:getRemoteFilename(l,src),content:src}],stdin:input})});
@@ -1277,7 +1294,7 @@ async function runLocalStream(url,l,src,input,allowInstall=true){
       buf+=dec.decode(step.value,{stream:true});let idx;
       while((idx=buf.indexOf("\n"))>=0){
         const row=buf.slice(0,idx);buf=buf.slice(idx+1);if(!row.trim())continue;
-        let msg;try{msg=JSON.parse(row)}catch(e){continue}
+        let msg;try{msg=JSON.parse(row)}catch(e){throw new Error("The local runner returned an invalid output event.")}
         if(msg.pty&&liveStdin)liveStdin.pty=true;
         if(msg.stdout)write(msg.stdout);
         if(msg.stderr)write(msg.stderr,"e");
@@ -1327,10 +1344,8 @@ async function runRemote(l,src,input,provider=selectedProvider(),tab=tabs[active
     if(!localPage)throw new Error(l.name+" requires the Sprig local runner and is not available on the hosted site.");
     targets.push({url:localRunnerUrl(),tok:"",stream:true});
   }else if(provider==="wandbox"){
-    if(!l.wandboxVersions||!l.wandboxVersions.length)throw new Error("Wandbox does not support this language. Select TIO in Settings.");
     targets.push({url,tok:"",stream:false});
   }else if(provider==="tio"){
-    if(!l.tioKey)throw new Error("TIO does not support this language. Sync languages and try again.");
     targets.push({url,tok:"",stream:false});
   }else if(provider==="custom"){
     if(!url)throw new Error("Enter a Piston-compatible Execute URL in Settings.");
@@ -1409,19 +1424,13 @@ async function run(){
   const input=consumeStdin();if(input)write(input,"i");
   let provider,t0,runTab;
   try{
-    if(auto&&catalogLoading&&!l.local){
-      line("Auto is checking available engines…","i");
-      let cancelWait;const stopped=new Promise(resolve=>{cancelWait=resolve});
-      job={kill(){line("\n■ Stopped","i");cancelWait()}};
-      await Promise.race([catalogReady,stopped]);if(runCancelled)return;
-    }
     runTab=Object.assign({},tab);provider=auto?autoChoice(l):effectiveProvider(l,runTab);
     if(provider==="terminal"&&input){
       stdinQueue.unshift(...stdinFeed);stdinFeed=[];
       throw new Error("Clear the queued input first, then type it in your terminal when the program asks.");
     }
     if(!provider){
-      throw new Error("The designated "+engineName(designatedProvider(l))+" engine is unavailable for "+l.name+". Sync languages or check the provider in Settings.");
+      throw new Error("Auto has no engine configured for "+l.name+". Choose an engine in Settings.");
     }
     if(auto)line("Auto chose "+engineName(provider)+".","i");
     t0=performance.now();
@@ -1985,9 +1994,9 @@ $("settingsEngineTab").onclick=()=>settingsSection(false);$("settingsRestoreTab"
 function refreshEngineSettings(){
  const provider=$("sProvider").value;
  $("customEngineFields").style.display=provider==="custom"?"":"none";
- $("sSync").textContent=provider==="auto"?"Check engines and sync languages":provider==="wandbox"?"Sync compiler versions":provider==="tio"?"Sync TIO languages":"Sync languages";
+ $("sSync").textContent=provider==="auto"?"Sync language catalogs":provider==="wandbox"?"Sync compiler versions":provider==="tio"?"Sync TIO languages":"Sync languages";
  $("engineHelp").textContent=provider==="auto"
-   ?"Auto uses the listed engine for each language: your browser, Wandbox, or TIO. Erlang uses TIO. Wandbox and TIO receive your code and input. Auto won't switch engines based on speed or use your custom engine."
+   ?"Auto uses a remembered engine for each language without testing engines first. Wandbox and TIO receive your code and input; some languages use the local runner. Sync languages to update optional compiler versions."
    :provider==="wandbox"
    ?"Wandbox receives your code and input when you run it. You don't need an API key, but Wandbox sets its own limits and availability."
    :provider==="tio"
@@ -2015,7 +2024,6 @@ function saveCfg(){
  if(provider==="local"&&!localPage){$("sMsg").textContent="The local runner is only available on your computer.";return false}
  if(provider==="terminal"&&!localPage){$("sMsg").textContent="Your terminal is only available on your computer.";return false}
  store.set("sprig.provider",provider);store.set("sprig.url",url);store.set("sprig.tok",$("sTok").value.trim());
- if(provider==="auto"&&!catalogLoading)syncAllEngines().then(messages=>{$("langCatalogStatus").textContent=messages.join(" · ")});
  if(active>=0){$("sbEng").textContent=executionTarget(L[tabs[active].lang]);refreshVersionSelector()}
  return true;
 }
@@ -2041,6 +2049,11 @@ async function syncRuntimeOptions(provider,url,tok){
  const endpoint=runtimeListUrl(provider,url);
  if(!endpoint)throw new Error("Set an Execute URL before syncing languages.");
  const rts=await fetchRuntimeList(endpoint,provider==="custom"&&tok?{Authorization:tok}:{});
+ const result=applyRuntimeOptions(provider,rts);
+ if(provider==="wandbox"||provider==="tio")store.set("sprig.catalog."+provider,JSON.stringify(rts));
+ return result;
+}
+function applyRuntimeOptions(provider,rts){
  let added=0,versions=0;const known=new Set(ORDER.map(i=>L[i].rt));
  const localAliases={python:"@py",python3:"@py",node:"@js",javascript:"@js",typescript:"@ts",coffeescript:"@coffee",lua:"@lua"};
  const matchingModes=(base,provider)=>ORDER.map(key=>L[key]).filter(lang=>
@@ -2102,9 +2115,8 @@ function syncAllEngines(){
    for(const provider of ["wandbox","tio"]){
      try{
        const result=await syncRuntimeOptions(provider,providerUrl(provider),"");
-       autoOnline.add(provider);
        messages.push((provider==="wandbox"?"Wandbox":"TIO")+": "+result.found+" language families");
-     }catch(error){autoOnline.delete(provider);messages.push(provider+" unavailable: "+error.message)}
+     }catch(error){messages.push(provider+" unavailable: "+error.message)}
    }
    return messages;
  })().finally(()=>{
@@ -2194,10 +2206,14 @@ $("cmdBtn").onclick=palette;$("langChip").onclick=pickLang;
 const savedTheme=store.get("sprig.theme");
 if(savedTheme)document.documentElement.dataset.theme=savedTheme;
 applyTheme();buildGrid();updateStats();newTab(nextName(),"js",L.js.s);route();
-{
-  $("langCatalogStatus").textContent="Loading language families and compiler versions…";
-  syncAllEngines().then(messages=>{$("langCatalogStatus").textContent=messages.join(" · ")});
+for(const provider of ["wandbox","tio"]){
+  const saved=store.get("sprig.catalog."+provider);
+  if(saved){
+    try{const rts=JSON.parse(saved);if(!Array.isArray(rts))throw new Error("Invalid saved catalog.");applyRuntimeOptions(provider,rts)}
+    catch(error){$("langCatalogStatus").textContent="Couldn't read the saved "+provider+" catalog. Sync languages in Settings to refresh it."}
+  }
 }
+buildGrid();updateStats();refreshVersionSelector();
 </script>
 </body>
 </html>

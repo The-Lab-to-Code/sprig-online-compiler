@@ -255,10 +255,17 @@ test("the assistant withholds streamed code until verification completes", async
   const reply = elements.aiOutput.children[1];
   const activity = reply.children.find(child => child.className === "ai-activity");
   const body = reply.children.find(child => child.className === "ai-entry-body");
+  const working = reply.children.find(child => child.className === "ai-working");
+  const progress = working.children.find(child => child.className === "ai-progress");
+  assert.equal(progress.attributes["aria-valuenow"], "0");
   assert.match(activity.textContent, /Generating the response locally/);
   assert.equal(body.textContent, "");
   assert.doesNotMatch(activity.textContent, /Hello 🌱/);
   assert.equal(elements.aiApply.disabled, true);
+  event({ type: "progress", message: "Finished isolated test 1 of 5.", completedTests: 1 });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(progress.attributes["aria-valuenow"], "20");
+  assert.match(progress.textContent, /20%/);
   event({ type: "delta", text: "\n```js\nconsole.log(1);\n```" });
   event({ type: "done", text: "Hello 🌱\n```js\nconsole.log(1);\n```", verification: { status: "passed", message: "Basic run passed." } });
   stream.close();
@@ -268,6 +275,7 @@ test("the assistant withholds streamed code until verification completes", async
   assert.equal(elements.aiApply.disabled, false);
   assert.match(activity.textContent, /Response received/);
   assert.match(elements.aiStatus.textContent, /Test passed/);
+  assert.equal(progress.attributes["aria-valuenow"], "100");
 });
 
 test("an older JSON-only runner cannot display unverified code", async () => {

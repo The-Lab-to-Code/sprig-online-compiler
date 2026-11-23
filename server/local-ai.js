@@ -156,6 +156,8 @@ async function verifyAiResponse(language, initial, regenerate, signal, progress,
       if (lastFailure && verification.reason === "no-code") return broken("The AI repair did not contain a complete code block.");
       return { text: result.text, verification: { ...verification, attempts: attempt - 1 } };
     }
+    if (progress && (verification.status === "passed" || verification.status === "failed"))
+      progress("Finished isolated test " + attempt + " of 5.", attempt);
     if (verification.status === "passed") return { text: result.text, verification: { ...verification, attempts: attempt } };
     if (verification.status !== "failed" || typeof verification.diagnostic !== "string") {
       throw aiError("The isolated code test returned an invalid result.", 502);

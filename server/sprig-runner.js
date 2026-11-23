@@ -27,7 +27,7 @@ const commands = {
   awk: ["awk", "-f"], forth: ["gforth"], powershell: ["powershell", "-File"],
   pwsh: ["pwsh", "-File"], sqlite3: ["sqlite3"], clojure: ["clojure", "-M"],
   emacs: ["emacs", "--batch", "-l"], elixir: ["elixir"], erlang: ["erlc"],
-  octave: ["octave", "--quiet", "--eval"], racket: ["racket"], smalltalk: ["gst"],
+  octave: ["octave", "--quiet"], racket: ["racket"], smalltalk: ["gst"],
   effekt: ["java", "-Xss32m", "-jar", path.join(process.env.APPDATA || "", "npm", "node_modules", "@effekt-lang", "effekt", "bin", "effekt"), "--backend", "js"],
   flix: ["java", "-jar", flixJar]
 };
@@ -181,6 +181,7 @@ function createSession(id) {
 }
 
 function flushSession(session) {
+  if (session.compiling) return;
   const child = session.child;
   if (session.pty && child) {
     while (session.queue.length) child.write(session.queue.shift().replace(/\r?\n/g, "\r"));
@@ -250,7 +251,9 @@ function createLocalPlan(language, spec, source) {
   let compiler = executable;
   let runCompiledOutput = null;
 
-  if (language === "c" || language === "c++") {
+  if (language === "sqlite3") {
+    args = ["-batch", "-bail", "-init", file, ":memory:", ".exit"];
+  } else if (language === "c" || language === "c++") {
     const output = path.join(dir, process.platform === "win32" ? "main.exe" : "main");
     compiledArgs = [file, "-o", output];
   } else if (language === "rust") {
@@ -394,7 +397,7 @@ async function execute(payload) {
   const { dir, args, compiledArgs, compiler, runCompiledOutput } =
     createLocalPlan(language, spec, payload.files?.[0]?.content || "");
 
-  return new Promise(resolve => {
+  try { return await new Promise(resolve => {
     const run = (cmd, runArgs) => {
       if (payload.session && sessions.has(payload.session) && sessions.get(payload.session).child) {
         return;
@@ -438,9 +441,10 @@ async function execute(payload) {
         cwd: dir, env: process.env, shell: false, windowsHide: true,
         stdio: ["pipe", "pipe", "pipe"]
       });
-      let stdout = "", stderr = "";
+      let stdout = "", stderr = "", timedOut = false;
       const limit = payload.interactive && !payload.closeStdin ? 120000 : 30000;
       const timeout = setTimeout(() => {
+        timedOut = true;
         child.kill();
         const note = "\nStopped after " + (limit / 1000) + " seconds (time limit)";
         stderr += note;
@@ -454,7 +458,7 @@ async function execute(payload) {
       } else {
         child.stdin.end(payload.stdin || "");
       }
-      const finish = (code, error) => {
+      const finish = (code, signal, error) => {
         clearTimeout(timeout);
         if (payload.session) sessions.delete(payload.session);
         if (language === "effekt") {
@@ -468,21 +472,32 @@ async function execute(payload) {
             .join("\n");
         }
         if (error) stderr += error;
-        resolve({ run: { stdout, stderr, code: code || 0, signal: null } });
+        resolve({ run: { stdout, stderr, code: timedOut ? 124 : (Number.isInteger(code) ? code : 1), signal: signal || null } });
       };
       child.stdout.on("data", b => { stdout += b; if (payload.onEvent) payload.onEvent({ stdout: b.toString() }); });
       child.stderr.on("data", b => { stderr += b; if (payload.onEvent) payload.onEvent({ stderr: b.toString() }); });
-      child.on("error", e => finish(1, e.message));
-      child.on("close", code => finish(code || 0));
+      child.once("error", e => finish(1, null, e.message));
+      child.once("close", (code, signal) => finish(code, signal));
     };
 
     if (compiledArgs) {
       const child = spawn(compiler, compiledArgs, { cwd: dir, env: process.env, shell: false, windowsHide: true });
-      let stdout = "", stderr = "";
+      const session = payload.session && sessions.get(payload.session);
+      if (session) { session.child = child; session.compiling = true; }
+      let stdout = "", stderr = "", startupError, timedOut = false;
+      const timeout = setTimeout(() => { timedOut = true; child.kill(); }, 120000);
       child.stdout.on("data", b => stdout += b);
       child.stderr.on("data", b => stderr += b);
-      child.on("close", code => {
-        if (code !== 0) return resolve({ compile: { stdout, stderr, code, output: stdout + stderr }, run: null });
+      child.once("error", error => { startupError = error; });
+      child.once("close", (code, signal) => {
+        clearTimeout(timeout);
+        if (session) { session.child = null; session.compiling = false; }
+        if (startupError) stderr += startupError.message;
+        if (timedOut) stderr += "\nCompilation stopped after 120 seconds (time limit).";
+        if (code !== 0 || startupError || timedOut) return resolve({ compile: {
+          stdout, stderr, code: timedOut ? 124 : (Number.isInteger(code) && code !== 0 ? code : 1),
+          signal: signal || null, output: stdout + stderr
+        }, run: null });
         if (runCompiledOutput) return run(runCompiledOutput[0], runCompiledOutput[1]);
         const output = path.join(dir, process.platform === "win32" ? "main.exe" : "main");
         run(output, []);
@@ -490,7 +505,10 @@ async function execute(payload) {
     } else {
       run(executable, args);
     }
-  });
+  }); } finally {
+    try { fs.rmSync(dir, { recursive: true, force: true }); }
+    catch (error) { throw new Error("Could not remove temporary run files: " + error.message); }
+  }
 }
 
 const server = http.createServer(async (req, res) => {
@@ -585,7 +603,7 @@ const server = http.createServer(async (req, res) => {
       };
       try {
         const stream = wantsStream ? {
-          progress: message => sendEvent({ type: "progress", message }),
+          progress: (message, completedTests) => sendEvent({ type: "progress", message, ...(completedTests === undefined ? {} : { completedTests }) }),
           delta: text => sendEvent({ type: "delta", text })
         } : undefined;
         const result = await generateLocalAi(payload, controller.signal, stream);

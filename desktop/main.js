@@ -24,6 +24,7 @@ function updateMenu() {
       { label: "Quit Sprig", click: () => window.close() }
     ]
   }]));
+  window.setMenuBarVisibility(false);
 }
 
 const checkForUpdates = setupUpdates({
@@ -43,7 +44,7 @@ function createWindow(url) {
   const origin = new URL(url).origin;
   window = new BrowserWindow({
     width: 1440, height: 900, minWidth: 800, minHeight: 600,
-    title: "Sprig", show: false,
+    title: "Sprig", show: false, autoHideMenuBar: true,
     webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true }
   });
   const contents = window.webContents;

@@ -12,7 +12,8 @@
 
 Run `npm ci` and then `npm run build:windows` on 64-bit Windows. The installer
 is produced in `dist/`. The installer launches Sprig in its own application
-window. Use the window's **Sprig** menu to check for updates or quit. Unsaved
+window. Press **Alt** to reveal the hidden **Sprig** menu and check for updates
+or quit. Unsaved
 changes prompt for confirmation before closing. The desktop app has its own
 browser storage, separate from your regular browser; save files there before
 switching. Storage also remains tied to the runner's port.
@@ -59,6 +60,12 @@ input in Sprig before running; the terminal window stays open after the program
 finishes. Temporary files are cleaned up when that window closes while Sprig is
 running. Closing Sprig does not stop the separate terminal.
 
+Auto uses a fixed engine for each language without testing or probing engines
+first. Browser languages run in the browser; other languages use Wandbox, TIO,
+or the local runner. Some languages have no configured Auto engine. Sync
+languages in Settings to refresh optional catalogs and compiler versions;
+synced catalogs and chosen versions are remembered in browser storage.
+
 The editor pairs parentheses, square and curly brackets, single and double
 quotes, and backticks. It can wrap a selection, skip an existing closer, and
 delete an empty pair together. Angle brackets are left alone because they are
@@ -98,7 +105,9 @@ If Docker or a required image is unavailable, the current code is shown as
 without a complete code block are also marked **Untested**. Multiple code
 blocks for a supported language cannot be tested as a single program.
 Generated responses are held back while testing instead of streaming live;
-Activity shows progress.
+Activity shows progress. The dial beside Thinking counts completed tests in
+steps of 20%, reaching 100% when the response is ready. It is not a time
+estimate, so it may stay at 0% while the model generates a response.
 
 This is a basic run with empty input, not a correctness or security guarantee.
 Interactive, multi-file, browser-dependent, and dependency-dependent programs

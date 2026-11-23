@@ -5,7 +5,7 @@ import test from "node:test";
 import vm from "node:vm";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
-const start = html.indexOf("const autoOnline=");
+const start = html.indexOf("const autoWandbox=");
 const end = html.indexOf("const engineName=", start);
 assert.ok(start >= 0 && end > start, "Auto engine selection is missing");
 const autoCode = html.slice(start, end);
@@ -30,8 +30,7 @@ test("Auto consistently uses each language's displayed provider", () => {
   run(`var browser={id:"js",rt:"@js",local:true,wandboxVersions:[{id:"node"}]};
     var engine={id:"c",rt:"c",wandboxVersions:[{id:"gcc"}],tioKey:"c",tioVersions:[{id:"c"}]};
     var tio={id:"ada",rt:"ada",tioOnly:true,tioKey:"ada",tioVersions:[{id:"ada"}]};
-    var erlang={id:"erlang",rt:"erlang",tioOnly:true,wandboxVersions:[{id:"erlang"}],tioKey:"erlang",tioVersions:[{id:"erlang-escript"}]};
-    autoOnline.add("wandbox");autoOnline.add("tio");`);
+    var erlang={id:"erlang",rt:"erlang",tioOnly:true,wandboxVersions:[{id:"erlang"}],tioKey:"erlang",tioVersions:[{id:"erlang-escript"}]};`);
   assert.equal(run("autoChoice(browser)"), "browser");
   assert.equal(run("autoChoice(engine)"), "wandbox");
   assert.equal(run("autoChoice(tio)"), "tio");
@@ -39,18 +38,54 @@ test("Auto consistently uses each language's displayed provider", () => {
   assert.equal(saved.has("sprig.auto.stats"), false);
 });
 
-test("Auto does not switch providers when the listed engine is unavailable", () => {
+test("Auto chooses without probing catalogs and does not change on catalog failures", () => {
   const { run } = selector(false);
-  run(`var lang={id:"c",rt:"c",wandboxVersions:[{id:"gcc"}],tioKey:"c",tioVersions:[{id:"c"}]};
-    autoOnline.add("tio");`);
+  run(`var lang={id:"c",rt:"c",tioKey:"c",tioVersions:[{id:"c"}]};`);
   assert.equal(run("designatedProvider(lang)"), "wandbox");
-  assert.equal(run("autoChoice(lang)"), null);
-  run("delete lang.wandboxVersions");
-  assert.equal(run("designatedProvider(lang)"), "wandbox");
-  assert.equal(run("autoChoice(lang)"), null);
-  run('lang.wandboxVersions=[{id:"gcc"}]');
-  run('autoOnline.add("wandbox")');
   assert.equal(run("autoChoice(lang)"), "wandbox");
+  assert.equal(run('autoChoice({id:"pwsh",rt:"powershell"})'), "tio");
+  assert.equal(run('autoChoice({id:"flix",rt:"flix"})'), "local");
+  assert.equal(run('autoChoice({id:"tsdeno",rt:"typescript"})'), null);
+  assert.equal(run('autoChoice({id:"bqn",rt:"bqn"})'), null);
+  assert.equal(run('autoChoice({id:"unknown",rt:"unknown"})'), null);
+});
+
+test("Auto executes using the designated engine without synced metadata", async () => {
+  const start = html.indexOf("async function runRemote(");
+  const end = html.indexOf("async function runPy(", start);
+  const requests = [];
+  const context = vm.createContext({
+    providerUrl: provider => provider, line() {}, showResult: () => true,
+    postExecute: async (url, token, language, source, input, signal, provider) => {
+      requests.push({ url, provider, language: language.rt });
+      return { compile: { code: 0 }, run: { code: 0 } };
+    },
+    reachError: error => error, AbortController, setTimeout, clearTimeout
+  });
+  vm.runInContext(html.slice(start, end), context);
+  assert.equal(await vm.runInContext('runRemote({rt:"c"},"","", "wandbox",{},true)', context), true);
+  assert.equal(await vm.runInContext('runRemote({rt:"powershell"},"","", "tio",{},true)', context), true);
+  assert.deepEqual(requests, [{ url: "wandbox", provider: "wandbox", language: "c" },
+    { url: "tio", provider: "tio", language: "powershell" }]);
+});
+
+test("TIO's built-in aliases work without catalog sync", async () => {
+  const start = html.indexOf("async function postExecute(");
+  const end = html.indexOf("const LOCAL_RTS=", start);
+  const requests = [];
+  const context = vm.createContext({
+    fetch: async (_url, options) => {
+      requests.push(JSON.parse(options.body));
+      return { ok: true, text: async () => '{"run":{"code":0}}' };
+    },
+    getRemoteFilename: () => "main.fs"
+  });
+  vm.runInContext(html.slice(start, end), context);
+  await vm.runInContext('postExecute("url","",{rt:"fsi"},"code","",null,"tio")', context);
+  assert.equal(requests[0].language, "tio:f%23");
+  assert.equal(requests[0].version, "fs-core");
+  await vm.runInContext('postExecute("url","",{rt:"basic"},"code","",null,"tio")', context);
+  assert.equal(requests[1].language, "tio:my-basic");
 });
 
 test("Auto treats a Wandbox compiler permission error as an engine failure", async () => {
@@ -120,6 +155,7 @@ test("catalog discovery associates supported implementations with browser and na
   assert.ok(start >= 0 && end > start);
   const context = vm.createContext({
     ORDER: ["browser", "node"],
+    store: { set() {} },
     L: { browser: { rt: "@js", local: true, s: "example" }, node: { rt: "node", s: "example" } },
     runtimeListUrl: () => "catalog",
     fetchRuntimeList: async () => [{
@@ -133,11 +169,35 @@ test("catalog discovery associates supported implementations with browser and na
   assert.equal(context.L.node.wandboxDefault, "node-1");
 });
 
+test("synced catalogs can be restored without contacting an engine", async () => {
+  const start = html.indexOf("async function syncRuntimeOptions(");
+  const end = html.indexOf("function syncAllEngines(", start);
+  const saved = new Map();
+  const createContext = fetchRuntimeList => {
+    const context = vm.createContext({
+      ORDER: ["c"], L: { c: { rt: "c", s: "example" } },
+      store: { set: (key, value) => saved.set(key, value) },
+      runtimeListUrl: () => "catalog", fetchRuntimeList
+    });
+    vm.runInContext(html.slice(start, end), context);
+    return context;
+  };
+  const original = createContext(async () => [{
+    provider: "wandbox", baseLanguage: "c", defaultVersion: "gcc-1", versions: [{ id: "gcc-1" }]
+  }]);
+  await vm.runInContext('syncRuntimeOptions("wandbox","","")', original);
+  const restored = createContext(() => { throw new Error("Unexpected catalog request"); });
+  restored.savedCatalog = saved.get("sprig.catalog.wandbox");
+  vm.runInContext('applyRuntimeOptions("wandbox",JSON.parse(savedCatalog))', restored);
+  assert.equal(restored.L.c.wandboxDefault, "gcc-1");
+});
+
 test("catalog discovery uses compatible TIO implementations for F# Interactive and BASIC", async () => {
   const start = html.indexOf("async function syncRuntimeOptions(");
   const end = html.indexOf("function syncAllEngines(", start);
   const context = vm.createContext({
     ORDER: ["fsharp", "fsi", "basic"],
+    store: { set() {} },
     L: {
       fsharp: { rt: "fsharp.net", s: "example" },
       fsi: { rt: "fsi", s: "example" },
@@ -163,6 +223,7 @@ test("C# .NET only receives .NET versions from the Wandbox C# catalog", async ()
   const end = html.indexOf("function syncAllEngines(", start);
   const context = vm.createContext({
     ORDER: ["mono", "dotnet"],
+    store: { set() {} },
     L: { mono: { rt: "csharp", s: "example" }, dotnet: { rt: "csharp.net", s: "example" } },
     runtimeListUrl: () => "catalog",
     fetchRuntimeList: async () => [{

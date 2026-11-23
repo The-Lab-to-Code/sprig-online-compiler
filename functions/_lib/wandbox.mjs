@@ -185,6 +185,7 @@ function compilerForRuntime(runtime, compilers) {
   const candidates = compilers.filter(entry => {
     if (language === "Python 2") return entry.language === "Python" && /cpython-2(?:\.|$)/i.test(entry.name);
     if (language === "Python") return entry.language === "Python" && !/cpython-2(?:\.|$)/i.test(entry.name);
+    if (key === "csharp.net") return entry.language === "C#" && /^dotnetcore-/i.test(entry.name);
     return entry.language === language || (language === "C++" && entry.language === "CPP");
   });
   if (!candidates.length) throw new WandboxError(`Wandbox has no compiler available for ${language}.`, 400);
