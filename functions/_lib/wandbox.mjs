@@ -242,7 +242,8 @@ export async function execute(payload, fetchImpl = fetch, signal) {
 
   const failed = result.status !== "0";
   const compileOutput = boundedOutput(result.compiler_output);
-  const compileError = boundedOutput(result.compiler_error || (!result.compiler_output && result.compiler_message));
+  const compileError = boundedOutput(result.compiler_error || (!result.compiler_output && result.compiler_message) ||
+    (failed && result.signal ? `Process stopped by signal ${result.signal}.` : ""));
   const runCode = Number.isInteger(Number(result.program_exit_code)) ? Number(result.program_exit_code) : (failed ? 1 : 0);
   return {
     compile: {

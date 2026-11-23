@@ -58,7 +58,7 @@ test("packaged app opens an isolated editor window and runs code", {
       socket.send(JSON.stringify({ id, method, params }));
     });
     const evaluate = async expression => {
-      const response = await call("Runtime.evaluate", { expression, returnByValue: true });
+      const response = await call("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
       assert.equal(response.error, undefined, JSON.stringify(response));
       assert.equal(response.result.exceptionDetails, undefined, JSON.stringify(response));
       return response.result.result.value;
@@ -91,6 +91,23 @@ test("packaged app opens an isolated editor window and runs code", {
       catalogRequests: performance.getEntriesByType("resource").filter(entry => /\\/api\\/v2\\/.*\\/runtimes/.test(entry.name)).length
     })`);
     assert.deepEqual(routing, { javascript: "browser", c: "wandbox", powershell: "tio", flix: "local", catalogRequests: 0 });
+    const crystal = await evaluate(`(async () => {
+      const originalFetch=window.fetch;
+      let request;
+      window.fetch=async (url,options)=>{
+        if(!String(url).endsWith("/api/v2/tio/execute"))return originalFetch(url,options);
+        request=JSON.parse(options.body);
+        return new Response(JSON.stringify({compile:{code:0},run:{code:0,stdout:"Hello, World!\\n"}}),
+          {headers:{"Content-Type":"application/json"}});
+      };
+      try {
+        setLang("crystal"); await run();
+        return {language:request.language,source:request.files[0].content,output:out.textContent};
+      } finally {window.fetch=originalFetch;setLang("js")}
+    })()`);
+    assert.equal(crystal.language, "tio:crystal");
+    assert.equal(crystal.source, 'puts "Hello, World!"');
+    assert.match(crystal.output, /Hello, World!/);
     await evaluate(`(() => {
       window.savedFetch = window.fetch;
       window.fetch = async (url, options) => {

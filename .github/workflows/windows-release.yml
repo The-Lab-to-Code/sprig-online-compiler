@@ -22,7 +22,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm version "1.0.${env:GITHUB_RUN_NUMBER}" --no-git-tag-version
-      - run: node --test tests\desktop-updates.test.mjs tests\desktop-window-menu.test.mjs tests\local-ai.test.mjs tests\local-execution.test.mjs tests\local-run-stream.test.mjs tests\powershell-interactive.test.mjs tests\editor-pairs.test.mjs tests\native-terminal-ui.test.mjs tests\auto-engine.test.mjs tests\ai-helper.test.mjs tests\wandbox.test.mjs
+      - run: node --test tests\desktop-updates.test.mjs tests\desktop-window-menu.test.mjs tests\local-ai.test.mjs tests\local-execution.test.mjs tests\local-run-stream.test.mjs tests\powershell-interactive.test.mjs tests\editor-pairs.test.mjs tests\native-terminal-ui.test.mjs tests\auto-engine.test.mjs tests\online-preview.test.mjs tests\ai-helper.test.mjs tests\wandbox.test.mjs
       - run: npm run build:windows
       - run: |
           $env:SPRIG_PACKAGED_EXE = (Resolve-Path 'dist\win-unpacked\Sprig.exe').Path

@@ -35,6 +35,7 @@ test("Auto consistently uses each language's displayed provider", () => {
   assert.equal(run("autoChoice(engine)"), "wandbox");
   assert.equal(run("autoChoice(tio)"), "tio");
   assert.equal(run("autoChoice(erlang)"), "tio");
+  assert.equal(run('autoChoice({id:"crystal",rt:"crystal",wandboxVersions:[{id:"crystal-1.13.3"}]})'), "tio");
   assert.equal(saved.has("sprig.auto.stats"), false);
 });
 
@@ -196,7 +197,7 @@ test("the bundled catalog restores the expanded list without pinning old compile
   const catalog = JSON.parse(await readFile(new URL("../sprig-vendor/language-catalog.json", import.meta.url), "utf8"));
   const data = html.slice(html.indexOf("const DATA="), html.indexOf("const $=id=>"));
   const apply = html.slice(html.indexOf("function applyRuntimeOptions("), html.indexOf("function syncAllEngines("));
-  const context = vm.createContext({ catalog });
+  const context = vm.createContext({ catalog, previewMode: false });
   vm.runInContext(data + autoCode + apply + `
     applyRuntimeOptions("wandbox", catalog.wandbox);
     applyRuntimeOptions("tio", catalog.tio);
@@ -218,7 +219,7 @@ test("the bundled catalog preserves saved provider versions and adds missing lan
   const catalog = JSON.parse(await readFile(new URL("../sprig-vendor/language-catalog.json", import.meta.url), "utf8"));
   const data = html.slice(html.indexOf("const DATA="), html.indexOf("const $=id=>"));
   const apply = html.slice(html.indexOf("function applyRuntimeOptions("), html.indexOf("function syncAllEngines("));
-  const context = vm.createContext({ catalog });
+  const context = vm.createContext({ catalog, previewMode: false });
   vm.runInContext(data + apply + `
     applyRuntimeOptions("wandbox", [{provider:"wandbox",baseLanguage:"c",defaultVersion:"saved-gcc",versions:[{id:"saved-gcc"}]}]);
     applyRuntimeOptions("tio", [{provider:"tio",baseLanguage:"tio:my-basic",tioKey:"my-basic",defaultVersion:"saved-basic",versions:[{id:"saved-basic"}]}]);
@@ -305,6 +306,10 @@ test("compiler stdout errors are shown, and failures without output are explaine
   output.length = 0;
   assert.equal(vm.runInContext('showResult({compile:{code:1,stdout:"",stderr:""},run:null})', context), false);
   assert.match(output[0].text, /no diagnostics/);
+  output.length = 0;
+  assert.equal(vm.runInContext('showResult({compile:{code:1,stdout:"",stderr:""},run:{code:1,stderr:"runtime diagnostic"}})', context), false);
+  assert.match(output[0].text, /runtime diagnostic/);
+  assert.equal(output.some(item => /no diagnostics/.test(item.text)), false);
 });
 
 test("local availability checks executables, supporting tools, and required files", async () => {

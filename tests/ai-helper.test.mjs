@@ -36,7 +36,7 @@ function editor() {
     $: id => elements[id], tabs: [tab], active: 0, code,
     L: { js: { name: "JavaScript" } }, out: { textContent: "ReferenceError: foo is not defined" },
     confirm: () => true, fileChangeBlocked: () => false, Event: class {}, AbortController,
-    localPage: true, localRunnerBase: "http://127.0.0.1:3001", location: { protocol: "http:" },
+    previewMode: false, localPage: true, localRunnerBase: "http://127.0.0.1:3001", location: { protocol: "http:" },
     document, navigator: {}, TextDecoder, Uint8Array,
     completed: text => ({ text, verification: { status: "passed", message: "Basic run passed." } })
   });

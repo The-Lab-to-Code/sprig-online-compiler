@@ -394,6 +394,9 @@ dialog[open]::backdrop{animation:fadeIn .18s ease-out}
   *,*::before,*::after{animation:none!important;transition:none!important}
   #landing .btn:hover,#landing .chip:hover,.btn:active{transform:none}
 }
+html[data-preview] #abAi,html[data-preview] #abSet,html[data-preview] #requestLink{display:none!important}
+#previewDownload{color:var(--vt);text-decoration:none;padding:0 10px;white-space:nowrap}
+#previewDownload:hover{color:var(--vok)}
 </style>
 </head>
 <body>
@@ -503,7 +506,7 @@ SOFTWARE.</pre></details>
   <div class="title">
     <div class="tl"><span class="tlogo">sprig</span><button class="mb" data-menu="file">File</button><button class="mb" data-menu="run">Run</button><button class="mb" data-menu="view">View</button><button class="mb" id="requestLink">Request</button></div>
     <button class="cmd" id="cmdBtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg><span>Search commands</span><kbd>F1</kbd></button>
-    <div class="tr"><button class="chipb" id="langChip">JavaScript</button><select id="versionSel" aria-label="Compiler or implementation version" title="Compiler or implementation version" style="display:none;max-width:180px;height:28px;padding:2px 6px;background:var(--vtab);border:1px solid var(--vbd);border-radius:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></select><button class="runbtn" id="run" title="Run (Ctrl+Enter)">▶ Run</button></div>
+    <div class="tr"><a id="previewDownload" href="download.html" hidden>Get the app</a><button class="chipb" id="langChip">JavaScript</button><select id="versionSel" aria-label="Compiler or implementation version" title="Compiler or implementation version" style="display:none;max-width:180px;height:28px;padding:2px 6px;background:var(--vtab);border:1px solid var(--vbd);border-radius:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></select><button class="runbtn" id="run" title="Run (Ctrl+Enter)">▶ Run</button></div>
   </div>
   <div class="shell">
     <div class="act">
@@ -597,7 +600,9 @@ SOFTWARE.</pre></details>
 </dialog>
 
 <script>
-const localPage=location.protocol==="file:"||location.hostname==="127.0.0.1"||location.hostname==="localhost";
+const previewMode=!!document.querySelector('meta[name="sprig-preview"]');
+if(previewMode){document.documentElement.dataset.preview="";document.title="Sprig Preview";document.getElementById("previewDownload").hidden=false}
+const localPage=!previewMode&&(location.protocol==="file:"||location.hostname==="127.0.0.1"||location.hostname==="localhost");
 const localRunnerBase=location.protocol==="file:"?"http://127.0.0.1:3001":location.origin;
 const CDN=localPage?localRunnerBase+"/vendor/":new URL("sprig-vendor/",location.href).href;
 const SK=CDN;
@@ -655,6 +660,9 @@ const L={},ORDER=[];
 function addLang(id,name,rt,ext,code,metadata){if(L[id])return;L[id]=Object.assign({id,name,rt,ext,s:(code||"").split("¶").join("\n"),local:rt[0]==="@"},metadata||{});ORDER.push(id)}
 DATA.forEach(d=>{const p=d.split("|");addLang(p[0],p[1],p[2],p[3],p[4])});
 L.erlang.tioOnly=true;
+if(previewMode){
+  for(let i=ORDER.length-1;i>=0;i--)if(!L[ORDER[i]].local){delete L[ORDER[i]];ORDER.splice(i,1)}
+}
 const $=id=>document.getElementById(id);
 const out=$("out"),code=$("code"),frame=$("frame"),gut=$("gut"),app=$("app");
 let errFlag=false,job=null,tabs=[],active=-1,untitledN=0,runCancelled=false;
@@ -678,6 +686,7 @@ function isDefaultPiston(url){
   try{const u=new URL(url);return u.protocol==="http:"&&(u.hostname==="127.0.0.1"||u.hostname==="localhost")&&u.port==="2000"&&u.pathname.replace(/\/$/,"")==="/api/v2/execute"}catch(e){return false}
 }
 function selectedProvider(){
+  if(previewMode)return "auto";
   const saved=store.get("sprig.provider");
   if(saved==="auto"||saved==="wandbox"||saved==="tio"||saved==="local"||saved==="terminal"||saved==="piston"||saved==="custom")return saved;
   const engine=savedEngine();
@@ -702,6 +711,7 @@ function designatedProvider(l){
   if(autoLocal.has(l.rt))return "local";
   if(l.tioOnly)return "tio";
   if(l.id==="tsdeno")return null;
+  if(l.rt==="crystal")return "tio";
   if(l.wandboxOnly||l.wandboxVersions?.length||autoWandbox.has(l.rt))return "wandbox";
   if(l.tioKey||autoTio.has(l.rt))return "tio";
   return null;
@@ -757,6 +767,7 @@ $("q").oninput=e=>buildGrid(e.target.value);
 // ---- routing / theme
 function route(){
   const ed=location.hash==="#editor",request=location.hash==="#request";
+  if(previewMode&&!ed){location.href="index.html";return}
   $("landing").style.display=ed?"none":"block";app.style.display=ed?"flex":"none";
   $("homeContent").hidden=request;$("requestPage").hidden=!request;
   if(ed&&typeof updateSidebarWidths==="function")updateSidebarWidths();
@@ -900,6 +911,7 @@ function aiActivity(entry,includeEditor,mode){
   return {working,step,setProgress};
 }
 function showAi(open){
+  if(previewMode)return;
   $("aiSidebar").hidden=!open;$("abAi").setAttribute("aria-expanded",String(open));
   $("abAi").classList.toggle("on",open);
   if(typeof updateSidebarWidths==="function")updateSidebarWidths();
@@ -1175,7 +1187,7 @@ function qp(items,ph,pick){
 function pickLang(){if(active<0){$("emptyNew").focus();return}qp(ORDER.map(id=>({label:L[id].name,detail:selectedProvider()==="terminal"?"your terminal":selectedProvider()==="auto"?({browser:"browser",tio:"TIO",wandbox:"engine",local:"local runner"})[designatedProvider(L[id])]||"choose an engine":L[id].tioOnly?"TIO":L[id].local?(selectedProvider()==="tio"&&L[id].tioVersions?"TIO":"browser"):"engine",id})),"Select language mode",it=>{setLang(it.id);code.focus()})}
 function stopJob(){if(job){if(job.external){line("Close the separate terminal window to stop your program.","i");return}runCancelled=true;job.kill()}}
 const CMDS=[["Run Code","Ctrl+Enter",()=>run()],["Stop","",stopJob],["New File","",()=>createNewFile()],["Rename File","F2",()=>renameTab(active)],["Open File…","Ctrl+O",()=>openFile()],["Open Folder…","",()=>openDir()],["Save","Ctrl+S",()=>save()],["Save As…","Ctrl+Shift+S",()=>saveAs()],["Change Language Mode","",()=>pickLang()],["Engine Settings","",()=>openSettings()],["Toggle Light/Dark Theme","",()=>toggleTheme()],["Go to Home Page","",()=>{location.hash="home";route();scrollTo(0,0)}],["Save All","Ctrl+Alt+S",()=>saveAll()]];
-function palette(){qp(CMDS.map(c=>({label:c[0],detail:c[1],fn:c[2]})),"Type a command",it=>it.fn())}
+function palette(){qp(CMDS.filter(c=>!previewMode||c[0]!=="Engine Settings").map(c=>({label:c[0],detail:c[1],fn:c[2]})),"Type a command",it=>it.fn())}
 const loaded={};
 function loadScript(src){return loaded[src]||(loaded[src]=new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=()=>{delete loaded[src];rej(new Error("Could not load runtime ("+src.split("/").pop()+"). Check your connection."))};document.head.appendChild(s)}))}
 function workerMain(){
@@ -1242,8 +1254,12 @@ function showResult(j){
     const failed=j.compile.code!==0,stdout=j.compile.stdout||"",stderr=j.compile.stderr||"";
     if(stdout||stderr){if(stdout)write(stdout,failed?"e":"i");if(stderr)write(stderr,failed?"e":"i")}
     else if(j.compile.output)write(j.compile.output,failed?"e":"i");
-    else if(failed)line("Compilation failed (exit code "+j.compile.code+"); the engine returned no diagnostics.","e");
-    if(failed)return false;
+    if(failed){
+      const runOutput=j.run&&(j.run.stdout||j.run.stderr);
+      if(runOutput){if(j.run.stdout)write(j.run.stdout,"e");if(j.run.stderr)write(j.run.stderr,"e")}
+      else if(!stdout&&!stderr&&!j.compile.output)line("Compilation failed (exit code "+j.compile.code+"); the engine returned no diagnostics.","e");
+      return false;
+    }
   }
   if(j.run){if(j.run.stdout)write(j.run.stdout);if(j.run.stderr)write(j.run.stderr,"e");if(j.run.code)line("\nexit code "+j.run.code,"i")}
   return !!j.run&&!j.run.code;
@@ -1526,7 +1542,8 @@ function fileChangeBlocked(){if(!trashBusy)return false;line("Wait for the trash
 const EXT_LANG_ALIASES={"c++":"cpp","h++":"cpp",cxx:"cpp",cc:"cpp",hxx:"cpp",hpp:"cpp",pyw:"py",mjs:"node",cjs:"node",kts:"kotlin"};
 function extLang(name){
   const lower=name.toLowerCase(),suffix=lower.includes(".")?lower.slice(lower.lastIndexOf(".")+1):"";
-  if(EXT_LANG_ALIASES[suffix])return EXT_LANG_ALIASES[suffix];
+  if(previewMode&&(suffix==="mjs"||suffix==="cjs"))return "js";
+  if(EXT_LANG_ALIASES[suffix]&&L[EXT_LANG_ALIASES[suffix]])return EXT_LANG_ALIASES[suffix];
   const ext=suffix;
   return ORDER.find(i=>L[i].local&&L[i].ext===ext)||ORDER.find(i=>L[i].ext===ext);
 }
@@ -1979,6 +1996,7 @@ function settingsSection(restore){
  if(restore)renderTrash();
 }
 function openSettings(){
+ if(previewMode)return;
  $("sUrl").value=savedEngine();$("sTok").value=store.get("sprig.tok")||"";$("sMsg").textContent="";
  $("sUrl").placeholder="https://your-engine.example/api/v2/execute";
  $("sProvider").value=selectedProvider();
@@ -2113,7 +2131,7 @@ function syncAllEngines(){
  if(active>=0){$("sbEng").textContent=executionTarget(L[tabs[active].lang]);refreshVersionSelector()}
  catalogReady=(async()=>{
    const messages=[];
-   for(const provider of ["wandbox","tio"]){
+   if(!previewMode)for(const provider of ["wandbox","tio"]){
      try{
        const result=await syncRuntimeOptions(provider,providerUrl(provider),"");
        messages.push((provider==="wandbox"?"Wandbox":"TIO")+": "+result.found+" language families");
@@ -2215,7 +2233,7 @@ for(const provider of ["wandbox","tio"]){
   }
 }
 buildGrid();updateStats();refreshVersionSelector();
-fetch(CDN+"language-catalog.json").then(response=>{
+if(!previewMode)fetch(CDN+"language-catalog.json").then(response=>{
   if(!response.ok)throw new Error("HTTP "+response.status);
   return response.json();
 }).then(catalog=>{

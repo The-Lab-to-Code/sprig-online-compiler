@@ -6,7 +6,17 @@
 - `scripts/` contains setup and build utilities.
 - `tests/` contains automated tests; `tests/manual/` contains manual checks.
 - `functions/` contains the hosted Pages API, and `sprig-vendor/` contains browser runtime assets.
+- `web/` contains the online preview's landing and download pages.
 - `site/` is the generated Pages output. `flix.jar` is the locally installed Flix runtime.
+
+## Online preview
+
+The Pages build uses the same editor in preview mode, limited to its built-in
+browser runtimes and tools. It does not show AI chat or online/local engine
+settings. Python uses Skulpt and is not a full desktop Python installation.
+Programs run in the browser and can still make network requests. The download
+page links to the latest Windows installer on GitHub, with the releases page
+as a fallback if release information is unavailable.
 
 ## Windows installer
 
@@ -66,7 +76,8 @@ or the local runner. Some languages have no configured Auto engine. The app
 includes a language catalog so a fresh install shows the larger list without
 probing engines. Sync languages in Settings to refresh catalogs and
 compiler versions; synced catalogs and chosen versions are remembered in
-browser storage. Maintainers can refresh the bundled list with
+browser storage. Crystal uses TIO in Auto; Wandbox can still be selected
+manually. Maintainers can refresh the bundled list with
 `node scripts\update-language-catalog.mjs`.
 
 The editor pairs parentheses, square and curly brackets, single and double

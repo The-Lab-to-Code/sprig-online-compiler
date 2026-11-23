@@ -174,6 +174,13 @@ test("compiler diagnostics on stdout are preserved without duplicating combined 
   assert.equal(result.compile.stderr, "");
 });
 
+test("a signal is reported when Wandbox stops without compiler output", async () => {
+  const { fetchImpl } = fakeFetchFor({ status: "1", signal: "SIGKILL", program_output: "" });
+  const result = await execute({ language: "c++", files: [{ content: "example" }] }, fetchImpl);
+  assert.equal(result.compile.code, 1);
+  assert.match(result.compile.stderr, /SIGKILL/);
+});
+
 test("invalid and unsupported requests fail explicitly", async () => {
   const { fetchImpl } = fakeFetchFor();
   await assert.rejects(
