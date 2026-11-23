@@ -192,6 +192,45 @@ test("synced catalogs can be restored without contacting an engine", async () =>
   assert.equal(restored.L.c.wandboxDefault, "gcc-1");
 });
 
+test("the bundled catalog restores the expanded list without pinning old compiler versions", async () => {
+  const catalog = JSON.parse(await readFile(new URL("../sprig-vendor/language-catalog.json", import.meta.url), "utf8"));
+  const data = html.slice(html.indexOf("const DATA="), html.indexOf("const $=id=>"));
+  const apply = html.slice(html.indexOf("function applyRuntimeOptions("), html.indexOf("function syncAllEngines("));
+  const context = vm.createContext({ catalog });
+  vm.runInContext(data + autoCode + apply + `
+    applyRuntimeOptions("wandbox", catalog.wandbox);
+    applyRuntimeOptions("tio", catalog.tio);
+    globalThis.count=ORDER.length;
+    globalThis.ada=L.tio_ada;
+    globalThis.openssl=L.wb_openssl;
+    globalThis.ruby=L.ruby;
+    globalThis.adaProvider=autoChoice(ada);
+    globalThis.opensslProvider=autoChoice(openssl);`, context);
+  assert.ok(context.count >= 200, `Only ${context.count} languages were loaded`);
+  assert.equal(context.ada.name, "Ada");
+  assert.equal(context.adaProvider, "tio");
+  assert.equal(context.opensslProvider, "wandbox");
+  assert.equal(context.ruby.wandboxVersions, undefined);
+  assert.equal(context.ada.tioVersions.length, 0);
+});
+
+test("the bundled catalog preserves saved provider versions and adds missing languages", async () => {
+  const catalog = JSON.parse(await readFile(new URL("../sprig-vendor/language-catalog.json", import.meta.url), "utf8"));
+  const data = html.slice(html.indexOf("const DATA="), html.indexOf("const $=id=>"));
+  const apply = html.slice(html.indexOf("function applyRuntimeOptions("), html.indexOf("function syncAllEngines("));
+  const context = vm.createContext({ catalog });
+  vm.runInContext(data + apply + `
+    applyRuntimeOptions("wandbox", [{provider:"wandbox",baseLanguage:"c",defaultVersion:"saved-gcc",versions:[{id:"saved-gcc"}]}]);
+    applyRuntimeOptions("tio", [{provider:"tio",baseLanguage:"tio:my-basic",tioKey:"my-basic",defaultVersion:"saved-basic",versions:[{id:"saved-basic"}]}]);
+    applyRuntimeOptions("wandbox", catalog.wandbox);
+    applyRuntimeOptions("tio", catalog.tio);
+    globalThis.c=L.c; globalThis.basic=L.basic; globalThis.ada=L.tio_ada;`, context);
+  assert.equal(context.c.wandboxDefault, "saved-gcc");
+  assert.equal(context.basic.tioDefault, "saved-basic");
+  assert.equal(context.basic.tioKey, "my-basic");
+  assert.equal(context.ada.name, "Ada");
+});
+
 test("catalog discovery uses compatible TIO implementations for F# Interactive and BASIC", async () => {
   const start = html.indexOf("async function syncRuntimeOptions(");
   const end = html.indexOf("function syncAllEngines(", start);

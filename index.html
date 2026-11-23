@@ -439,7 +439,7 @@ dialog[open]::backdrop{animation:fadeIn .18s ease-out}
       <input class="search" id="q" placeholder="Search languages…" aria-label="Search languages">
       <div class="grid" id="grid"></div>
       <div class="legend">The languages you can run depend on the engine you choose.</div>
-      <div class="legend" id="langCatalogStatus">Sync languages in Settings to see more languages and compiler versions.</div>
+      <div class="legend" id="langCatalogStatus">Sync languages in Settings to refresh compiler versions and discover new languages.</div>
       <a href="#request">Request a language</a>
     </section>
     <section id="how">
@@ -702,7 +702,7 @@ function designatedProvider(l){
   if(autoLocal.has(l.rt))return "local";
   if(l.tioOnly)return "tio";
   if(l.id==="tsdeno")return null;
-  if(l.wandboxVersions?.length||autoWandbox.has(l.rt))return "wandbox";
+  if(l.wandboxOnly||l.wandboxVersions?.length||autoWandbox.has(l.rt))return "wandbox";
   if(l.tioKey||autoTio.has(l.rt))return "tio";
   return null;
 }
@@ -2067,15 +2067,15 @@ function applyRuntimeOptions(provider,rts){
      if(modes.length){
        modes.forEach(mode=>{
          const available=mode.rt==="csharp.net"?x.versions.filter(version=>/^dotnetcore-/i.test(version.id)):x.versions;
-         if(!available.length)return;
          if(!mode.s&&typeof x.starter==="string")mode.s=x.starter;
+         if(!available.length)return;
          mode.wandboxVersions=available;
          mode.wandboxDefault=available.some(version=>version.id===x.defaultVersion)?x.defaultVersion:available[available.length-1].id;
        });
      }else if(!known.has(x.baseLanguage)){
        known.add(x.baseLanguage);
        addLang("wb_"+encodeURIComponent(x.baseLanguage),x.displayName||x.baseLanguage,x.baseLanguage,x.ext||"txt","",{
-         s:typeof x.starter==="string"?x.starter:"",wandboxVersions:x.versions,wandboxDefault:x.defaultVersion
+         s:typeof x.starter==="string"?x.starter:"",wandboxOnly:true,wandboxVersions:x.versions,wandboxDefault:x.defaultVersion
        });added++;
      }
    }else if(x&&x.provider==="tio"&&typeof x.tioKey==="string"&&Array.isArray(x.versions)){
@@ -2084,6 +2084,7 @@ function applyRuntimeOptions(provider,rts){
      if(modes.length){
        modes.forEach(mode=>{
          const available=mode.rt==="fsi"?x.versions.filter(version=>version.id==="fs-core"):x.versions;
+         if(!mode.tioKey)mode.tioKey=x.tioKey;
          if(!available.length)return;
          if(!mode.s&&typeof x.starter==="string")mode.s=x.starter;
          mode.tioKey=x.tioKey;mode.tioVersions=available;
@@ -2214,6 +2215,16 @@ for(const provider of ["wandbox","tio"]){
   }
 }
 buildGrid();updateStats();refreshVersionSelector();
+fetch(CDN+"language-catalog.json").then(response=>{
+  if(!response.ok)throw new Error("HTTP "+response.status);
+  return response.json();
+}).then(catalog=>{
+  if(!catalog||!Array.isArray(catalog.wandbox)||!Array.isArray(catalog.tio))throw new Error("Invalid catalog.");
+  applyRuntimeOptions("wandbox",catalog.wandbox);applyRuntimeOptions("tio",catalog.tio);
+  buildGrid($("q").value);updateStats();refreshVersionSelector();
+}).catch(error=>{
+  $("langCatalogStatus").textContent="Couldn't load the bundled language list. Sync languages in Settings. "+error.message;
+});
 </script>
 </body>
 </html>

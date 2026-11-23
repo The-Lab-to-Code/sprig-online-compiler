@@ -81,6 +81,10 @@ test("packaged app opens an isolated editor window and runs code", {
     assert.equal(features.open, "function");
     assert.equal(features.save, "function");
     assert.equal(features.folder, "function");
+    for (let i = 0; i < 100 && await evaluate("ORDER.length") < 200; i++)
+      await new Promise(resolve => setTimeout(resolve, 50));
+    assert.ok(await evaluate("ORDER.length") >= 200, "Bundled language list did not load");
+    assert.equal(await evaluate('ORDER.some(id => L[id].name === "Ada")'), true);
     const routing = await evaluate(`({
       javascript: autoChoice(L.js), c: autoChoice(L.c), powershell: autoChoice(L.pwsh),
       flix: autoChoice(L.flix),
