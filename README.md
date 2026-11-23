@@ -1,5 +1,7 @@
 # Sprig Online Compiler
 
+A compiler for the better. Sprig is 100% free and requires no payment. It comes with a built-in AI with infinite tokens to help you with your work. Sprig is in Beta right now, and is constantly receiving bug fixes.
+
 Sprig is a browser-based code editor with local and hosted execution support.
 
 ## Local development
