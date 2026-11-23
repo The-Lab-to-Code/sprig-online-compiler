@@ -32,7 +32,7 @@
       "package.json"
     ],
     "directories": { "output": "dist" },
-    "win": { "target": "nsis", "artifactName": "Sprig-Setup-${version}.${ext}" },
+    "win": { "target": "nsis", "icon": "desktop/icon.ico", "artifactName": "Sprig-Setup-${version}.${ext}" },
     "nsis": { "oneClick": true, "perMachine": false },
     "publish": {
       "provider": "github",

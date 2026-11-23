@@ -1,13 +1,30 @@
 import assert from "node:assert/strict";
 import { spawn, execFileSync } from "node:child_process";
 import { once } from "node:events";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import net from "node:net";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
 const executable = process.env.SPRIG_PACKAGED_EXE;
+
+test("the packaged executable and window use the Sprig icon", {
+  skip: process.platform !== "win32" || !executable
+}, () => {
+  const image = path.join(path.dirname(executable), "resources", "app", "desktop", "icon.png");
+  assert.deepEqual(readFileSync(image), readFileSync(new URL("../desktop/icon.png", import.meta.url)));
+  const color = JSON.parse(execFileSync("powershell.exe", ["-NoProfile", "-Command", `
+    Add-Type -AssemblyName System.Drawing
+    $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($env:SPRIG_PACKAGED_EXE)
+    $bitmap = $icon.ToBitmap()
+    try {
+      $pixel = $bitmap.GetPixel([int]($bitmap.Width / 2), [int]($bitmap.Height / 2))
+      ConvertTo-Json -Compress -InputObject @($pixel.R, $pixel.G, $pixel.B)
+    } finally { $bitmap.Dispose(); $icon.Dispose() }
+  `], { encoding: "utf8" }));
+  assert.ok(color[1] > color[0] && color[1] > color[2], "Executable icon is missing its green mark");
+});
 
 async function unusedPort() {
   const listener = net.createServer();

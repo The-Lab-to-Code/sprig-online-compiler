@@ -45,6 +45,7 @@ function createWindow(url) {
   window = new BrowserWindow({
     width: 1440, height: 900, minWidth: 800, minHeight: 600,
     title: "Sprig", show: false, autoHideMenuBar: true,
+    icon: path.join(__dirname, "icon.png"),
     webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true }
   });
   const contents = window.webContents;

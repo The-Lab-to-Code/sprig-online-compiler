@@ -31,12 +31,13 @@ test("the desktop menu is hidden but remains available with Alt", async () => {
       if (name === "electron-updater") return { autoUpdater: { on() {} } };
       if (name === "./updates") return { setupUpdates: () => () => {} };
       return requireNode(name);
-    }, console, URL
+    }, console, URL, __dirname: "desktop"
   });
   const { createRequire } = await import("node:module");
   const requireNode = createRequire(import.meta.url);
   vm.runInContext(source + '\ncreateWindow("http://127.0.0.1:3001/");', context);
   assert.equal(created.options.autoHideMenuBar, true);
+  assert.equal(created.options.icon, requireNode("node:path").join("desktop", "icon.png"));
   assert.equal(created.menuVisible, false);
   assert.equal(created.menu[0].label, "Sprig");
   assert.ok(created.menu[0].submenu.some(item => item.label === "Check for updates"));

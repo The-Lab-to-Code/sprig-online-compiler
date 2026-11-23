@@ -22,8 +22,10 @@ as a fallback if release information is unavailable.
 
 Run `npm ci` and then `npm run build:windows` on 64-bit Windows. The installer
 is produced in `dist/`. The installer launches Sprig in its own application
-window. Press **Alt** to reveal the hidden **Sprig** menu and check for updates
-or quit. Unsaved
+window. Its icon uses the website's green Sprig mark. Regenerate the icon with
+`powershell -ExecutionPolicy Bypass -File .\scripts\generate-desktop-icon.ps1`
+when the mark changes. Press **Alt** to reveal the hidden **Sprig** menu and
+check for updates or quit. Unsaved
 changes prompt for confirmation before closing. The desktop app has its own
 browser storage, separate from your regular browser; save files there before
 switching. Storage also remains tied to the runner's port.
