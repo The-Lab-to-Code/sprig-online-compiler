@@ -427,6 +427,7 @@ html[data-preview] #abAi,html[data-preview] #abSet,html[data-preview] #requestLi
 #landing .home-mark{color:#65a97c;font-size:27px}
 #landing .search,#landing .chip{background:var(--home-card);border-color:var(--home-line);color:var(--home-ink)}
 #landing .legend{color:var(--home-muted);margin-bottom:20px}
+#desktopFooter{width:100%;padding:18px 20px 24px;border-top:1px solid var(--home-line);color:var(--home-muted);text-align:center;font-size:14px}
 @media(max-width:820px){#landing .home-hero{grid-template-columns:1fr;padding:45px 0}.home-illustration{max-width:500px;width:100%}#landing .home-cards{grid-template-columns:1fr}.home-links a{display:none}}
 </style>
 </head>
@@ -495,6 +496,7 @@ console.log(makeIt(idea));</pre><div class="home-output">OUTPUT<br><br>↳ Hello
       <p id="requestStatus" role="status" aria-live="polite"></p>
     </form>
   </main>
+  <footer id="desktopFooter" hidden>Sprig - made for curious minds</footer>
 </div>
 
 <div id="app" data-vs="dark">
@@ -623,6 +625,7 @@ SOFTWARE.</pre></details>
 const previewMode=!!document.querySelector('meta[name="sprig-preview"]');
 if(previewMode){document.documentElement.dataset.preview="";document.title="Sprig Preview";document.getElementById("previewDownload").hidden=false}
 const localPage=!previewMode&&(location.protocol==="file:"||location.hostname==="127.0.0.1"||location.hostname==="localhost");
+if(localPage)document.getElementById("desktopFooter").hidden=false;
 const localRunnerBase=location.protocol==="file:"?"http://127.0.0.1:3001":location.origin;
 const CDN=localPage?localRunnerBase+"/vendor/":new URL("sprig-vendor/",location.href).href;
 const SK=CDN;

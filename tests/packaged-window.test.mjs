@@ -87,7 +87,8 @@ test("packaged app opens home and runs code in an isolated editor window", {
     }
     assert.equal(editorReady, true, "Editor did not finish loading: " + logs);
     assert.equal(await evaluate('getComputedStyle(document.querySelector("#landing")).display'), "block");
-    assert.equal(await evaluate('!!document.querySelector("#landing footer")'), false);
+    assert.equal(await evaluate('document.querySelector("#desktopFooter").textContent'), "Sprig - made for curious minds");
+    assert.equal(await evaluate('document.querySelector("#desktopFooter").hidden'), false);
     for (let i = 0; i < 100 && await evaluate("ORDER.length") < 200; i++)
       await new Promise(resolve => setTimeout(resolve, 50));
     assert.ok(await evaluate("ORDER.length") >= 200, "Bundled language list did not load");
