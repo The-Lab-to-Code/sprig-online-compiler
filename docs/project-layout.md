@@ -71,7 +71,9 @@ Auto uses a fixed engine for each language without testing or probing engines
 first. Browser languages run in the browser; other languages use Wandbox, TIO,
 or the local runner. Some languages have no configured Auto engine. The app
 includes a language catalog so a fresh install shows the larger list without
-probing engines. Sync languages in Settings to refresh catalogs and
+probing engines. The bundled modes include starter examples; many are TIO
+hello-world examples credited in the app. Newly discovered custom runtimes
+may not provide one. Sync languages in Settings to refresh catalogs and
 compiler versions; synced catalogs and chosen versions are remembered in
 browser storage. Crystal uses TIO in Auto; Wandbox can still be selected
 manually. Maintainers can refresh the bundled list with

@@ -1163,7 +1163,14 @@ $("tin").addEventListener("keydown",e=>{
 out.addEventListener("mousedown",e=>{if(e.target===out)$("tin").focus()});
 // ---- tabs
 const nextName=()=>"Untitled-"+(++untitledN);
-function newTab(name,lang,text,handle,directory){tabs.push({name,lang,text,handle:handle||null,directory:directory||null,dirty:false});activate(tabs.length-1)}
+function newTab(name,lang,text,handle,directory){tabs.push({name,lang,text,handle:handle||null,directory:directory||null,dirty:false,starterPending:!handle&&text===""&&!L[lang].s});activate(tabs.length-1)}
+function fillPendingStarters(){
+  tabs.forEach((tab,i)=>{
+    if(!tab.starterPending||tab.dirty||tab.handle||tab.text!==""||(i===active&&code.value!=="")||!L[tab.lang].s)return;
+    tab.text=L[tab.lang].s;tab.starterPending=false;
+    if(i===active){code.value=tab.text;refresh()}
+  });
+}
 function updateEditorState(){
   const hasTab=active>=0&&!!tabs[active];
   $("emptyEditor").hidden=hasTab;
@@ -1230,7 +1237,7 @@ function renderOpen(){
 }
 function setLang(id){
   const t=tabs[active],pristine=!code.value.trim()||ORDER.some(i=>L[i].s===code.value);
-  t.lang=id;if(pristine){code.value=L[id].s;t.text=code.value}activate(active);
+  t.lang=id;if(pristine){code.value=L[id].s;t.text=code.value;t.starterPending=!t.handle&&!t.dirty&&!code.value}activate(active);
 }
 // ---- quick pick / command palette
 function qp(items,ph,pick){
@@ -2111,6 +2118,7 @@ async function syncRuntimeOptions(provider,url,tok){
  if(!endpoint)throw new Error("Set an Execute URL before syncing languages.");
  const rts=await fetchRuntimeList(endpoint,provider==="custom"&&tok?{Authorization:tok}:{});
  const result=applyRuntimeOptions(provider,rts);
+ fillPendingStarters();
  if(provider==="wandbox"||provider==="tio")store.set("sprig.catalog."+provider,JSON.stringify(rts));
  return result;
 }
@@ -2146,8 +2154,8 @@ function applyRuntimeOptions(provider,rts){
        modes.forEach(mode=>{
          const available=mode.rt==="fsi"?x.versions.filter(version=>version.id==="fs-core"):x.versions;
          if(!mode.tioKey)mode.tioKey=x.tioKey;
-         if(!available.length)return;
          if(!mode.s&&typeof x.starter==="string")mode.s=x.starter;
+         if(!available.length)return;
          mode.tioKey=x.tioKey;mode.tioVersions=available;
          mode.tioDefault=available.some(version=>version.id===x.defaultVersion)?x.defaultVersion:available[0].id;
        });
@@ -2158,7 +2166,7 @@ function applyRuntimeOptions(provider,rts){
          addLang(id,x.displayName||x.tioKey,rt,x.ext||"txt","",{
            s:typeof x.starter==="string"?x.starter:"",tioKey:x.tioKey,tioVersions:x.versions,tioDefault:x.defaultVersion,tioOnly:true
          });added++;
-       }
+       }else if(!L[id].s&&typeof x.starter==="string")L[id].s=x.starter;
      }
    }else if(x&&typeof x.language==="string"&&!known.has(x.language)){
      known.add(x.language);
@@ -2288,6 +2296,7 @@ if(!previewMode)fetch(CDN+"language-catalog.json").then(response=>{
 }).then(catalog=>{
   if(!catalog||!Array.isArray(catalog.wandbox)||!Array.isArray(catalog.tio))throw new Error("Invalid catalog.");
   applyRuntimeOptions("wandbox",catalog.wandbox);applyRuntimeOptions("tio",catalog.tio);
+  fillPendingStarters();
   buildGrid($("q").value);updateStats();refreshVersionSelector();
 }).catch(error=>{
   $("langCatalogStatus").textContent="Couldn't load the bundled language list. Sync languages in Settings. "+error.message;

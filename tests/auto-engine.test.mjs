@@ -164,6 +164,7 @@ test("catalog discovery associates supported implementations with browser and na
   assert.ok(start >= 0 && end > start);
   const context = vm.createContext({
     ORDER: ["browser", "node"],
+    fillPendingStarters() {},
     store: { set() {} },
     L: { browser: { rt: "@js", local: true, s: "example" }, node: { rt: "node", s: "example" } },
     runtimeListUrl: () => "catalog",
@@ -185,6 +186,7 @@ test("synced catalogs can be restored without contacting an engine", async () =>
   const createContext = fetchRuntimeList => {
     const context = vm.createContext({
       ORDER: ["c"], L: { c: { rt: "c", s: "example" } },
+      fillPendingStarters() {},
       store: { set: (key, value) => saved.set(key, value) },
       runtimeListUrl: () => "catalog", fetchRuntimeList
     });
@@ -223,6 +225,25 @@ test("the bundled catalog restores the expanded list without pinning old compile
   assert.equal(context.ada.tioVersions.length, 0);
 });
 
+test("every bundled language mode has a starter, including saved modes with no versions", async () => {
+  const catalog = JSON.parse(await readFile(new URL("../sprig-vendor/language-catalog.json", import.meta.url), "utf8"));
+  const data = html.slice(html.indexOf("const DATA="), html.indexOf("const $=id=>"));
+  const apply = html.slice(html.indexOf("function applyRuntimeOptions("), html.indexOf("function syncAllEngines("));
+  const context = vm.createContext({ catalog, previewMode: false });
+  vm.runInContext(data + apply + `
+    applyRuntimeOptions("tio", [{provider:"tio",baseLanguage:"tio:ada",tioKey:"ada",displayName:"Ada",ext:"adb",versions:[]}]);
+    applyRuntimeOptions("wandbox", catalog.wandbox);
+    applyRuntimeOptions("tio", catalog.tio);
+    globalThis.missing=ORDER.filter(id=>!L[id].s.trim()).map(id=>L[id].name);
+    globalThis.starters={ada:L.tio_ada.s,lazyk:L.lazyk.s,js:L.js.s};
+    globalThis.count=ORDER.length;`, context);
+  assert.ok(context.count >= 200);
+  assert.deepEqual(Array.from(context.missing), []);
+  assert.match(context.starters.ada, /procedure Main/);
+  assert.ok(context.starters.lazyk.length > 0);
+  assert.match(context.starters.js, /const greet/);
+});
+
 test("the bundled catalog preserves saved provider versions and adds missing languages", async () => {
   const catalog = JSON.parse(await readFile(new URL("../sprig-vendor/language-catalog.json", import.meta.url), "utf8"));
   const data = html.slice(html.indexOf("const DATA="), html.indexOf("const $=id=>"));
@@ -245,6 +266,7 @@ test("catalog discovery uses compatible TIO implementations for F# Interactive a
   const end = html.indexOf("function syncAllEngines(", start);
   const context = vm.createContext({
     ORDER: ["fsharp", "fsi", "basic"],
+    fillPendingStarters() {},
     store: { set() {} },
     L: {
       fsharp: { rt: "fsharp.net", s: "example" },
@@ -271,6 +293,7 @@ test("C# .NET only receives .NET versions from the Wandbox C# catalog", async ()
   const end = html.indexOf("function syncAllEngines(", start);
   const context = vm.createContext({
     ORDER: ["mono", "dotnet"],
+    fillPendingStarters() {},
     store: { set() {} },
     L: { mono: { rt: "csharp", s: "example" }, dotnet: { rt: "csharp.net", s: "example" } },
     runtimeListUrl: () => "catalog",

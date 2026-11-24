@@ -10,7 +10,7 @@ const snapshot = Object.fromEntries([["wandbox", wandbox], ["tio", tio]].map(([p
   runtimes.map(runtime => ({
     provider, baseLanguage: runtime.baseLanguage, displayName: runtime.displayName,
     ext: runtime.ext, ...(provider === "tio" ? { tioKey: runtime.tioKey } : {}),
-    ...(provider === "wandbox" && runtime.starter ? { starter: runtime.starter } : {}),
+    ...(runtime.starter ? { starter: runtime.starter } : {}),
     versions: []
   }))
 ]));

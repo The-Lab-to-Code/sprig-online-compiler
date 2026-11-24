@@ -63,3 +63,25 @@ test("closing another tab keeps active edits and honors discard cancellation", (
   assert.equal(context.code.value, "unsaved second");
   assert.equal(element("emptyEditor").hidden, true);
 });
+
+test("late starter examples fill untouched new tabs but preserve edits and files", () => {
+  const { context, run } = editor();
+  context.L.ada = { name: "Ada", s: "" };
+  context.ORDER.push("ada");
+  run('newTab("draft","ada",""); newTab("saved","ada","",{name:"saved"}); newTab("edited","ada","")');
+  context.tabs[2].dirty = true;
+  context.code.value = "my code";
+  context.L.ada.s = "Ada starter";
+  run("fillPendingStarters()");
+  assert.equal(context.tabs[0].text, "Ada starter");
+  assert.equal(context.tabs[1].text, "");
+  assert.equal(context.code.value, "my code");
+  run("activate(0)");
+  assert.equal(context.code.value, "Ada starter");
+  context.L.late = { name: "Late language", s: "" };
+  context.ORDER.push("late");
+  run('setLang("late")');
+  context.L.late.s = "Late starter";
+  run("fillPendingStarters()");
+  assert.equal(context.code.value, "Late starter");
+});

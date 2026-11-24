@@ -99,6 +99,10 @@ test("packaged app opens home and runs code in an isolated editor window", {
     for (let i = 0; i < 100 && await evaluate("ORDER.length") < 200; i++)
       await new Promise(resolve => setTimeout(resolve, 50));
     assert.ok(await evaluate("ORDER.length") >= 200, "Bundled language list did not load");
+    const missingStarters = await evaluate("ORDER.filter(id => !L[id].s.trim()).map(id => L[id].name)");
+    assert.deepEqual(missingStarters, []);
+    assert.match(await evaluate('(setLang("tio_ada"), code.value)'), /procedure Main/);
+    await evaluate('setLang("js")');
     await evaluate('document.querySelector("#homeSettings").click()');
     assert.equal(await evaluate('document.querySelector("#sStartup").value'), "home");
     await evaluate(`(async () => {
