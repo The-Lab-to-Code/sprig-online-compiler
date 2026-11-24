@@ -493,7 +493,7 @@ const server = http.createServer(async (req, res) => {
       };
       try {
         const stream = wantsStream ? {
-          progress: (message, completedTests) => sendEvent({ type: "progress", message, ...(completedTests === undefined ? {} : { completedTests }) }),
+          progress: (message, completedTests, stage) => sendEvent({ type: "progress", message, ...(completedTests === undefined ? {} : { completedTests }), ...(stage === undefined ? {} : { stage }) }),
           delta: text => sendEvent({ type: "delta", text })
         } : undefined;
         const result = await generateLocalAi(payload, controller.signal, stream);

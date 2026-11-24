@@ -27,7 +27,7 @@ function editor() {
   const elements = Object.fromEntries(["aiPrompt", "aiUseEditor", "aiGenerate", "aiExplain", "aiCancel", "aiApply", "aiOutput", "aiStatus", "aiSidebar", "abAi", "aiClose", "aiNew", "aiUnread", "aiNotifications"]
     .map(id => [id, new FakeElement()]));
   elements.aiUseEditor.checked = true;
-  const document = { title: "Sprig", hidden: false, addEventListener() {},
+  const document = { title: "Sprig", hidden: false, addEventListener() {}, removeEventListener() {},
     createElement(tagName) { return new FakeElement(tagName); },
     createTextNode(text) { const node = new FakeElement(); node.textContent = text; return node; } };
   const tab = { lang: "js", dirty: false };
@@ -257,15 +257,22 @@ test("the assistant withholds streamed code until verification completes", async
   const body = reply.children.find(child => child.className === "ai-entry-body");
   const working = reply.children.find(child => child.className === "ai-working");
   const progress = working.children.find(child => child.className === "ai-progress");
-  assert.equal(progress.attributes["aria-valuenow"], "0");
+  event({ type: "progress", message: "Starting model", stage: "starting" });
+  event({ type: "progress", message: "Preparing context", stage: "preparing" });
+  event({ type: "progress", message: "Generating response", stage: "generating" });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(progress.attributes["aria-valuenow"], "15");
   assert.match(activity.textContent, /Generating the response locally/);
   assert.equal(body.textContent, "");
   assert.doesNotMatch(activity.textContent, /Hello 🌱/);
   assert.equal(elements.aiApply.disabled, true);
   event({ type: "progress", message: "Finished isolated test 1 of 5.", completedTests: 1 });
   await new Promise(resolve => setImmediate(resolve));
-  assert.equal(progress.attributes["aria-valuenow"], "20");
-  assert.match(progress.textContent, /20%/);
+  assert.equal(progress.attributes["aria-valuenow"], "40");
+  assert.match(progress.textContent, /40%/);
+  event({ type: "progress", message: "Repairing", stage: "repairing" });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(progress.attributes["aria-valuenow"], "45");
   event({ type: "delta", text: "\n```js\nconsole.log(1);\n```" });
   event({ type: "done", text: "Hello 🌱\n```js\nconsole.log(1);\n```", verification: { status: "passed", message: "Basic run passed." } });
   stream.close();
@@ -276,6 +283,64 @@ test("the assistant withholds streamed code until verification completes", async
   assert.match(activity.textContent, /Response received/);
   assert.match(elements.aiStatus.textContent, /Test passed/);
   assert.equal(progress.attributes["aria-valuenow"], "100");
+});
+
+test("the verified response types into chat before it can be applied", async () => {
+  const { elements, context, run } = editor();
+  const frames = [];
+  context.matchMedia = () => ({ matches: false });
+  context.requestAnimationFrame = callback => { frames.push(callback); return frames.length; };
+  context.cancelAnimationFrame = () => {};
+  elements.aiPrompt.value = "Write code";
+  context.answer = "Here is code:\n```js\nconsole.log(1);\n```";
+  run("askLocalAi=async()=>completed(answer)");
+  const request = run('runAi("generate")');
+  await new Promise(resolve => setImmediate(resolve));
+  const reply = elements.aiOutput.children[1];
+  const body = reply.children.find(child => child.className === "ai-entry-body");
+  const working = reply.children.find(child => child.className === "ai-working");
+  const progress = working.children.find(child => child.className === "ai-progress");
+  assert.equal(progress.attributes["aria-valuenow"], "90");
+  assert.equal(elements.aiApply.disabled, true);
+  frames.shift()(0);
+  assert.equal(body.textContent, "H");
+  frames.shift()(150);
+  assert.ok(body.textContent.length > 1 && body.textContent.length < context.answer.length);
+  assert.ok(Number(progress.attributes["aria-valuenow"]) > 90);
+  frames.shift()(3000);
+  await request;
+  assert.ok(body.children.some(child => child.className === "ai-code"));
+  assert.equal(elements.aiApply.disabled, false);
+  assert.equal(progress.attributes["aria-valuenow"], "100");
+});
+
+test("typing stops cleanly when cancelled or the page becomes hidden", async () => {
+  for (const hidden of [false, true]) {
+    const { elements, context, document, run } = editor();
+    const frames = [];
+    let visibility;
+    document.addEventListener = (name, callback) => { if (name === "visibilitychange") visibility = callback; };
+    context.matchMedia = () => ({ matches: false });
+    context.requestAnimationFrame = callback => { frames.push(callback); return frames.length; };
+    context.cancelAnimationFrame = () => {};
+    elements.aiPrompt.value = "Write code";
+    run('askLocalAi=async()=>completed("```js\\nconsole.log(1);\\n```")');
+    const request = run('runAi("generate")');
+    await new Promise(resolve => setImmediate(resolve));
+    frames.shift()(0);
+    if (hidden) { document.hidden = true; visibility(); }
+    else elements.aiCancel.onclick();
+    await request;
+    const body = elements.aiOutput.children[1].children.find(child => child.className === "ai-entry-body");
+    if (hidden) {
+      assert.ok(body.children.some(child => child.className === "ai-code"));
+      assert.equal(elements.aiApply.disabled, false);
+    } else {
+      assert.match(body.textContent, /Response incomplete/);
+      assert.equal(elements.aiApply.disabled, true);
+      assert.equal(run("aiHistory.length"), 0);
+    }
+  }
 });
 
 test("an older JSON-only runner cannot display unverified code", async () => {

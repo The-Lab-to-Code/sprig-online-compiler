@@ -427,7 +427,7 @@ html[data-preview] #abAi,html[data-preview] #abSet,html[data-preview] #requestLi
 #landing .home-mark{color:#65a97c;font-size:27px}
 #landing .search,#landing .chip{background:var(--home-card);border-color:var(--home-line);color:var(--home-ink)}
 #landing .legend{color:var(--home-muted);margin-bottom:20px}
-#landing footer{color:var(--home-muted);padding-top:25px;border-top:1px solid var(--home-line);text-align:center}
+#landing footer{width:100%;max-width:none;color:var(--home-muted);padding-top:25px;border-top:1px solid var(--home-line);text-align:center}
 #landing footer summary{list-style-position:inside}
 @media(max-width:820px){#landing .home-hero{grid-template-columns:1fr;padding:45px 0}.home-illustration{max-width:500px;width:100%}#landing .home-cards{grid-template-columns:1fr}.home-links a{display:none}}
 </style>
@@ -478,7 +478,8 @@ console.log(makeIt(idea));</pre><div class="home-output">OUTPUT<br><br>↳ Hello
       <div class="legend" id="langCatalogStatus">Sync languages in Settings to refresh compiler versions and discover new languages.</div>
       <a href="#request">Request a language →</a>
     </section>
-    <footer>✳ &nbsp; sprig. &nbsp; Made for curious minds.
+  </div>
+    <footer><span class="home-footer-text">✳ &nbsp; sprig. &nbsp; Made for curious minds.</span>
       <details><summary>Starter example license</summary><p>TIO starter examples are from <a href="https://github.com/TryItOnline/tryitonline">Try It Online</a>.</p><pre style="white-space:pre-wrap">MIT License
 
 Copyright (c) 2017 TryItOnline
@@ -501,7 +502,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.</pre></details>
     </footer>
-  </div>
   </div>
   <main id="requestPage" hidden>
     <a href="#home">← Back to home</a>
@@ -914,20 +914,45 @@ function renderAiResponse(body,text){
   }
   appendAiPlain(body,text.slice(position));
 }
+async function typeAiResponse(body,text,signal,onProgress){
+  if(typeof requestAnimationFrame!=="function"||document.hidden||matchMedia("(prefers-reduced-motion: reduce)").matches){
+    renderAiResponse(body,text);return;
+  }
+  const characters=Array.from(text),duration=Math.min(2500,Math.max(300,characters.length*12));
+  await new Promise((resolve,reject)=>{
+    let frame,start;
+    const cleanup=()=>{cancelAnimationFrame(frame);signal.removeEventListener("abort",stop);document.removeEventListener("visibilitychange",visibility)};
+    const stop=()=>{cleanup();reject(new Error("Stopped"))};
+    const finish=()=>{cleanup();resolve()};
+    const visibility=()=>{if(document.hidden)finish()};
+    const tick=time=>{
+      if(start===undefined)start=time;
+      const count=Math.max(1,Math.ceil(characters.length*Math.min(1,(time-start)/duration)));
+      body.textContent=characters.slice(0,count).join("");
+      onProgress(count/characters.length);
+      $("aiOutput").scrollTop=$("aiOutput").scrollHeight;
+      if(count===characters.length)finish();
+      else frame=requestAnimationFrame(tick);
+    };
+    if(signal.aborted){reject(new Error("Stopped"));return}
+    signal.addEventListener("abort",stop,{once:true});document.addEventListener("visibilitychange",visibility);frame=requestAnimationFrame(tick);
+  });
+  renderAiResponse(body,text);
+}
 function aiActivity(entry,includeEditor,mode){
   const details=document.createElement("details"),summary=document.createElement("summary"),working=document.createElement("div"),list=document.createElement("ul");
   const progress=document.createElement("span"),dial=document.createElement("span"),percentage=document.createElement("span");
-  details.className="ai-activity";summary.textContent="Activity";working.className="ai-working";working.textContent="Thinking";
+  details.className="ai-activity";summary.textContent="Activity";working.className="ai-working";working.textContent="Thinking (estimate)";
   progress.className="ai-progress";dial.className="ai-progress-dial";progress.setAttribute("role","progressbar");
   progress.setAttribute("aria-valuemin","0");progress.setAttribute("aria-valuemax","100");
-  progress.setAttribute("title","Progress counts completed code tests, up to five. It is not a time estimate.");
-  let completed=0;
+  progress.setAttribute("title","Estimated overall progress by stage. Generation time and the number of retries are unknown.");
+  let completed=0,completedTests=0;
   const setProgress=(value,finished=false)=>{
     if(finished)completed=100;
-    else if(Number.isInteger(value)&&value>=0&&value<=5)completed=Math.max(completed,value*20);
+    else if(Number.isFinite(value))completed=Math.max(completed,Math.min(99,Math.max(0,Math.floor(value))));
     percentage.textContent=completed+"%";dial.setAttribute("style","--progress:"+completed+"%");
     progress.setAttribute("aria-valuenow",String(completed));
-    progress.setAttribute("aria-valuetext",finished?"Response complete":(completed/20)+" of up to 5 code tests complete");
+    progress.setAttribute("aria-valuetext",finished?"Response complete":"Estimated "+completed+"% complete; time and retries are unknown");
   };
   setProgress(0);progress.appendChild(dial);progress.appendChild(percentage);working.appendChild(progress);
   details.appendChild(summary);details.appendChild(list);entry.appendChild(working);entry.appendChild(details);
@@ -935,7 +960,14 @@ function aiActivity(entry,includeEditor,mode){
   step(includeEditor?"Included the current file as context.":"Current file was not included.");
   if(mode==="explain")step("Included terminal output.");
   step("Waiting for the local runner.");
-  return {working,step,setProgress};
+  const updateStage=(stage,tests)=>{
+    const milestones={starting:5,preparing:10,generating:15,checking:30,repairing:35};
+    let value=Object.hasOwn(milestones,stage)?milestones[stage]:0;
+    if(Number.isInteger(tests)&&tests>=0&&tests<=5)completedTests=Math.max(completedTests,tests);
+    if(completedTests)value=Math.max(value,30+completedTests*10+(stage==="repairing"?5:0));
+    setProgress(value);
+  };
+  return {working,step,setProgress,updateStage};
 }
 function showAi(open){
   if(previewMode)return;
@@ -1004,7 +1036,7 @@ async function askLocalAi(mode,prompt,source,language,terminal,signal,history,ac
     let event;
     try{event=JSON.parse(line)}catch(error){throw new Error("The local runner returned an invalid AI stream.")}
     if(result!==undefined)throw new Error("The local runner sent an unexpected AI stream event.");
-    if(event.type==="progress"&&typeof event.message==="string"){activity.step(event.message);activity.setProgress(event.completedTests)}
+    if(event.type==="progress"&&typeof event.message==="string"){activity.step(event.message);activity.updateStage(event.stage,event.completedTests)}
     else if(event.type==="delta"&&typeof event.text==="string"){}
     else if(event.type==="done"&&typeof event.text==="string"&&event.text.trim()){
       if(!validAiVerification(event.verification))throw new Error("Restart start-sprig.bat to enable AI code testing.");
@@ -1045,9 +1077,9 @@ async function runAi(mode){
   aiMessage("Thinking on your computer. This may take a few minutes…");
   try{
     const result=await askLocalAi(mode,prompt,$("aiUseEditor").checked?source:"",language,mode==="explain"?terminal:"",aiController.signal,aiHistory.slice(-20),activity);
-    activity.setProgress(0,true);
+    activity.setProgress(90);
     const text=result.text;
-    renderAiResponse(reply.body,text);activity.step("Response received.");
+    activity.step("Response received.");
     const verification=document.createElement("div");verification.className="ai-verification";
     const testStatus=result.verification.status,label=testStatus==="passed"?"Test passed":testStatus==="broken"?"Broken":"Untested";
     const count=testStatus!=="broken"&&Number.isInteger(result.verification.attempts)&&result.verification.attempts>0
@@ -1060,6 +1092,8 @@ async function runAi(mode){
       details.className="ai-test-error";summary.textContent="Last test error";diagnostic.textContent=result.verification.diagnostic;
       details.appendChild(summary);details.appendChild(diagnostic);reply.entry.appendChild(details);
     }
+    await typeAiResponse(reply.body,text,aiController.signal,fraction=>activity.setProgress(90+fraction*9));
+    activity.setProgress(100,true);
     $("aiOutput").scrollTop=$("aiOutput").scrollHeight;
     aiHistory.push({role:"user",content:question.slice(0,3000)},{role:"assistant",content:text.slice(0,3000)});
     if(aiHistory.length>20)aiHistory.splice(0,aiHistory.length-20);

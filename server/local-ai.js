@@ -143,7 +143,7 @@ async function verifyAiResponse(language, initial, regenerate, signal, progress,
       if (lastFailure) return broken("The AI repair was incomplete.");
       throw aiError("The AI response was incomplete, so its code was withheld. Try a smaller request.", 502);
     }
-    if (progress) progress("Checking code for isolated test " + attempt + " of 5.");
+    if (progress) progress("Checking code for isolated test " + attempt + " of 5.", undefined, "checking");
     let verification;
     try { verification = await check(language, result.text, signal); }
     catch (error) {
@@ -157,7 +157,7 @@ async function verifyAiResponse(language, initial, regenerate, signal, progress,
       return { text: result.text, verification: { ...verification, attempts: attempt - 1 } };
     }
     if (progress && (verification.status === "passed" || verification.status === "failed"))
-      progress("Finished isolated test " + attempt + " of 5.", attempt);
+      progress("Finished isolated test " + attempt + " of 5.", attempt, "checking");
     if (verification.status === "passed") return { text: result.text, verification: { ...verification, attempts: attempt } };
     if (verification.status !== "failed" || typeof verification.diagnostic !== "string") {
       throw aiError("The isolated code test returned an invalid result.", 502);
@@ -167,7 +167,7 @@ async function verifyAiResponse(language, initial, regenerate, signal, progress,
       if (progress) progress("All five isolated tests failed; returning the last version as broken.");
       return broken();
     }
-    if (progress) progress("Test " + attempt + " of 5 failed; asking the model to fix the code.");
+    if (progress) progress("Test " + attempt + " of 5 failed; asking the model to fix the code.", undefined, "repairing");
     try { result = await regenerate(result.text, lastFailure.diagnostic); }
     catch (error) {
       if (signal && signal.aborted) throw error;
@@ -189,7 +189,7 @@ async function generateLocalAi(payload, signal, stream) {
     else signal.addEventListener("abort", cancel, { once: true });
   }
   try {
-    if (stream) stream.progress("Starting the local model.");
+    if (stream) stream.progress("Starting the local model.", undefined, "starting");
     const port = await availablePort();
     const token = crypto.randomBytes(24).toString("hex");
     const base = "http://127.0.0.1:" + port;
@@ -211,7 +211,7 @@ async function generateLocalAi(payload, signal, stream) {
     }
     if (!ready) throw aiError("The local AI model did not start in time.", 503);
     if (childError || child.exitCode !== null) throw aiError("The local AI model stopped unexpectedly.", 503);
-    if (stream) stream.progress("Local model ready; checking the prompt's context size.");
+    if (stream) stream.progress("Local model ready; checking the prompt's context size.", undefined, "preparing");
     const modelCall = async (label, milliseconds, call) => {
       const request = new AbortController();
       let timedOut = false;
@@ -252,7 +252,7 @@ async function generateLocalAi(payload, signal, stream) {
       if (!response.ok) throw aiError("Local model failed (HTTP " + response.status + ").", 502);
       return readChatStream(response, () => {});
     });
-    if (stream) stream.progress("Generating the response locally; code is held back until checked.");
+    if (stream) stream.progress("Generating the response locally; code is held back until checked.", undefined, "generating");
     const initial = await generate(messages);
     const result = await verifyAiResponse(payload.language, initial, async (previous, diagnostic) => {
       const retry = [messages[0], messages[messages.length - 1], { role: "assistant", content: previous },

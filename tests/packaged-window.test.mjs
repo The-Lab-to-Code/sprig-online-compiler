@@ -87,6 +87,16 @@ test("packaged app opens home and runs code in an isolated editor window", {
     }
     assert.equal(editorReady, true, "Editor did not finish loading: " + logs);
     assert.equal(await evaluate('getComputedStyle(document.querySelector("#landing")).display'), "block");
+    for (const width of [800, 1440, 1900]) {
+      await call("Emulation.setDeviceMetricsOverride", { width, height: 900, deviceScaleFactor: 1, mobile: false });
+      const alignment = await evaluate(`(() => {
+        const page = document.querySelector("#landing").getBoundingClientRect();
+        const text = document.querySelector(".home-footer-text").getBoundingClientRect();
+        return Math.abs((page.left + page.right) / 2 - (text.left + text.right) / 2);
+      })()`);
+      assert.ok(alignment < 1, "Footer is off center at " + width + "px: " + alignment);
+    }
+    await call("Emulation.clearDeviceMetricsOverride");
     for (let i = 0; i < 100 && await evaluate("ORDER.length") < 200; i++)
       await new Promise(resolve => setTimeout(resolve, 50));
     assert.ok(await evaluate("ORDER.length") >= 200, "Bundled language list did not load");
@@ -163,9 +173,9 @@ test("packaged app opens home and runs code in an isolated editor window", {
     await evaluate(`window.testAiStream.enqueue(new TextEncoder().encode(JSON.stringify({
       type:"progress",message:"Finished isolated test 1 of 5.",completedTests:1
     })+"\\n"))`);
-    for (let i = 0; i < 50 && await evaluate('document.querySelector(".ai-progress").getAttribute("aria-valuenow")') !== "20"; i++)
+    for (let i = 0; i < 50 && await evaluate('document.querySelector(".ai-progress").getAttribute("aria-valuenow")') !== "40"; i++)
       await new Promise(resolve => setTimeout(resolve, 50));
-    assert.equal(await evaluate('document.querySelector(".ai-progress").getAttribute("aria-valuenow")'), "20");
+    assert.equal(await evaluate('document.querySelector(".ai-progress").getAttribute("aria-valuenow")'), "40");
     assert.match(await evaluate('getComputedStyle(document.querySelector(".ai-progress-dial")).backgroundImage'), /conic-gradient/);
     await evaluate(`(() => {
       window.testAiStream.enqueue(new TextEncoder().encode(JSON.stringify({

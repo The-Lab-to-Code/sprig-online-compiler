@@ -116,9 +116,10 @@ If Docker or a required image is unavailable, the current code is shown as
 without a complete code block are also marked **Untested**. Multiple code
 blocks for a supported language cannot be tested as a single program.
 Generated responses are held back while testing instead of streaming live;
-Activity shows progress. The dial beside Thinking counts completed tests in
-steps of 20%, reaching 100% when the response is ready. It is not a time
-estimate, so it may stay at 0% while the model generates a response.
+the finished response is typed into the chat after verification. Activity
+shows progress. The dial is an overall stage-based estimate including model
+startup, generation, testing, and display. It cannot predict generation time
+or how many retries will be needed, and reaches 100% when the response is shown.
 
 This is a basic run with empty input, not a correctness or security guarantee.
 Interactive, multi-file, browser-dependent, and dependency-dependent programs
