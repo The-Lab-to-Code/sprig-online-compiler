@@ -81,6 +81,10 @@ test("missing runtime installation offers winget and scoop", () => {
   assert.match(runner, /spawn\("scoop"/);
   assert.match(runner, /spawn\("winget"/);
 });
+test("Windows Terminal starts an interactive cmd.exe session", () => {
+  assert.match(runner, /language === "__windows_terminal__"/);
+  assert.match(runner, /spawn\("cmd\.exe", \["\/d", "\/q", "\/k"\]/);
+});
 
 test("SQLite runs the source as SQL and reports syntax errors", {
   skip: spawnSync("docker", ["image", "inspect", "sprig-ai-languages:1"], { stdio: "ignore" }).status !== 0

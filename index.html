@@ -570,7 +570,7 @@ console.log(makeIt(idea));</pre><div class="home-output">OUTPUT<br><br>↳ Hello
     <option value="auto">Auto - choose for each language</option>
     <option value="wandbox">Wandbox - online, no key needed</option>
     <option value="tio">TIO - online, lots of languages</option>
-    <option value="local">Local runner - built-in terminal</option>
+    <option value="local">Windows Terminal</option>
     <option value="piston">Local Piston</option>
     <option value="custom">Your own Piston-compatible engine</option>
   </select>
@@ -1137,9 +1137,45 @@ function askStdin(prompt){
   $("tin").focus();
   return new Promise((resolve,reject)=>{stdinWait={resolve:line=>{write(line+"\n","i");resolve(line)},reject}});
 }
+let windowsTerminalSession=null;
+async function startWindowsTerminal(command=""){
+  if(windowsTerminalSession||selectedProvider()!=="local"||!localPage)return false;
+  const session=Math.random().toString(36).slice(2);
+  const stdinUrl=localRunnerUrl().replace(/execute\/?$/,"stdin");
+  const ctrl=new AbortController();
+  windowsTerminalSession={session,url:stdinUrl,controller:ctrl};
+  liveStdin=windowsTerminalSession;
+  $("tin").placeholder="Type a CMD command and press Enter";
+  $("tin").focus();
+  const response=fetch(localRunnerUrl(),{method:"POST",signal:ctrl.signal,headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({language:"__windows_terminal__",interactive:true,session,stdin:command?command+"\n":"",closeStdin:false})}).then(async r=>{
+      if(!r.ok){const t=await r.text();throw new Error(t||"Could not start Windows Terminal.");}
+      const reader=r.body.getReader(),dec=new TextDecoder();let buf="";
+      while(true){
+        const step=await reader.read();if(step.done)break;
+        buf+=dec.decode(step.value,{stream:true});let idx;
+        while((idx=buf.indexOf("\n"))>=0){
+          const row=buf.slice(0,idx);buf=buf.slice(idx+1);if(!row.trim())continue;
+          let msg;try{msg=JSON.parse(row)}catch(e){continue}
+          if(msg.stdout)write(msg.stdout);
+          if(msg.stderr)write(msg.stderr,"e");
+          if(msg.pty)liveStdin.pty=true;
+          if(typeof msg.exit==="number"){windowsTerminalSession=null;liveStdin=null;$("tin").placeholder="Type stdin and press Enter"}
+        }
+      }
+    }).catch(error=>{
+      if(!ctrl.signal.aborted)write((error.message||"Could not start Windows Terminal.")+"\n","e");
+      windowsTerminalSession=null;liveStdin=null;$("tin").placeholder="Type stdin and press Enter";
+    });
+  return response;
+}
 $("termline").onsubmit=e=>{
   e.preventDefault();
   const line=$("tin").value;$("tin").value="";
+  if(selectedProvider()==="local"&&!windowsTerminalSession){
+    startWindowsTerminal(line);
+    return;
+  }
   if(liveStdin){
     if(!liveStdin.pty)write(line+"\n","i");
     fetch(liveStdin.url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({session:liveStdin.session,data:line+"\n"})}).catch(()=>{});
@@ -2042,7 +2078,7 @@ function openSettings(){
  if(window.sprigDesktop)$("sStartup").value=window.sprigDesktop.getPreferences().startup;
  $("desktopSettingsMsg").textContent="";
  $("sUrl").value=savedEngine();$("sTok").value=store.get("sprig.tok")||"";
- $("sMsg").textContent=store.get("sprig.provider")==="terminal"?"Windows terminal mode was removed. "+(localPage?"The local runner":"Auto")+" is selected; save an engine choice to dismiss this notice.":"";
+ $("sMsg").textContent=store.get("sprig.provider")==="terminal"?"Windows Terminal is now the local runner mode. Save this setting to use it.":"";
  $("sUrl").placeholder="https://your-engine.example/api/v2/execute";
  $("sProvider").value=selectedProvider();
  $("sProvider").querySelector('option[value="piston"]').hidden=!localPage;
@@ -2070,7 +2106,7 @@ function refreshEngineSettings(){
    :provider==="piston"
      ?"Local Piston needs Piston running on this computer. Flix and Effekt use Sprig's local runner instead."
    :provider==="local"
-     ?"The local runner uses tools installed on this computer. On Windows, PowerShell confirmations appear in Sprig's terminal. Other Windows dialogs stay separate. Don't enter passwords here."
+     ?"Windows Terminal opens CMD directly and uses tools installed on this computer. Run commands in the terminal or run a language file from the editor."
      :"Your code and input go to the engine you enter here. The hosted site can't reach localhost. Flix and Effekt need Sprig's local runner.";
  $("engineHelp").textContent+=" Available versions and libraries depend on the engine, and may differ from your computer.";
 }
@@ -2088,6 +2124,7 @@ function saveCfg(){
  if(provider==="local"&&!localPage){$("sMsg").textContent="The local runner is only available on your computer.";return false}
  store.set("sprig.provider",provider);store.set("sprig.url",url);store.set("sprig.tok",$("sTok").value.trim());
  if(active>=0){$("sbEng").textContent=executionTarget(L[tabs[active].lang]);refreshVersionSelector()}
+ if(provider==="local"&&localPage)startWindowsTerminal();
  return true;
 }
 function runtimeListUrl(provider,url){

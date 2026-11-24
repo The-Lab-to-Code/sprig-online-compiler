@@ -298,6 +298,29 @@ function createLocalPlan(language, spec, source) {
 }
 
 async function execute(payload) {
+  if (payload.language === "__windows_terminal__") {
+    if (!payload.interactive || process.platform !== "win32") {
+      throw new Error("Windows Terminal is available only in the interactive Windows desktop app.");
+    }
+    return new Promise(resolve => {
+      const pty = require("node-pty").spawn("cmd.exe", ["/d", "/q", "/k"], {
+        name: "xterm", cols: 120, rows: 30,
+        cwd: payload.cwd || process.cwd(), env: process.env
+      });
+      const session = sessions.get(payload.session);
+      if (!session) return resolve({ run: { stdout: "", stderr: "Terminal session was closed.", code: 1 } });
+      session.child = pty; session.pty = true;
+      payload.onEvent?.({ pty: true });
+      pty.onData(data => payload.onEvent?.({ stdout: data }));
+      pty.onExit(({ exitCode }) => {
+        sessions.delete(payload.session);
+        resolve({ run: { stdout: "", stderr: "", code: exitCode || 0 } });
+      });
+      if (payload.stdin) session.queue.push(payload.stdin);
+      if (payload.closeStdin) session.closed = true;
+      flushSession(session);
+    });
+  }
   const language = payload.language;
   const spec = await localCommand(language);
   if (!spec) return proxyPiston(payload);

@@ -18,6 +18,13 @@ test("the removed Windows terminal mode falls back to the local runner", () => {
   vm.runInContext(provider, context);
   assert.equal(vm.runInContext("selectedProvider()", context), "local");
 });
+test("Windows Terminal replaces the Local Runner label and starts CMD", () => {
+  assert.match(html, /<option value="local">Windows Terminal<\/option>/);
+  assert.match(html, /async function startWindowsTerminal/);
+  assert.match(html, /language:"__windows_terminal__"/);
+  assert.match(runner, /payload\.language === "__windows_terminal__"/);
+  assert.match(runner, /cmd\.exe/);
+});
 
 function selector(localPage = true) {
   const saved = new Map();
