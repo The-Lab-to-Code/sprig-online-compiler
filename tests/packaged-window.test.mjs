@@ -90,9 +90,8 @@ test("packaged app opens home and runs code in an isolated editor window", {
     for (const width of [800, 1440, 1900]) {
       await call("Emulation.setDeviceMetricsOverride", { width, height: 900, deviceScaleFactor: 1, mobile: false });
       const alignment = await evaluate(`(() => {
-        const page = document.querySelector("#landing").getBoundingClientRect();
         const text = document.querySelector(".home-footer-text").getBoundingClientRect();
-        return Math.abs((page.left + page.right) / 2 - (text.left + text.right) / 2);
+        return Math.abs(innerWidth / 2 - (text.left + text.right) / 2);
       })()`);
       assert.ok(alignment < 1, "Footer is off center at " + width + "px: " + alignment);
     }
