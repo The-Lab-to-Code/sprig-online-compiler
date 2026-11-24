@@ -331,7 +331,6 @@ details{border-radius:8px}
 #landing .steps h3{font-size:15px}
 #landing details{max-width:none;margin:0;padding:14px 0;border:0;border-top:1px solid var(--line);border-radius:0;background:none}
 #landing details:last-child{border-bottom:1px solid var(--line)}
-#landing footer{text-align:left;max-width:1040px;margin:64px auto 0;padding:20px 22px 32px;border-top:1px solid var(--line)}
 @media(max-width:820px){
   #landing .nav .in{gap:8px;padding-left:12px;padding-right:12px}
   #landing .nav .logo{margin-right:auto}
@@ -427,8 +426,6 @@ html[data-preview] #abAi,html[data-preview] #abSet,html[data-preview] #requestLi
 #landing .home-mark{color:#65a97c;font-size:27px}
 #landing .search,#landing .chip{background:var(--home-card);border-color:var(--home-line);color:var(--home-ink)}
 #landing .legend{color:var(--home-muted);margin-bottom:20px}
-#landing footer{width:100vw;max-width:none;color:var(--home-muted);padding-top:25px;border-top:1px solid var(--home-line);text-align:center}
-#landing footer summary{list-style-position:inside}
 @media(max-width:820px){#landing .home-hero{grid-template-columns:1fr;padding:45px 0}.home-illustration{max-width:500px;width:100%}#landing .home-cards{grid-template-columns:1fr}.home-links a{display:none}}
 </style>
 </head>
@@ -479,29 +476,6 @@ console.log(makeIt(idea));</pre><div class="home-output">OUTPUT<br><br>↳ Hello
       <a href="#request">Request a language →</a>
     </section>
   </div>
-    <footer><span class="home-footer-text">✳ &nbsp; sprig. &nbsp; Made for curious minds.</span>
-      <details><summary>Starter example license</summary><p>TIO starter examples are from <a href="https://github.com/TryItOnline/tryitonline">Try It Online</a>.</p><pre style="white-space:pre-wrap">MIT License
-
-Copyright (c) 2017 TryItOnline
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.</pre></details>
-    </footer>
   </div>
   <main id="requestPage" hidden>
     <a href="#home">← Back to home</a>
@@ -612,6 +586,27 @@ SOFTWARE.</pre></details>
     <p>Deleted items go to .sprig-trash in your open folder. Restoring won't overwrite an existing item, and the trash copy stays until you remove it yourself.</p>
     <div id="trashList"></div>
   </div>
+  <details id="starterLicense"><summary>Starter example license</summary><p>TIO starter examples are from <a href="https://github.com/TryItOnline/tryitonline">Try It Online</a>.</p><pre style="white-space:pre-wrap;max-height:200px;overflow:auto">MIT License
+
+Copyright (c) 2017 TryItOnline
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</pre></details>
   <div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="btn" id="sClose">Close</button></div>
 </dialog>
 

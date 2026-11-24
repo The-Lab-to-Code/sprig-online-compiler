@@ -87,15 +87,7 @@ test("packaged app opens home and runs code in an isolated editor window", {
     }
     assert.equal(editorReady, true, "Editor did not finish loading: " + logs);
     assert.equal(await evaluate('getComputedStyle(document.querySelector("#landing")).display'), "block");
-    for (const width of [800, 1440, 1900]) {
-      await call("Emulation.setDeviceMetricsOverride", { width, height: 900, deviceScaleFactor: 1, mobile: false });
-      const alignment = await evaluate(`(() => {
-        const text = document.querySelector(".home-footer-text").getBoundingClientRect();
-        return Math.abs(innerWidth / 2 - (text.left + text.right) / 2);
-      })()`);
-      assert.ok(alignment < 1, "Footer is off center at " + width + "px: " + alignment);
-    }
-    await call("Emulation.clearDeviceMetricsOverride");
+    assert.equal(await evaluate('!!document.querySelector("#landing footer")'), false);
     for (let i = 0; i < 100 && await evaluate("ORDER.length") < 200; i++)
       await new Promise(resolve => setTimeout(resolve, 50));
     assert.ok(await evaluate("ORDER.length") >= 200, "Bundled language list did not load");
@@ -120,8 +112,9 @@ test("packaged app opens home and runs code in an isolated editor window", {
     assert.ok(["light", "dark"].includes(JSON.parse(readFileSync(path.join(profile, "preferences.json"), "utf8")).theme));
     assert.equal(await evaluate('!!document.querySelector("#sProvider option[value=terminal]")'), false);
     assert.equal(await evaluate('!!document.querySelector("#terminalSettingsJson")'), false);
-    assert.equal(await evaluate('getComputedStyle(document.querySelector("#landing footer")).textAlign'), "center");
-    assert.equal(await evaluate('getComputedStyle(document.querySelector("#landing footer summary")).listStylePosition'), "inside");
+    await evaluate('document.querySelector("#starterLicense summary").click()');
+    assert.equal(await evaluate('document.querySelector("#starterLicense").open'), true);
+    assert.match(await evaluate('document.querySelector("#starterLicense").textContent'), /Copyright \(c\) 2017 TryItOnline/);
     await evaluate('document.querySelector("#sClose").click()');
     await evaluate('document.querySelector("[data-go]").click()');
     const features = await evaluate(`({
