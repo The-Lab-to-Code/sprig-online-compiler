@@ -133,6 +133,7 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:0 20px 40px}
 #termline span{color:var(--vok);user-select:none}
 #tin{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--vt);font:13px/1.55 Consolas,"Cascadia Code","Courier New",monospace}
 #tin::placeholder{color:var(--vdim)}
+#out{tab-size:4}
 #frame{flex:1;border:0;background:#fff}
 #panel[data-p=out] #frame,#panel[data-p=pv] #termwrap{display:none}
 #aiSidebar{position:relative;width:var(--ai-width);min-width:0;flex:none;display:flex;flex-direction:column;background:var(--vside);border-left:1px solid var(--vbd);animation:aiEnter .18s ease-out}
@@ -531,7 +532,7 @@ console.log(makeIt(idea));</pre><div class="home-output">OUTPUT<br><br>↳ Hello
       <div class="ed"><pre id="gut">1</pre><div class="cw"><pre id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea></div></div><div id="grip" title="Drag to resize"></div>
       <div id="panel" data-p="out">
         <div class="phead"><button class="ptab on" data-p="out">TERMINAL</button><button class="ptab" data-p="pv">PREVIEW</button><span id="spill" class="spill"></span><span class="sp"></span><a id="clear">Clear</a></div>
-        <div id="termwrap"><pre id="out"></pre><form id="termline" autocomplete="off"><span>›</span><input id="tin" placeholder="Type stdin and press Enter" spellcheck="false" autocomplete="off" autocapitalize="off"></form></div><iframe id="frame" sandbox="allow-scripts allow-modals" title="Preview"></iframe>
+        <div id="termwrap"><pre id="out"></pre><form id="termline" autocomplete="off"><span>›</span><input id="tin" placeholder="PowerShell command" spellcheck="false" autocomplete="off" autocapitalize="off"></form></div><iframe id="frame" sandbox="allow-scripts allow-modals" title="Preview"></iframe>
       </div>
     </div>
     <aside id="aiSidebar" aria-label="Sprig AI" hidden>
@@ -836,7 +837,10 @@ function toggleTheme(){
 document.querySelectorAll("[data-theme-btn]").forEach(b=>b.onclick=toggleTheme);
 $("abTheme").onclick=toggleTheme;matchMedia("(prefers-color-scheme:dark)").addEventListener("change",applyTheme);
 // ---- output
-function write(t,c){if(c==="e")errFlag=true;const s=document.createElement("span");if(c)s.className=c;s.textContent=t;out.appendChild(s);out.scrollTop=out.scrollHeight}
+function cleanTerminalText(t){
+  return String(t||"").replace(/\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])/g,"").replace(/\r\n?/g,"\n");
+}
+function write(t,c){t=cleanTerminalText(t);if(c==="e")errFlag=true;const s=document.createElement("span");if(c)s.className=c;s.textContent=t;out.appendChild(s);out.scrollTop=out.scrollHeight}
 const line=(t,c)=>write(t+"\n",c);
 function setPanel(p){$("panel").dataset.p=p;document.querySelectorAll(".ptab").forEach(b=>b.classList.toggle("on",b.dataset.p===p))}
 document.querySelectorAll(".ptab").forEach(b=>b.onclick=()=>setPanel(b.dataset.p));
@@ -1145,7 +1149,7 @@ async function startWindowsTerminal(command=""){
   const ctrl=new AbortController();
   windowsTerminalSession={session,url:stdinUrl,controller:ctrl};
   liveStdin=windowsTerminalSession;
-  $("tin").placeholder="Type a CMD command and press Enter";
+  $("tin").placeholder="PowerShell command";
   $("tin").focus();
   const response=fetch(localRunnerUrl(),{method:"POST",signal:ctrl.signal,headers:{"Content-Type":"application/json"},
     body:JSON.stringify({language:"__windows_terminal__",interactive:true,session,stdin:command?command+"\n":"",closeStdin:false})}).then(async r=>{
@@ -1160,12 +1164,12 @@ async function startWindowsTerminal(command=""){
           if(msg.stdout)write(msg.stdout);
           if(msg.stderr)write(msg.stderr,"e");
           if(msg.pty)liveStdin.pty=true;
-          if(typeof msg.exit==="number"){windowsTerminalSession=null;liveStdin=null;$("tin").placeholder="Type stdin and press Enter"}
+          if(typeof msg.exit==="number"){windowsTerminalSession=null;liveStdin=null;$("tin").placeholder="PowerShell command"}
         }
       }
     }).catch(error=>{
       if(!ctrl.signal.aborted)write((error.message||"Could not start Windows Terminal.")+"\n","e");
-      windowsTerminalSession=null;liveStdin=null;$("tin").placeholder="Type stdin and press Enter";
+      windowsTerminalSession=null;liveStdin=null;$("tin").placeholder="PowerShell command";
     });
   return response;
 }
@@ -2106,7 +2110,7 @@ function refreshEngineSettings(){
    :provider==="piston"
      ?"Local Piston needs Piston running on this computer. Flix and Effekt use Sprig's local runner instead."
    :provider==="local"
-     ?"Windows Terminal opens CMD directly and uses tools installed on this computer. Run commands in the terminal or run a language file from the editor."
+     ?"Windows Terminal opens a persistent PowerShell session and uses tools installed on this computer. Type PowerShell commands directly in the terminal panel."
      :"Your code and input go to the engine you enter here. The hosted site can't reach localhost. Flix and Effekt need Sprig's local runner.";
  $("engineHelp").textContent+=" Available versions and libraries depend on the engine, and may differ from your computer.";
 }

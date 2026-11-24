@@ -303,7 +303,7 @@ async function execute(payload) {
       throw new Error("Windows Terminal is available only in the interactive Windows desktop app.");
     }
     return new Promise(resolve => {
-      const pty = require("node-pty").spawn("cmd.exe", ["/d", "/q", "/k"], {
+      const pty = require("node-pty").spawn("powershell.exe", ["-NoLogo", "-NoProfile", "-NoExit"], {
         name: "xterm", cols: 120, rows: 30,
         cwd: payload.cwd || process.cwd(), env: process.env
       });
@@ -311,7 +311,9 @@ async function execute(payload) {
       if (!session) return resolve({ run: { stdout: "", stderr: "Terminal session was closed.", code: 1 } });
       session.child = pty; session.pty = true;
       payload.onEvent?.({ pty: true });
-      pty.onData(data => payload.onEvent?.({ stdout: data }));
+      pty.onData(data => payload.onEvent?.({
+        stdout: stripVTControlCharacters(data).replace(/\r\n?/g, "\n")
+      }));
       pty.onExit(({ exitCode }) => {
         sessions.delete(payload.session);
         resolve({ run: { stdout: "", stderr: "", code: exitCode || 0 } });
