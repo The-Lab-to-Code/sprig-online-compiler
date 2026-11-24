@@ -75,6 +75,13 @@ test("interactive compilation starts the program after the compiler exits", asyn
   assert.deepEqual(h.removed, ["temporary-run"]);
 });
 
+test("missing runtime installation offers winget and scoop", () => {
+  assert.match(runner, /Install with winget or scoop\?/);
+  assert.match(runner, /choice === "scoop"/);
+  assert.match(runner, /spawn\("scoop"/);
+  assert.match(runner, /spawn\("winget"/);
+});
+
 test("SQLite runs the source as SQL and reports syntax errors", {
   skip: spawnSync("docker", ["image", "inspect", "sprig-ai-languages:1"], { stdio: "ignore" }).status !== 0
 }, () => {

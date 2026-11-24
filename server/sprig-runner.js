@@ -74,9 +74,11 @@ async function promptDownload(target) {
   if (!process.stdin.isTTY) return false;
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
   return new Promise(resolve => {
-    rl.question(`Runtime '${target}' is not installed. Would you like to download it? (y/n) `, answer => {
+    rl.question(`Runtime '${target}' is not installed. Install with winget or scoop? (winget/scoop/n) `, answer => {
       rl.close();
-      resolve(answer.toLowerCase().startsWith("y"));
+      const choice = answer.trim().toLowerCase();
+      resolve(choice === "winget" || choice === "w" ? "winget" :
+        choice === "scoop" || choice === "s" ? "scoop" : false);
     });
   });
 }
@@ -105,7 +107,7 @@ function downloadFile(url, dest) {
   });
 }
 
-async function installLanguage(payload, language) {
+async function installLanguage(payload, language, manager) {
   const spec = commands[language];
   if (!spec) return false;
 
@@ -147,6 +149,23 @@ async function installLanguage(payload, language) {
       swift: "Swift.Swift", zig: "zig.zig"
     };
     const id = wingetIds[language] || spec[0];
+    if (manager === "scoop") {
+      const scoopIds = {
+        python: "python", python3: "python",
+        node: "nodejs-lts", javascript: "nodejs-lts",
+        ruby: "ruby", go: "go", rust: "rust",
+        java: "openjdk21", php: "php", perl: "perl",
+        lua: "lua", julia: "julia", dart: "dart",
+        swift: "swift", zig: "zig"
+      };
+      const scoopId = scoopIds[language] || id;
+      return new Promise(resolve => {
+        const child = spawn("scoop", ["install", scoopId], { shell: true });
+        child.stdout.on("data", b => payload.onEvent?.({ stdout: b.toString() }));
+        child.stderr.on("data", b => payload.onEvent?.({ stderr: b.toString() }));
+        child.on("close", code => resolve(code === 0));
+      });
+    }
     return new Promise(resolve => {
       const child = spawn("winget", ["install", "-e", "--id", id, "--silent", "--accept-package-agreements", "--accept-source-agreements"], { shell: true });
       child.stdout.on("data", b => payload.onEvent?.({ stdout: b.toString() }));
@@ -297,20 +316,22 @@ async function execute(payload) {
     if (payload.allowInstall === false) {
       throw new Error("Runtime '" + missingTarget + "' is not installed or is not on PATH.");
     }
-    const msg = `Runtime '${missingTarget}' is not installed. Would you like to download it? (y/n) `;
-    let confirmed = false;
+    const msg = `Runtime '${missingTarget}' is not installed. Install with winget or scoop? (winget/scoop/n) `;
+    let manager = false;
     if (payload.interactive) {
       if (payload.onEvent) payload.onEvent({ stdout: msg });
       const answer = await new Promise(resolve => {
         const session = sessions.get(payload.session);
         session.onInputOnce = data => resolve(data.trim());
       });
-      confirmed = answer?.toLowerCase().startsWith("y");
+      const choice = answer?.toLowerCase();
+      manager = choice === "winget" || choice === "w" ? "winget" :
+        choice === "scoop" || choice === "s" ? "scoop" : false;
     } else {
-      confirmed = await promptDownload(missingTarget);
+      manager = await promptDownload(missingTarget);
     }
-    if (confirmed) {
-      if (await installLanguage(payload, language)) {
+    if (manager) {
+      if (await installLanguage(payload, language, manager)) {
         commandAvailability.delete(executable);
         if (!(await commandAvailable(executable)) && !path.isAbsolute(missingTarget)) {
           throw new Error("Installed '" + missingTarget + "' but it is still not on PATH. You may need to restart the runner.");

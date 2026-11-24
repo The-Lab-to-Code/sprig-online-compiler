@@ -236,12 +236,15 @@ test("every bundled language mode has a starter, including saved modes with no v
     applyRuntimeOptions("tio", catalog.tio);
     globalThis.missing=ORDER.filter(id=>!L[id].s.trim()).map(id=>L[id].name);
     globalThis.starters={ada:L.tio_ada.s,lazyk:L.lazyk.s,js:L.js.s};
+    globalThis.builtins={cpy:L.cpy,node:L.node};
     globalThis.count=ORDER.length;`, context);
   assert.ok(context.count >= 200);
   assert.deepEqual(Array.from(context.missing), []);
   assert.match(context.starters.ada, /procedure Main/);
   assert.ok(context.starters.lazyk.length > 0);
   assert.match(context.starters.js, /const greet/);
+  assert.equal(context.builtins.cpy, undefined);
+  assert.equal(context.builtins.node, undefined);
 });
 
 test("the bundled catalog preserves saved provider versions and adds missing languages", async () => {
