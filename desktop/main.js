@@ -126,7 +126,7 @@ if (!app.requestSingleInstanceLock()) {
     });
     runner = spawn(process.execPath, [path.join(app.getAppPath(), "sprig-runner.js"), "--desktop"], {
       cwd: app.getAppPath(), env: { ...process.env, ELECTRON_RUN_AS_NODE: "1",
-        SPRIG_FLIX_PATH: path.join(dataDir, "flix.jar"), SPRIG_SETTINGS_DIR: dataDir },
+        SPRIG_FLIX_PATH: path.join(dataDir, "flix.jar") },
       windowsHide: true, stdio: ["ignore", "pipe", "pipe"]
     });
     let output = "";

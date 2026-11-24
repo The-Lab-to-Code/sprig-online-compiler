@@ -67,26 +67,6 @@ Sprig's terminal. TIO and Piston do not provide live confirmation prompts.
 Graphical and Windows security dialogs remain separate. The terminal is not
 designed for secret entry; do not enter passwords there.
 
-To run in a separate Windows terminal, select **Your terminal - Windows** in
-Settings. Sprig uses locally installed runtimes and compilers, without falling
-back to an online service. JavaScript uses Node.js; browser-only languages
-without a local runner are unavailable. Programs run with your normal user
-permissions in a temporary working folder, not a sandbox or your open folder.
-Enter input and stop the program in the separate terminal. Clear any queued
-input in Sprig before running; the terminal window stays open after the program
-finishes. Temporary files are cleaned up when that window closes while Sprig is
-running. Closing Sprig does not stop the separate terminal.
-
-In the desktop app, Settings also provides an editable
-`terminal-commands.json` in the user-data directory. Load commands to include
-the current language catalog; newly discovered languages are added without
-overwriting edits. Each language has an extension, an optional `compile` array,
-and a `run` array; `null` means no command is configured. Array elements are
-the executable and its separate arguments. `{file}`, `{dir}`, and `{module}`
-expand to the temporary source file, working directory, and Erlang module.
-Commands are not interpreted as shell strings. Configuring a command does not
-install its toolchain. These commands apply only to **Your terminal - Windows**.
-
 Auto uses a fixed engine for each language without testing or probing engines
 first. Browser languages run in the browser; other languages use Wandbox, TIO,
 or the local runner. Some languages have no configured Auto engine. The app

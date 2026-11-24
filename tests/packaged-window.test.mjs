@@ -105,11 +105,10 @@ test("packaged app opens home and runs code in an isolated editor window", {
     for (let i = 0; i < 50 && !JSON.parse(readFileSync(path.join(profile, "preferences.json"), "utf8")).theme; i++)
       await new Promise(resolve => setTimeout(resolve, 50));
     assert.ok(["light", "dark"].includes(JSON.parse(readFileSync(path.join(profile, "preferences.json"), "utf8")).theme));
-    await evaluate('document.querySelector("#terminalSettingsLoad").click()');
-    for (let i = 0; i < 100 && !await evaluate('document.querySelector("#terminalSettingsMsg").textContent'); i++)
-      await new Promise(resolve => setTimeout(resolve, 100));
-    assert.equal(await evaluate('document.querySelector("#terminalSettingsMsg").textContent'), "Commands loaded.");
-    assert.ok(await evaluate('Object.keys(JSON.parse(document.querySelector("#terminalSettingsJson").value).languages).length') >= 200);
+    assert.equal(await evaluate('!!document.querySelector("#sProvider option[value=terminal]")'), false);
+    assert.equal(await evaluate('!!document.querySelector("#terminalSettingsJson")'), false);
+    assert.equal(await evaluate('getComputedStyle(document.querySelector("#landing footer")).textAlign'), "center");
+    assert.equal(await evaluate('getComputedStyle(document.querySelector("#landing footer summary")).listStylePosition'), "inside");
     await evaluate('document.querySelector("#sClose").click()');
     await evaluate('document.querySelector("[data-go]").click()');
     const features = await evaluate(`({

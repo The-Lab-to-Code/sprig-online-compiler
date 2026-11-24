@@ -11,6 +11,14 @@ assert.ok(start >= 0 && end > start, "Auto engine selection is missing");
 const autoCode = html.slice(start, end);
 const runner = await readFile(new URL("../server/sprig-runner.js", import.meta.url), "utf8");
 
+test("the removed Windows terminal mode falls back to the local runner", () => {
+  const provider = html.slice(html.indexOf("function selectedProvider()"), html.indexOf("function providerUrl("));
+  const context = vm.createContext({ previewMode: false, localPage: true,
+    store: { get: key => key === "sprig.provider" ? "terminal" : "" } });
+  vm.runInContext(provider, context);
+  assert.equal(vm.runInContext("selectedProvider()", context), "local");
+});
+
 function selector(localPage = true) {
   const saved = new Map();
   const context = vm.createContext({

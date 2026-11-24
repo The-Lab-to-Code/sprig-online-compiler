@@ -79,7 +79,7 @@ test("SQLite runs the source as SQL and reports syntax errors", {
   skip: spawnSync("docker", ["image", "inspect", "sprig-ai-languages:1"], { stdio: "ignore" }).status !== 0
 }, () => {
   const planStart = runner.indexOf("function createLocalPlan(");
-  const planEnd = runner.indexOf("async function launchNativeTerminal(", planStart);
+  const planEnd = runner.indexOf("async function execute(payload)", planStart);
   const files = new Map();
   const context = vm.createContext({
     fs: { mkdtempSync: () => "/tmp/sprig-sql-test", writeFileSync: (file, source) => files.set(file, source) },

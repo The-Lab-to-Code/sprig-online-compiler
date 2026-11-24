@@ -427,7 +427,8 @@ html[data-preview] #abAi,html[data-preview] #abSet,html[data-preview] #requestLi
 #landing .home-mark{color:#65a97c;font-size:27px}
 #landing .search,#landing .chip{background:var(--home-card);border-color:var(--home-line);color:var(--home-ink)}
 #landing .legend{color:var(--home-muted);margin-bottom:20px}
-#landing footer{color:var(--home-muted);padding-top:25px;border-top:1px solid var(--home-line)}
+#landing footer{color:var(--home-muted);padding-top:25px;border-top:1px solid var(--home-line);text-align:center}
+#landing footer summary{list-style-position:inside}
 @media(max-width:820px){#landing .home-hero{grid-template-columns:1fr;padding:45px 0}.home-illustration{max-width:500px;width:100%}#landing .home-cards{grid-template-columns:1fr}.home-links a{display:none}}
 </style>
 </head>
@@ -464,7 +465,7 @@ console.log(makeIt(idea));</pre><div class="home-output">OUTPUT<br><br>↳ Hello
       <div class="home-eyebrow">01 / YOUR WORKSPACE</div><h2 class="home-heading">More room to<br><em>do your thing.</em></h2>
       <div class="home-cards">
         <article class="home-card"><div class="home-mark">✳</div><h3>Languages to explore</h3><p><strong id="nLang">80+</strong> language modes, with browser, online and local options.</p></article>
-        <article class="home-card"><div class="home-mark">▸_</div><h3>Your tools, your way</h3><p>Use your terminal, a local runner, or an online engine. Availability depends on your setup.</p></article>
+        <article class="home-card"><div class="home-mark">▸_</div><h3>Your tools, your way</h3><p>Use the local runner or an online engine. Availability depends on your setup.</p></article>
         <article class="home-card"><div class="home-mark">✧</div><h3>A little help from AI</h3><p>Ask Sprig AI about your code. The optional model runs on your computer.</p></article>
       </div>
       <span id="nLocal" hidden></span>
@@ -589,15 +590,6 @@ SOFTWARE.</pre></details>
     <label for="sStartup">Open Sprig to</label>
     <select id="sStartup"><option value="home">Home page</option><option value="editor">Editor</option></select>
     <p id="desktopSettingsMsg" role="status"></p>
-    <details>
-      <summary>Terminal commands (JSON)</summary>
-      <p>Commands run with your normal permissions in a temporary folder. Each command is an array of arguments, not a shell command. Use {file}, {dir}, or {module}; null means unconfigured. Install the required tools yourself.</p>
-      <p id="terminalSettingsPath"></p>
-      <label for="terminalSettingsJson">Terminal commands JSON</label>
-      <textarea id="terminalSettingsJson" spellcheck="false" style="width:100%;height:220px;font:12px monospace"></textarea>
-      <div><button class="btn" id="terminalSettingsLoad">Load commands</button> <button class="btn" id="terminalSettingsSave">Save commands</button></div>
-      <p id="terminalSettingsMsg" role="status"></p>
-    </details>
   </div>
   <label for="sProvider">Where should your code run?</label>
   <select id="sProvider">
@@ -605,7 +597,6 @@ SOFTWARE.</pre></details>
     <option value="wandbox">Wandbox - online, no key needed</option>
     <option value="tio">TIO - online, lots of languages</option>
     <option value="local">Local runner - built-in terminal</option>
-    <option value="terminal">Your terminal - Windows</option>
     <option value="piston">Local Piston</option>
     <option value="custom">Your own Piston-compatible engine</option>
   </select>
@@ -724,7 +715,8 @@ function isDefaultPiston(url){
 function selectedProvider(){
   if(previewMode)return "auto";
   const saved=store.get("sprig.provider");
-  if(saved==="auto"||saved==="wandbox"||saved==="tio"||saved==="local"||saved==="terminal"||saved==="piston"||saved==="custom")return saved;
+  if(saved==="terminal")return localPage?"local":"auto";
+  if(saved==="auto"||saved==="wandbox"||saved==="tio"||saved==="local"||saved==="piston"||saved==="custom")return saved;
   const engine=savedEngine();
   if(engine&&!engineIsAuto(engine)&&!isDefaultPiston(engine))return "custom";
   return "auto";
@@ -732,7 +724,7 @@ function selectedProvider(){
 function providerUrl(provider){
   if(provider==="wandbox")return localPage?LOCAL_WANDBOX_URL:HOSTED_WANDBOX_URL;
   if(provider==="tio")return localPage?LOCAL_TIO_URL:HOSTED_TIO_URL;
-  if(provider==="local"||provider==="terminal")return localPage?localRunnerUrl():"";
+  if(provider==="local")return localPage?localRunnerUrl():"";
   if(provider==="piston")return localPage?PISTON_URL:"";
   return savedEngine();
 }
@@ -756,18 +748,16 @@ function autoChoice(l){return designatedProvider(l)}
 function effectiveProvider(l,t){
   const provider=selectedProvider();
   if(provider==="auto")return autoChoice(l);
-  if(provider==="terminal")return provider;
   if(l.local&&!(provider==="tio"&&l.tioVersions))return "browser";
   return provider;
 }
-const engineName=provider=>({browser:"browser",local:"local runner",terminal:"your terminal",piston:"local Piston",wandbox:"Wandbox",tio:"TIO",custom:"custom engine"})[provider]||provider;
+const engineName=provider=>({browser:"browser",local:"local runner",piston:"local Piston",wandbox:"Wandbox",tio:"TIO",custom:"custom engine"})[provider]||provider;
 function executionTarget(l){
   const provider=selectedProvider();
   if(provider==="auto"){
     const choice=autoChoice(l);
     return choice?"Auto: "+engineName(choice)+" next":"Auto: no engine configured";
   }
-  if(provider==="terminal")return "Runs in your terminal";
   if(l.tioOnly&&provider!=="tio")return "Select TIO provider";
   if(l.local&&!(provider==="tio"&&l.tioVersions))return "Runs in browser";
   if((l.rt==="flix"||l.rt==="effekt")&&!(provider==="tio"&&l.tioVersions))return localPage?"Runs on local runner":"Local runner required";
@@ -1221,8 +1211,8 @@ function qp(items,ph,pick){
   inp.onkeydown=e=>{if(e.key==="ArrowDown"){sel=Math.min(sel+1,shown.length-1);render();e.preventDefault()}else if(e.key==="ArrowUp"){sel=Math.max(sel-1,0);render();e.preventDefault()}else if(e.key==="Enter"){e.preventDefault();choose(sel)}else if(e.key==="Escape"){close();code.focus()}};
   el.onmousedown=e=>{if(e.target===el){close();code.focus()}};
 }
-function pickLang(){if(active<0){$("emptyNew").focus();return}qp(ORDER.map(id=>({label:L[id].name,detail:selectedProvider()==="terminal"?"your terminal":selectedProvider()==="auto"?({browser:"browser",tio:"TIO",wandbox:"engine",local:"local runner"})[designatedProvider(L[id])]||"choose an engine":L[id].tioOnly?"TIO":L[id].local?(selectedProvider()==="tio"&&L[id].tioVersions?"TIO":"browser"):"engine",id})),"Select language mode",it=>{setLang(it.id);code.focus()})}
-function stopJob(){if(job){if(job.external){line("Close the separate terminal window to stop your program.","i");return}runCancelled=true;job.kill()}}
+function pickLang(){if(active<0){$("emptyNew").focus();return}qp(ORDER.map(id=>({label:L[id].name,detail:selectedProvider()==="auto"?({browser:"browser",tio:"TIO",wandbox:"engine",local:"local runner"})[designatedProvider(L[id])]||"choose an engine":L[id].tioOnly?"TIO":L[id].local?(selectedProvider()==="tio"&&L[id].tioVersions?"TIO":"browser"):"engine",id})),"Select language mode",it=>{setLang(it.id);code.focus()})}
+function stopJob(){if(job){runCancelled=true;job.kill()}}
 const CMDS=[["Run Code","Ctrl+Enter",()=>run()],["Stop","",stopJob],["New File","",()=>createNewFile()],["Rename File","F2",()=>renameTab(active)],["Open File…","Ctrl+O",()=>openFile()],["Open Folder…","",()=>openDir()],["Save","Ctrl+S",()=>save()],["Save As…","Ctrl+Shift+S",()=>saveAs()],["Change Language Mode","",()=>pickLang()],["Engine Settings","",()=>openSettings()],["Toggle Light/Dark Theme","",()=>toggleTheme()],["Go to Home Page","",()=>{location.hash="home";route();scrollTo(0,0)}],["Save All","Ctrl+Alt+S",()=>saveAll()]];
 function palette(){qp(CMDS.filter(c=>!previewMode||c[0]!=="Engine Settings").map(c=>({label:c[0],detail:c[1],fn:c[2]})),"Type a command",it=>it.fn())}
 const loaded={};
@@ -1366,25 +1356,7 @@ async function runLocalStream(url,l,src,input,allowInstall=true){
     throw reachError(e,url);
   }finally{clearTimeout(to);liveStdin=null;$("tin").placeholder="Type stdin and press Enter"}
 }
-async function runNativeTerminal(l,src){
-  if(!localPage||location.protocol==="file:")throw new Error("Open the Sprig app or local runner to use your terminal.");
-  if(window.sprigDesktop)await terminalSettingsRequest({action:"load",languages:terminalLanguageList()},false);
-  job={external:true};
-  line("Opening your terminal…","i");
-  const url=localRunnerBase+"/api/v2/native-terminal";
-  let response;
-  try{response=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({id:l.id,language:runnerRuntime(l),source:src})})}
-  catch(error){throw reachError(error,url)}
-  if(response.status===404)throw new Error("Restart Sprig to enable running in your terminal.");
-  let result;
-  try{result=await response.json()}catch(error){throw new Error("Sprig couldn't read the terminal response.")}
-  if(!response.ok||result.ok!==true)throw new Error(result.message||"Sprig couldn't open your terminal.");
-  line("Your program is running in a separate terminal. Use that window for input and to stop it.","i");
-  return "external";
-}
 async function runRemote(l,src,input,provider=selectedProvider(),tab=tabs[active],auto=false){
-  if(provider==="terminal")return runNativeTerminal(l,src);
   const url=providerUrl(provider),hasTio=provider==="tio"&&Array.isArray(l.tioVersions)&&l.tioVersions.length>0;
   const selectedVersion=provider==="wandbox"?tab&&tab.wandboxVersion:provider==="tio"?tab&&tab.tioVersion:undefined;
   const localOnly=(l.rt==="flix"||l.rt==="effekt")&&!hasTio;
@@ -1479,10 +1451,6 @@ async function run(){
   let provider,t0,runTab;
   try{
     runTab=Object.assign({},tab);provider=auto?autoChoice(l):effectiveProvider(l,runTab);
-    if(provider==="terminal"&&input){
-      stdinQueue.unshift(...stdinFeed);stdinFeed=[];
-      throw new Error("Clear the queued input first, then type it in your terminal when the program asks.");
-    }
     if(!provider){
       throw new Error("Auto has no engine configured for "+l.name+". Choose an engine in Settings.");
     }
@@ -1491,7 +1459,6 @@ async function run(){
     const success=await execute(l,src,input,provider,runTab,auto);
     const ms=Math.round(performance.now()-t0);
     if(!runCancelled){
-      if(success==="external"){pill("ok","Opened terminal");return}
       const localMessages=provider==="local"&&success===true&&errFlag;
       if($("panel").dataset.p==="out")line("\n— done in "+ms+" ms","o");
       pill(success===false||(errFlag&&!localMessages)?"err":"ok",success===false||(errFlag&&!localMessages)?"Finished with errors":localMessages?"Finished with messages":"Done in "+ms+" ms");
@@ -2038,12 +2005,12 @@ function openSettings(){
  $("desktopSettings").hidden=!window.sprigDesktop;
  if(window.sprigDesktop)$("sStartup").value=window.sprigDesktop.getPreferences().startup;
  $("desktopSettingsMsg").textContent="";
- $("sUrl").value=savedEngine();$("sTok").value=store.get("sprig.tok")||"";$("sMsg").textContent="";
+ $("sUrl").value=savedEngine();$("sTok").value=store.get("sprig.tok")||"";
+ $("sMsg").textContent=store.get("sprig.provider")==="terminal"?"Windows terminal mode was removed. "+(localPage?"The local runner":"Auto")+" is selected; save an engine choice to dismiss this notice.":"";
  $("sUrl").placeholder="https://your-engine.example/api/v2/execute";
  $("sProvider").value=selectedProvider();
  $("sProvider").querySelector('option[value="piston"]').hidden=!localPage;
  $("sProvider").querySelector('option[value="local"]').hidden=!localPage;
- $("sProvider").querySelector('option[value="terminal"]').hidden=!localPage;
  refreshEngineSettings();
  settingsSection(false);
  dlg.showModal();
@@ -2052,23 +2019,6 @@ $("abSet").onclick=openSettings;$("homeSettings").onclick=openSettings;$("sClose
 $("sStartup").onchange=async()=>{
  try{await window.sprigDesktop.updatePreferences({startup:$("sStartup").value});$("desktopSettingsMsg").textContent="Startup preference saved."}
  catch(error){$("desktopSettingsMsg").textContent="Could not save startup preference: "+error.message;$("sStartup").value=window.sprigDesktop.getPreferences().startup}
-};
-function terminalLanguageList(){return ORDER.map(id=>({id,runtime:runnerRuntime(L[id]),extension:/^[a-zA-Z0-9]{1,20}$/.test(L[id].ext)?L[id].ext:"txt"}))}
-async function terminalSettingsRequest(payload,show=true){
- const response=await fetch(localRunnerBase+"/api/v2/terminal-settings",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
- const result=await response.json();
- if(!response.ok)throw new Error(result.message||"Terminal settings request failed.");
- if(show){$("terminalSettingsPath").textContent="Saved at: "+result.path;$("terminalSettingsJson").value=JSON.stringify(result.settings,null,2)}
-}
-$("terminalSettingsLoad").onclick=async()=>{
- try{
-  await terminalSettingsRequest({action:"load",languages:terminalLanguageList()});
-  $("terminalSettingsMsg").textContent="Commands loaded.";
- }catch(error){$("terminalSettingsMsg").textContent="Could not load commands: "+error.message}
-};
-$("terminalSettingsSave").onclick=async()=>{
- try{await terminalSettingsRequest({action:"save",settings:JSON.parse($("terminalSettingsJson").value)});$("terminalSettingsMsg").textContent="Commands saved."}
- catch(error){$("terminalSettingsMsg").textContent="Could not save commands: "+error.message}
 };
 $("settingsEngineTab").onclick=()=>settingsSection(false);$("settingsRestoreTab").onclick=()=>settingsSection(true);
 function refreshEngineSettings(){
@@ -2085,8 +2035,6 @@ function refreshEngineSettings(){
      ?"Local Piston needs Piston running on this computer. Flix and Effekt use Sprig's local runner instead."
    :provider==="local"
      ?"The local runner uses tools installed on this computer. On Windows, PowerShell confirmations appear in Sprig's terminal. Other Windows dialogs stay separate. Don't enter passwords here."
-   :provider==="terminal"
-     ?"Open a separate Windows terminal and run with the tools installed on your computer. The program has your normal permissions and runs from a temporary folder. Use that terminal for input and to stop it."
      :"Your code and input go to the engine you enter here. The hosted site can't reach localhost. Flix and Effekt need Sprig's local runner.";
  $("engineHelp").textContent+=" Available versions and libraries depend on the engine, and may differ from your computer.";
 }
@@ -2102,13 +2050,12 @@ function saveCfg(){
  }
  if(provider==="piston"&&!localPage){$("sMsg").textContent="Local Piston is only available on your computer.";return false}
  if(provider==="local"&&!localPage){$("sMsg").textContent="The local runner is only available on your computer.";return false}
- if(provider==="terminal"&&!localPage){$("sMsg").textContent="Your terminal is only available on your computer.";return false}
  store.set("sprig.provider",provider);store.set("sprig.url",url);store.set("sprig.tok",$("sTok").value.trim());
  if(active>=0){$("sbEng").textContent=executionTarget(L[tabs[active].lang]);refreshVersionSelector()}
  return true;
 }
 function runtimeListUrl(provider,url){
- if(provider==="local"||provider==="terminal")return localRunnerBase+"/api/v2/available-runtimes";
+ if(provider==="local")return localRunnerBase+"/api/v2/available-runtimes";
  if(provider==="wandbox")return localPage?LOCAL_WANDBOX_URL.replace(/execute\/?$/,"runtimes"):HOSTED_WANDBOX_URL.replace(/execute\/?$/,"runtimes");
  if(provider==="tio")return localPage?LOCAL_TIO_URL.replace(/execute\/?$/,"runtimes"):HOSTED_TIO_URL.replace(/execute\/?$/,"runtimes");
  if(provider==="piston")return PISTON_PROXY_URL.replace(/execute\/?$/,"runtimes");
@@ -2288,6 +2235,10 @@ const savedTheme=store.get("sprig.theme");
 if(savedTheme)document.documentElement.dataset.theme=savedTheme;
 applyTheme();
 if(window.sprigDesktop&&!desktopPreferences?.theme)window.sprigDesktop.updatePreferences({theme:isDark()?"dark":"light"}).catch(error=>alert("Could not save theme: "+error.message));
+if(!previewMode&&store.get("sprig.provider")==="terminal"){
+  store.set("sprig.provider",localPage?"local":"auto");
+  alert("Windows terminal mode was removed. "+(localPage?"Sprig will use its local runner instead.":"Auto is selected and may use online services.")+" You can choose an engine in Settings.");
+}
 buildGrid();updateStats();newTab(nextName(),"js",L.js.s);route();
 for(const provider of ["wandbox","tio"]){
   const saved=store.get("sprig.catalog."+provider);
