@@ -11,7 +11,7 @@ assert.ok(start >= 0 && end > start);
 test("the terminal mode sends browser JavaScript to the local Node runtime", async () => {
   const requests = [], messages = [];
   const context = vm.createContext({
-    localPage: true, location: { protocol: "http:" }, localRunnerBase: "http://127.0.0.1:3001",
+    window: {}, localPage: true, location: { protocol: "http:" }, localRunnerBase: "http://127.0.0.1:3001",
     runnerRuntime: language => language.rt === "@js" ? "node" : language.rt,
     line: text => messages.push(text), job: null,
     fetch: async (url, options) => {
@@ -32,7 +32,7 @@ test("the terminal mode sends browser JavaScript to the local Node runtime", asy
 
 test("terminal launch errors are shown instead of claiming the program ran", async () => {
   const context = vm.createContext({
-    localPage: true, location: { protocol: "http:" }, localRunnerBase: "http://127.0.0.1:3001",
+    window: {}, localPage: true, location: { protocol: "http:" }, localRunnerBase: "http://127.0.0.1:3001",
     runnerRuntime: language => language.rt, line() {}, job: null,
     fetch: async () => ({ ok: false, json: async () => ({ message: "Runtime isn't installed." }) })
   });
@@ -42,7 +42,7 @@ test("terminal launch errors are shown instead of claiming the program ran", asy
 
 test("terminal mode explains disconnected and outdated local runners", async () => {
   const context = vm.createContext({
-    localPage: true, location: { protocol: "http:" }, localRunnerBase: "http://127.0.0.1:3001",
+    window: {}, localPage: true, location: { protocol: "http:" }, localRunnerBase: "http://127.0.0.1:3001",
     runnerRuntime: language => language.rt, line() {}, job: null,
     reachError: () => new Error("The local runner is not reachable."),
     fetch: async () => { throw new TypeError("fetch failed"); }

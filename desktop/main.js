@@ -1,11 +1,17 @@
-const { app, BrowserWindow, dialog, Menu, shell } = require("electron");
+const { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme, shell } = require("electron");
 const { spawn } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const { autoUpdater } = require("electron-updater");
 const { setupUpdates } = require("./updates");
+const { createPreferences } = require("./preferences");
 
 let runner, window, pageUrl, updateStatus = "Checking for updates", installRequested = false, quitting = false;
+let preferences;
+
+function iconForTheme(theme) {
+  return path.join(__dirname, theme === "dark" ? "icon-dark.png" : "icon.png");
+}
 
 function installUpdate() {
   if (!window) return autoUpdater.quitAndInstall();
@@ -45,8 +51,9 @@ function createWindow(url) {
   window = new BrowserWindow({
     width: 1440, height: 900, minWidth: 800, minHeight: 600,
     title: "Sprig", show: false, autoHideMenuBar: true,
-    icon: path.join(__dirname, "icon.png"),
-    webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true }
+    icon: iconForTheme(preferences ? (preferences.get().theme || (nativeTheme.shouldUseDarkColors ? "dark" : "light")) : null),
+    webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true,
+      preload: path.join(__dirname, "preload.js") }
   });
   const contents = window.webContents;
   contents.session.setPermissionCheckHandler((webContents, permission, requestingOrigin) =>
@@ -82,7 +89,7 @@ function createWindow(url) {
     if (installRequested) autoUpdater.quitAndInstall();
   });
   updateMenu();
-  window.loadURL(url + "#editor").catch(error => {
+  window.loadURL(url).catch(error => {
     dialog.showErrorBox("Could not open Sprig", error.message);
     app.quit();
   });
@@ -106,9 +113,20 @@ if (!app.requestSingleInstanceLock()) {
   app.whenReady().then(() => {
     const dataDir = app.getPath("userData");
     fs.mkdirSync(dataDir, { recursive: true });
+    preferences = createPreferences(dataDir);
+    const validSender = event => window && event.sender === window.webContents && event.senderFrame === window.webContents.mainFrame;
+    ipcMain.on("sprig:preferences:get", event => {
+      event.returnValue = validSender(event) ? preferences.get() : null;
+    });
+    ipcMain.handle("sprig:preferences:update", (event, changes) => {
+      if (!validSender(event)) throw new Error("Invalid preferences request.");
+      const result = preferences.update(changes);
+      window.setIcon(iconForTheme(result.theme));
+      return result;
+    });
     runner = spawn(process.execPath, [path.join(app.getAppPath(), "sprig-runner.js"), "--desktop"], {
       cwd: app.getAppPath(), env: { ...process.env, ELECTRON_RUN_AS_NODE: "1",
-        SPRIG_FLIX_PATH: path.join(dataDir, "flix.jar") },
+        SPRIG_FLIX_PATH: path.join(dataDir, "flix.jar"), SPRIG_SETTINGS_DIR: dataDir },
       windowsHide: true, stdio: ["ignore", "pipe", "pipe"]
     });
     let output = "";

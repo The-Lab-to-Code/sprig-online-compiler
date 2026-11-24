@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawn, execFileSync } from "node:child_process";
 import { once } from "node:events";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import net from "node:net";
 import os from "node:os";
 import path from "node:path";
@@ -35,7 +35,7 @@ async function unusedPort() {
   return port;
 }
 
-test("packaged app opens an isolated editor window and runs code", {
+test("packaged app opens home and runs code in an isolated editor window", {
   skip: process.platform !== "win32" || !executable, timeout: 60000
 }, async () => {
   const port = await unusedPort(), debugPort = await unusedPort();
@@ -60,7 +60,7 @@ test("packaged app opens an isolated editor window and runs code", {
       if (!target) await new Promise(resolve => setTimeout(resolve, 100));
     }
     assert.ok(target, "Editor window did not appear: " + logs);
-    assert.match(target.url, /#editor$/);
+    assert.doesNotMatch(target.url, /#editor$/);
     socket = new WebSocket(target.webSocketDebuggerUrl);
     await once(socket, "open");
     let nextId = 0;
@@ -86,6 +86,32 @@ test("packaged app opens an isolated editor window and runs code", {
       if (!editorReady) await new Promise(resolve => setTimeout(resolve, 100));
     }
     assert.equal(editorReady, true, "Editor did not finish loading: " + logs);
+    assert.equal(await evaluate('getComputedStyle(document.querySelector("#landing")).display'), "block");
+    for (let i = 0; i < 100 && await evaluate("ORDER.length") < 200; i++)
+      await new Promise(resolve => setTimeout(resolve, 50));
+    assert.ok(await evaluate("ORDER.length") >= 200, "Bundled language list did not load");
+    await evaluate('document.querySelector("#homeSettings").click()');
+    assert.equal(await evaluate('document.querySelector("#sStartup").value'), "home");
+    await evaluate(`(async () => {
+      const startup = document.querySelector("#sStartup");
+      startup.value = "editor";
+      await startup.onchange();
+      document.querySelector("[data-theme-btn]").click();
+    })()`);
+    for (let i = 0; i < 50 && !existsSync(path.join(profile, "preferences.json")); i++)
+      await new Promise(resolve => setTimeout(resolve, 50));
+    const savedPreferences = JSON.parse(readFileSync(path.join(profile, "preferences.json"), "utf8"));
+    assert.equal(savedPreferences.startup, "editor");
+    for (let i = 0; i < 50 && !JSON.parse(readFileSync(path.join(profile, "preferences.json"), "utf8")).theme; i++)
+      await new Promise(resolve => setTimeout(resolve, 50));
+    assert.ok(["light", "dark"].includes(JSON.parse(readFileSync(path.join(profile, "preferences.json"), "utf8")).theme));
+    await evaluate('document.querySelector("#terminalSettingsLoad").click()');
+    for (let i = 0; i < 100 && !await evaluate('document.querySelector("#terminalSettingsMsg").textContent'); i++)
+      await new Promise(resolve => setTimeout(resolve, 100));
+    assert.equal(await evaluate('document.querySelector("#terminalSettingsMsg").textContent'), "Commands loaded.");
+    assert.ok(await evaluate('Object.keys(JSON.parse(document.querySelector("#terminalSettingsJson").value).languages).length') >= 200);
+    await evaluate('document.querySelector("#sClose").click()');
+    await evaluate('document.querySelector("[data-go]").click()');
     const features = await evaluate(`({
       editor: getComputedStyle(document.querySelector("#app")).display,
       node: typeof require,
@@ -98,9 +124,6 @@ test("packaged app opens an isolated editor window and runs code", {
     assert.equal(features.open, "function");
     assert.equal(features.save, "function");
     assert.equal(features.folder, "function");
-    for (let i = 0; i < 100 && await evaluate("ORDER.length") < 200; i++)
-      await new Promise(resolve => setTimeout(resolve, 50));
-    assert.ok(await evaluate("ORDER.length") >= 200, "Bundled language list did not load");
     assert.equal(await evaluate('ORDER.some(id => L[id].name === "Ada")'), true);
     const routing = await evaluate(`({
       javascript: autoChoice(L.js), c: autoChoice(L.c), powershell: autoChoice(L.pwsh),

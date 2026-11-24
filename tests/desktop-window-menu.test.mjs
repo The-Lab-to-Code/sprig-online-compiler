@@ -30,6 +30,7 @@ test("the desktop menu is hidden but remains available with Alt", async () => {
       if (name === "electron") return electron;
       if (name === "electron-updater") return { autoUpdater: { on() {} } };
       if (name === "./updates") return { setupUpdates: () => () => {} };
+      if (name === "./preferences") return requireNode("../desktop/preferences.js");
       return requireNode(name);
     }, console, URL, __dirname: "desktop"
   });

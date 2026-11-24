@@ -24,7 +24,12 @@ Run `npm ci` and then `npm run build:windows` on 64-bit Windows. The installer
 is produced in `dist/`. The installer launches Sprig in its own application
 window. Its icon uses the website's green Sprig mark. Regenerate the icon with
 `powershell -ExecutionPolicy Bypass -File .\scripts\generate-desktop-icon.ps1`
-when the mark changes. Press **Alt** to reveal the hidden **Sprig** menu and
+when the mark changes. The running window uses a light or dark icon matching
+the last selected theme; Windows shortcuts and the executable retain the
+embedded light icon. The desktop app opens to the home page by default;
+Settings can change the startup page. These desktop preferences are stored in
+the app's user-data directory, independently of the runner's port. Press
+**Alt** to reveal the hidden **Sprig** menu and
 check for updates or quit. Unsaved
 changes prompt for confirmation before closing. The desktop app has its own
 browser storage, separate from your regular browser; save files there before
@@ -71,6 +76,16 @@ Enter input and stop the program in the separate terminal. Clear any queued
 input in Sprig before running; the terminal window stays open after the program
 finishes. Temporary files are cleaned up when that window closes while Sprig is
 running. Closing Sprig does not stop the separate terminal.
+
+In the desktop app, Settings also provides an editable
+`terminal-commands.json` in the user-data directory. Load commands to include
+the current language catalog; newly discovered languages are added without
+overwriting edits. Each language has an extension, an optional `compile` array,
+and a `run` array; `null` means no command is configured. Array elements are
+the executable and its separate arguments. `{file}`, `{dir}`, and `{module}`
+expand to the temporary source file, working directory, and Erlang module.
+Commands are not interpreted as shell strings. Configuring a command does not
+install its toolchain. These commands apply only to **Your terminal - Windows**.
 
 Auto uses a fixed engine for each language without testing or probing engines
 first. Browser languages run in the browser; other languages use Wandbox, TIO,

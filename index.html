@@ -397,67 +397,87 @@ dialog[open]::backdrop{animation:fadeIn .18s ease-out}
 html[data-preview] #abAi,html[data-preview] #abSet,html[data-preview] #requestLink{display:none!important}
 #previewDownload{color:var(--vt);text-decoration:none;padding:0 10px;white-space:nowrap}
 #previewDownload:hover{color:var(--vok)}
+#landing{--home-bg:#f6f7ee;--home-ink:#172a23;--home-muted:#697b70;--home-line:#dce5d8;--home-card:#fff;--home-soft:#dcefd8;background:var(--home-bg);color:var(--home-ink)}
+:root[data-theme=dark] #landing{--home-bg:#1a201d;--home-ink:#edf4ed;--home-muted:#a1b1a6;--home-line:#354139;--home-card:#242e28;--home-soft:#293c30}
+#landing:before{display:none}
+#landing .home-head{width:min(1320px,calc(100% - 64px));height:88px;margin:auto;display:flex;align-items:center;gap:32px;border-bottom:1px solid var(--home-line)}
+#landing .home-brand{font-weight:800;font-size:28px;letter-spacing:-.06em}.home-brand span{color:#519a6c}
+#landing .home-links{display:flex;gap:28px;margin-left:auto;font-size:13px;font-weight:600}
+#landing .home-links a{color:var(--home-ink);text-decoration:none}
+#landing .home-navbtn{background:transparent;color:var(--home-ink);border:1px solid var(--home-line);border-radius:4px;padding:10px 15px;cursor:pointer;font-size:12px;font-weight:700}
+#landing .home-wrap{width:min(1200px,calc(100% - 64px));margin:auto}
+#landing .home-hero{min-height:580px;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:42px;padding:70px 0}
+#landing .home-eyebrow{font-size:10px;font-weight:700;letter-spacing:.18em;color:#69a77b}
+#landing h1,#landing .home-heading{font:400 clamp(46px,6.6vw,82px)/1.04 Georgia,serif;letter-spacing:-.045em;margin:22px 0}
+#landing h1 em,#landing .home-heading em{font-weight:400;color:#65a97c}
+#landing .home-copy{color:var(--home-muted);font-size:17px;line-height:1.8;max-width:480px}
+#landing .home-actions{display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-top:30px}
+#landing .home-primary{background:#193a2b;color:#fff;border:0;border-radius:5px;padding:15px 20px;font-size:13px;font-weight:700;cursor:pointer}
+#landing .home-illustration{height:400px;position:relative;display:grid;place-items:center}
+#landing .home-illustration:before{content:"";position:absolute;width:380px;height:380px;border-radius:50%;background:var(--home-soft)}
+#landing .home-editor{position:relative;width:min(490px,94%);background:#1c3028;border:1px solid #385546;border-radius:9px;color:#e3ede3;overflow:hidden;box-shadow:0 32px 65px #24473233;transform:rotate(-2deg)}
+#landing .home-editorbar{background:#243a30;padding:14px 18px;font-size:10px;letter-spacing:.12em;color:#a8c7b1}
+#landing .home-editor pre{padding:26px 22px;margin:0;font:12px/2 Consolas,monospace;white-space:pre-wrap}
+#landing .home-output{border-top:1px solid #385144;padding:15px 20px;color:#a9d8b3;font:11px Consolas,monospace}
+#landing .home-ribbon{background:var(--home-soft);padding:19px 0;color:#6b9b76;font-size:10px;font-weight:700;letter-spacing:.16em;text-align:center}
+#landing .home-section{padding:80px 0}.home-section .home-heading{font-size:clamp(38px,5vw,58px)}
+#landing .home-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+#landing .home-card{background:var(--home-card);border:1px solid var(--home-line);border-radius:8px;padding:25px}
+#landing .home-card h3{margin:8px 0}.home-card p{color:var(--home-muted);font-size:14px}
+#landing .home-mark{color:#65a97c;font-size:27px}
+#landing .search,#landing .chip{background:var(--home-card);border-color:var(--home-line);color:var(--home-ink)}
+#landing .legend{color:var(--home-muted);margin-bottom:20px}
+#landing footer{color:var(--home-muted);padding-top:25px;border-top:1px solid var(--home-line)}
+@media(max-width:820px){#landing .home-hero{grid-template-columns:1fr;padding:45px 0}.home-illustration{max-width:500px;width:100%}#landing .home-cards{grid-template-columns:1fr}.home-links a{display:none}}
 </style>
 </head>
 <body>
 <div id="landing">
-  <div class="nav"><div class="in">
-    <div class="logo" data-go>sprig<b>.</b></div>
-    <div class="links"><a href="#features">About</a><a href="#languages">Languages</a><a href="#how">Getting started</a><a href="#faq">FAQ</a><a href="#request">Request</a></div>
-    <a id="mobileRequest" href="#request">Request</a>
-    <button class="btn" data-theme-btn>Theme</button><button class="btn primary" data-go>Open editor</button>
-  </div></div>
+  <header class="home-head">
+    <div class="home-brand"><span>✳</span> sprig<span>.</span></div>
+    <nav class="home-links" aria-label="Home navigation"><a href="#languages">Languages</a><a href="#request">Request</a></nav>
+    <button class="home-navbtn" data-theme-btn>Theme</button><button class="home-navbtn" id="homeSettings">Settings</button><button class="home-navbtn" data-go>Open editor ↗</button>
+  </header>
   <div id="homeContent">
-  <div class="wrap">
-    <section class="hero">
+  <div class="home-wrap">
+    <section class="home-hero">
       <div>
-        <span class="pill">YOUR PLACE TO CODE</span>
-        <h1>Write code.<br>See the output.</h1>
-        <p>Write, run, and save your code in one place. Try a built-in language, use the tools on your computer, or run online.</p>
-        <div class="cta"><button class="btn primary big" data-go>Open editor</button><a class="btn big" href="#languages" style="text-decoration:none;color:var(--text)">Browse languages</a></div>
+        <div class="home-eyebrow">✳ &nbsp; A LITTLE SPACE FOR BIG IDEAS</div>
+        <h1>Make something<br><em>good today.</em></h1>
+        <p class="home-copy">Have an idea? Open your workspace and start making. Your files, languages, and tools are right here.</p>
+        <div class="home-actions"><button class="home-primary" data-go>Open editor ↗</button><a href="#languages">Browse languages →</a></div>
       </div>
-      <div class="term" id="dTerm" data-vs="dark">
-        <div class="bar"><span class="mono">hello.js</span></div>
-        <pre class="mono">console.log("Hello, world!");</pre>
-        <div class="res mono">Hello, world!</div>
-      </div>
-    </section>
-    <section class="stats">
-      <div><b id="nLang">80+</b><span>language modes</span></div>
-      <div><b id="nLocal">9</b><span>browser tools</span></div>
-      <div><span>Local and online execution</span></div>
-    </section>
-    <section id="features">
-      <h2 class="sec">What you can do</h2>
-      <p class="sub">Everything you need to try an idea or work on a file.</p>
-      <div class="feat">
-        <div><h3>Write and run</h3><p>Start with an example or your own code, then see what it does.</p></div>
-        <div><h3>Work with files</h3><p>Open a file or folder and save your changes. Folder access depends on your browser.</p></div>
-        <div><h3>Choose how to run</h3><p>Use your browser, your computer, or an online service like TIO or Wandbox.</p></div>
+      <div class="home-illustration">
+        <div class="home-editor" id="dTerm" data-vs="dark"><div class="home-editorbar">✳ &nbsp; YOUR LITTLE WORKSPACE &nbsp; · &nbsp; hello.js</div>
+        <pre>const idea = "something great";
+
+function makeIt(idea) {
+  return `Hello, ${idea}!`;
+}
+console.log(makeIt(idea));</pre><div class="home-output">OUTPUT<br><br>↳ Hello, something great!</div></div>
       </div>
     </section>
-    <section id="languages">
-      <h2 class="sec">Languages</h2>
-      <p class="sub">Find a language and start coding.</p>
+  </div>
+  <div class="home-ribbon">LESS SETUP &nbsp; ✳ &nbsp; MORE MAKING &nbsp; ✳ &nbsp; YOUR CODE, YOUR WAY</div>
+  <div class="home-wrap">
+    <section class="home-section">
+      <div class="home-eyebrow">01 / YOUR WORKSPACE</div><h2 class="home-heading">More room to<br><em>do your thing.</em></h2>
+      <div class="home-cards">
+        <article class="home-card"><div class="home-mark">✳</div><h3>Languages to explore</h3><p><strong id="nLang">80+</strong> language modes, with browser, online and local options.</p></article>
+        <article class="home-card"><div class="home-mark">▸_</div><h3>Your tools, your way</h3><p>Use your terminal, a local runner, or an online engine. Availability depends on your setup.</p></article>
+        <article class="home-card"><div class="home-mark">✧</div><h3>A little help from AI</h3><p>Ask Sprig AI about your code. The optional model runs on your computer.</p></article>
+      </div>
+      <span id="nLocal" hidden></span>
+    </section>
+    <section class="home-section" id="languages">
+      <div class="home-eyebrow">02 / PICK A LANGUAGE</div><h2 class="home-heading">Find your <em>starting point.</em></h2>
       <input class="search" id="q" placeholder="Search languages…" aria-label="Search languages">
       <div class="grid" id="grid"></div>
       <div class="legend">The languages you can run depend on the engine you choose.</div>
       <div class="legend" id="langCatalogStatus">Sync languages in Settings to refresh compiler versions and discover new languages.</div>
-      <a href="#request">Request a language</a>
+      <a href="#request">Request a language →</a>
     </section>
-    <section id="how">
-      <h2 class="sec">Getting started</h2><p class="sub">Ready to try it?</p>
-      <div class="steps">
-        <div><h3>Pick a language</h3><p>Start with an example or open a file.</p></div>
-        <div><h3>Hit Run</h3><p>Press Ctrl or ⌘ + Enter. Output appears below the code.</p></div>
-        <div><h3>Save your work</h3><p>Press Ctrl+S to save an open file in supported browsers, or download a copy.</p></div>
-      </div>
-    </section>
-    <section id="faq">
-      <h2 class="sec" style="margin-bottom:24px">Common questions</h2>
-      <details><summary>Which runtimes are local?</summary><p>JavaScript and the built-in browser runtimes stay in the tab. Compiled languages can run through the local Sprig runner or a Piston-compatible server.</p></details>
-      <details><summary>Does my code get uploaded?</summary><p>Browser runs stay in your tab. Wandbox and TIO receive source code and input when you choose those providers, or when Auto chooses them, and run a program. Custom engines receive code sent to the endpoint you configure.</p></details>
-      <details><summary>Can the list grow?</summary><p>Hosted Sprig loads distinct language families from TIO and compiler versions from Wandbox and TIO. Open Settings and choose Sync languages to refresh them or load runtimes from your own engine.</p></details>
+    <footer>✳ &nbsp; sprig. &nbsp; Made for curious minds.
       <details><summary>Starter example license</summary><p>TIO starter examples are from <a href="https://github.com/TryItOnline/tryitonline">Try It Online</a>.</p><pre style="white-space:pre-wrap">MIT License
 
 Copyright (c) 2017 TryItOnline
@@ -479,9 +499,8 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.</pre></details>
-    </section>
+    </footer>
   </div>
-  <footer>Sprig, the Online Compiler.</footer>
   </div>
   <main id="requestPage" hidden>
     <a href="#home">← Back to home</a>
@@ -566,6 +585,20 @@ SOFTWARE.</pre></details>
     <button class="btn" id="settingsRestoreTab" role="tab" aria-selected="false" aria-controls="settingsRestore">Restore</button>
   </div>
   <div id="settingsEngine" role="tabpanel">
+  <div id="desktopSettings" hidden>
+    <label for="sStartup">Open Sprig to</label>
+    <select id="sStartup"><option value="home">Home page</option><option value="editor">Editor</option></select>
+    <p id="desktopSettingsMsg" role="status"></p>
+    <details>
+      <summary>Terminal commands (JSON)</summary>
+      <p>Commands run with your normal permissions in a temporary folder. Each command is an array of arguments, not a shell command. Use {file}, {dir}, or {module}; null means unconfigured. Install the required tools yourself.</p>
+      <p id="terminalSettingsPath"></p>
+      <label for="terminalSettingsJson">Terminal commands JSON</label>
+      <textarea id="terminalSettingsJson" spellcheck="false" style="width:100%;height:220px;font:12px monospace"></textarea>
+      <div><button class="btn" id="terminalSettingsLoad">Load commands</button> <button class="btn" id="terminalSettingsSave">Save commands</button></div>
+      <p id="terminalSettingsMsg" role="status"></p>
+    </details>
+  </div>
   <label for="sProvider">Where should your code run?</label>
   <select id="sProvider">
     <option value="auto">Auto - choose for each language</option>
@@ -667,6 +700,9 @@ const $=id=>document.getElementById(id);
 const out=$("out"),code=$("code"),frame=$("frame"),gut=$("gut"),app=$("app");
 let errFlag=false,job=null,tabs=[],active=-1,untitledN=0,runCancelled=false;
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const desktopPreferences=window.sprigDesktop?.getPreferences();
+if(desktopPreferences?.theme)document.documentElement.dataset.theme=desktopPreferences.theme;
+if(desktopPreferences?.startup==="editor"&&!location.hash)location.hash="editor";
 const PISTON_URL="http://127.0.0.1:2000/api/v2/execute";
 const PISTON_PROXY_URL=localRunnerBase+"/api/v2/piston/execute";
 const LOCAL_WANDBOX_URL=localRunnerBase+"/api/v2/wandbox/execute";
@@ -804,11 +840,12 @@ const isDark=()=>{
   if(saved)return saved==="dark";
   return matchMedia("(prefers-color-scheme:dark)").matches
 };
-function applyTheme(){const v=isDark()?"dark":"light";app.dataset.vs=v;$("dTerm").dataset.vs=v}
+function applyTheme(){const v=isDark()?"dark":"light";if(window.sprigDesktop)document.documentElement.dataset.theme=v;app.dataset.vs=v;$("dTerm").dataset.vs=v}
 function toggleTheme(){
   const next=isDark()?"light":"dark";
   document.documentElement.dataset.theme=next;
   store.set("sprig.theme",next);
+  if(window.sprigDesktop)window.sprigDesktop.updatePreferences({theme:next}).catch(error=>alert("Could not save theme: "+error.message));
   applyTheme()
 }
 document.querySelectorAll("[data-theme-btn]").forEach(b=>b.onclick=toggleTheme);
@@ -1331,12 +1368,13 @@ async function runLocalStream(url,l,src,input,allowInstall=true){
 }
 async function runNativeTerminal(l,src){
   if(!localPage||location.protocol==="file:")throw new Error("Open the Sprig app or local runner to use your terminal.");
+  if(window.sprigDesktop)await terminalSettingsRequest({action:"load",languages:terminalLanguageList()},false);
   job={external:true};
   line("Opening your terminal…","i");
   const url=localRunnerBase+"/api/v2/native-terminal";
   let response;
   try{response=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({language:runnerRuntime(l),source:src})})}
+    body:JSON.stringify({id:l.id,language:runnerRuntime(l),source:src})})}
   catch(error){throw reachError(error,url)}
   if(response.status===404)throw new Error("Restart Sprig to enable running in your terminal.");
   let result;
@@ -1997,6 +2035,9 @@ function settingsSection(restore){
 }
 function openSettings(){
  if(previewMode)return;
+ $("desktopSettings").hidden=!window.sprigDesktop;
+ if(window.sprigDesktop)$("sStartup").value=window.sprigDesktop.getPreferences().startup;
+ $("desktopSettingsMsg").textContent="";
  $("sUrl").value=savedEngine();$("sTok").value=store.get("sprig.tok")||"";$("sMsg").textContent="";
  $("sUrl").placeholder="https://your-engine.example/api/v2/execute";
  $("sProvider").value=selectedProvider();
@@ -2007,7 +2048,28 @@ function openSettings(){
  settingsSection(false);
  dlg.showModal();
 }
-$("abSet").onclick=openSettings;$("sClose").onclick=()=>dlg.close();
+$("abSet").onclick=openSettings;$("homeSettings").onclick=openSettings;$("sClose").onclick=()=>dlg.close();
+$("sStartup").onchange=async()=>{
+ try{await window.sprigDesktop.updatePreferences({startup:$("sStartup").value});$("desktopSettingsMsg").textContent="Startup preference saved."}
+ catch(error){$("desktopSettingsMsg").textContent="Could not save startup preference: "+error.message;$("sStartup").value=window.sprigDesktop.getPreferences().startup}
+};
+function terminalLanguageList(){return ORDER.map(id=>({id,runtime:runnerRuntime(L[id]),extension:/^[a-zA-Z0-9]{1,20}$/.test(L[id].ext)?L[id].ext:"txt"}))}
+async function terminalSettingsRequest(payload,show=true){
+ const response=await fetch(localRunnerBase+"/api/v2/terminal-settings",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+ const result=await response.json();
+ if(!response.ok)throw new Error(result.message||"Terminal settings request failed.");
+ if(show){$("terminalSettingsPath").textContent="Saved at: "+result.path;$("terminalSettingsJson").value=JSON.stringify(result.settings,null,2)}
+}
+$("terminalSettingsLoad").onclick=async()=>{
+ try{
+  await terminalSettingsRequest({action:"load",languages:terminalLanguageList()});
+  $("terminalSettingsMsg").textContent="Commands loaded.";
+ }catch(error){$("terminalSettingsMsg").textContent="Could not load commands: "+error.message}
+};
+$("terminalSettingsSave").onclick=async()=>{
+ try{await terminalSettingsRequest({action:"save",settings:JSON.parse($("terminalSettingsJson").value)});$("terminalSettingsMsg").textContent="Commands saved."}
+ catch(error){$("terminalSettingsMsg").textContent="Could not save commands: "+error.message}
+};
 $("settingsEngineTab").onclick=()=>settingsSection(false);$("settingsRestoreTab").onclick=()=>settingsSection(true);
 function refreshEngineSettings(){
  const provider=$("sProvider").value;
@@ -2224,7 +2286,9 @@ $("cmdBtn").onclick=palette;$("langChip").onclick=pickLang;
 // ---- init
 const savedTheme=store.get("sprig.theme");
 if(savedTheme)document.documentElement.dataset.theme=savedTheme;
-applyTheme();buildGrid();updateStats();newTab(nextName(),"js",L.js.s);route();
+applyTheme();
+if(window.sprigDesktop&&!desktopPreferences?.theme)window.sprigDesktop.updatePreferences({theme:isDark()?"dark":"light"}).catch(error=>alert("Could not save theme: "+error.message));
+buildGrid();updateStats();newTab(nextName(),"js",L.js.s);route();
 for(const provider of ["wandbox","tio"]){
   const saved=store.get("sprig.catalog."+provider);
   if(saved){

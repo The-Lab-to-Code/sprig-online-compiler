@@ -3,9 +3,9 @@ Add-Type -AssemblyName System.Drawing
 
 $output = Join-Path (Split-Path -Parent $PSScriptRoot) "desktop\icon.ico"
 $pngOutput = Join-Path (Split-Path -Parent $PSScriptRoot) "desktop\icon.png"
+$darkOutput = Join-Path (Split-Path -Parent $PSScriptRoot) "desktop\icon-dark.png"
 $sizes = @(16, 20, 24, 32, 48, 64, 128, 256)
-$images = @()
-foreach ($size in $sizes) {
+function New-IconImage($size, $backgroundColor, $borderColor) {
   $bitmap = New-Object System.Drawing.Bitmap($size, $size)
   $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
   $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
@@ -16,8 +16,8 @@ foreach ($size in $sizes) {
   $shape.AddArc(264, 264, 230, 230, 0, 90)
   $shape.AddArc(18, 264, 230, 230, 90, 90)
   $shape.CloseFigure()
-  $background = New-Object System.Drawing.SolidBrush([System.Drawing.ColorTranslator]::FromHtml("#f6f7ee"))
-  $border = New-Object System.Drawing.Pen([System.Drawing.ColorTranslator]::FromHtml("#dce5d8"), 8)
+  $background = New-Object System.Drawing.SolidBrush([System.Drawing.ColorTranslator]::FromHtml($backgroundColor))
+  $border = New-Object System.Drawing.Pen([System.Drawing.ColorTranslator]::FromHtml($borderColor), 8)
   $mark = New-Object System.Drawing.Pen([System.Drawing.ColorTranslator]::FromHtml("#519a6c"), 28)
   $mark.StartCap = $mark.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
   $graphics.FillPath($background, $shape)
@@ -28,10 +28,13 @@ foreach ($size in $sizes) {
   $graphics.DrawLine($mark, 149, 363, 363, 149)
   $stream = New-Object System.IO.MemoryStream
   $bitmap.Save($stream, [System.Drawing.Imaging.ImageFormat]::Png)
-  $images += ,$stream.ToArray()
+  $bytes = $stream.ToArray()
   $stream.Dispose(); $mark.Dispose(); $border.Dispose(); $background.Dispose()
   $shape.Dispose(); $graphics.Dispose(); $bitmap.Dispose()
+  return ,$bytes
 }
+$images = @()
+foreach ($size in $sizes) { $images += ,(New-IconImage $size "#f6f7ee" "#dce5d8") }
 
 $file = [System.IO.File]::Create($output)
 $writer = New-Object System.IO.BinaryWriter($file)
@@ -52,4 +55,5 @@ try {
   $file.Dispose()
 }
 [System.IO.File]::WriteAllBytes($pngOutput, [byte[]]$images[$images.Count - 1])
+[System.IO.File]::WriteAllBytes($darkOutput, [byte[]](New-IconImage 256 "#292e2b" "#414a43"))
 Write-Output "Generated $output"
