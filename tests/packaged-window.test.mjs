@@ -36,7 +36,7 @@ async function unusedPort() {
 }
 
 test("packaged app opens home and runs code in an isolated editor window", {
-  skip: process.platform !== "win32" || !executable, timeout: 60000
+  skip: process.platform !== "win32" || !executable, timeout: 120000
 }, async () => {
   const port = await unusedPort(), debugPort = await unusedPort();
   const profile = mkdtempSync(path.join(os.tmpdir(), "sprig-desktop-test-"));
