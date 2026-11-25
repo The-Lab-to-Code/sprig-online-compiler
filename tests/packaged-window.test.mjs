@@ -122,6 +122,9 @@ test("packaged app opens home and runs code in an isolated editor window", {
     assert.equal(await evaluate('!!document.querySelector("#terminalSettingsJson")'), false);
     assert.equal(await evaluate('document.querySelector("#settingsEngineTab").hidden'), true);
     assert.equal(await evaluate('document.querySelector("#settingsEngine").hidden'), true);
+    await evaluate('document.querySelector("#desktopSettings").hidden=false');
+    assert.equal(await evaluate('getComputedStyle(document.querySelector("#desktopOnlineRow")).justifyContent'), "center");
+    assert.equal(await evaluate('document.querySelector("#run").disabled'), true);
     await evaluate('document.querySelector("#starterLicense summary").click()');
     assert.equal(await evaluate('document.querySelector("#starterLicense").open'), true);
     assert.match(await evaluate('document.querySelector("#starterLicense").textContent'), /Copyright \(c\) 2017 TryItOnline/);

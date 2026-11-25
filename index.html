@@ -178,6 +178,12 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:0 20px 40px}
 #aiPrompt{display:block;width:100%;min-height:74px;max-height:180px;resize:vertical;background:var(--vin);border:1px solid var(--vbd);border-radius:5px;padding:8px;color:var(--vt);font:inherit}
 #aiPrompt:focus{outline:1px solid var(--accent)}
 #app input[type=checkbox]{accent-color:var(--accent)}
+#desktopOnlineRow{display:flex;align-items:center;justify-content:center;gap:12px;min-height:52px;padding:8px 0}
+#sOnlineRunning{appearance:none!important;width:44px!important;height:24px!important;margin:0!important;padding:0!important;border:0!important;border-radius:999px!important;background:#7a8490!important;position:relative;cursor:pointer;box-shadow:inset 0 0 0 1px #0002;transition:background .18s}
+#sOnlineRunning::before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;border-radius:50%;background:#fff;box-shadow:0 1px 4px #0005;transition:transform .18s}
+#sOnlineRunning:checked{background:var(--accent)!important}
+#sOnlineRunning:checked::before{transform:translateX(20px)}
+#desktopOnlineRow label{margin:0!important;color:var(--text);font-size:14px;font-weight:600}
 #aiContext{display:flex;align-items:center;gap:8px;margin:10px 0;color:var(--vt);font-size:12px;cursor:pointer}
 #aiUseEditor{appearance:none;display:grid;place-content:center;flex:none;width:16px;height:16px;margin:0;background:var(--vin);border:1px solid var(--vdim);border-radius:4px;cursor:pointer;transition:background .16s ease,border-color .16s ease}
 #aiUseEditor::after{content:"";width:7px;height:4px;border-left:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:translateY(-1px) rotate(-45deg) scale(0)}
@@ -565,7 +571,10 @@ console.log(makeIt(idea));</pre><div class="home-output">OUTPUT<br><br>↳ Hello
   <div id="desktopSettings" hidden>
     <label for="sStartup">Open Sprig to</label>
     <select id="sStartup"><option value="home">Home page</option><option value="editor">Editor</option></select>
-    <label for="sOnlineRunning"><input id="sOnlineRunning" type="checkbox"> Enable online running</label>
+    <div id="desktopOnlineRow">
+      <input id="sOnlineRunning" type="checkbox" aria-label="Enable online running">
+      <label for="sOnlineRunning">Enable online running</label>
+    </div>
     <div id="desktopOnlineProvider" hidden>
       <label for="sDesktopProvider">Online engine</label>
       <select id="sDesktopProvider"><option value="wandbox">Wandbox</option><option value="tio">TIO</option><option value="piston">Piston</option><option value="custom">Custom engine</option></select>
@@ -1168,7 +1177,7 @@ async function startWindowsTerminal(command=""){
   $("tin").placeholder="PowerShell command";
   $("tin").focus();
   const response=fetch(localRunnerUrl(),{method:"POST",signal:ctrl.signal,headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({language:"__windows_terminal__",interactive:true,session,stdin:command?command+"\n":"",closeStdin:false})}).then(async r=>{
+    body:JSON.stringify({language:"__windows_terminal__",interactive:true,session,cwd:folderHandle?.path||undefined,stdin:command?command+"\n":"",closeStdin:false})}).then(async r=>{
       if(!r.ok){const t=await r.text();throw new Error(t||"Could not start Windows Terminal.");}
       const reader=r.body.getReader(),dec=new TextDecoder();let buf="";
       while(true){
@@ -1531,9 +1540,22 @@ function setRunning(on){
   [$("run"),$("abRun")].forEach(b=>b.classList.toggle("stop",on));
   $("run").innerHTML=on?'<i class="loading-spinner"></i>Stop':"▶ Run";
   $("sbRun").textContent=on?"Running…":"Ready";
+  syncTerminalRunButton();
   updateEditorState();
 }
+function syncTerminalRunButton(){
+  const terminalMode=localPage&&selectedProvider()==="local";
+  $("run").disabled=terminalMode;
+  $("abRun").disabled=terminalMode;
+  $("run").title=terminalMode?"Terminal mode: type commands directly in the terminal":"Run (Ctrl+Enter)";
+  $("abRun").title=terminalMode?"Terminal mode: type commands directly in the terminal":"Run (Ctrl+Enter)";
+}
 async function run(){
+  if(localPage&&selectedProvider()==="local"){
+    setPanel("out");$("tin").focus();
+    line("Terminal mode: type a command directly in the terminal.","i");
+    return;
+  }
   if(job){stopJob();return}
   if(active<0){$("emptyNew").focus();return}
   const tab=tabs[active];tab.text=code.value;const l=L[tab.lang],src=code.value,auto=selectedProvider()==="auto";
@@ -2219,6 +2241,7 @@ function saveCfg(){
      store.set("sprig.provider","local");store.set("sprig.url","");
      if(active>=0)$("sbEng").textContent=executionTarget(L[tabs[active].lang]);
      $("sMsg").textContent="Windows Terminal is active.";
+     syncTerminalRunButton();
      return true;
    }
    const provider=$("sDesktopProvider").value;
@@ -2230,6 +2253,7 @@ function saveCfg(){
    store.set("sprig.provider",provider);store.set("sprig.url",url);store.set("sprig.tok",token);
    if(active>=0)$("sbEng").textContent=executionTarget(L[tabs[active].lang]);
    $("sMsg").textContent="Online running saved.";
+   syncTerminalRunButton();
    return true;
  }
  const provider=$("sProvider").value,url=$("sUrl").value.trim();
@@ -2245,6 +2269,7 @@ function saveCfg(){
  store.set("sprig.provider",provider);store.set("sprig.url",url);store.set("sprig.tok",$("sTok").value.trim());
  if(active>=0){$("sbEng").textContent=executionTarget(L[tabs[active].lang]);refreshVersionSelector()}
  if(provider==="local"&&localPage)startWindowsTerminal();
+ syncTerminalRunButton();
  return true;
 }
 function runtimeListUrl(provider,url){
@@ -2433,7 +2458,7 @@ if(!previewMode&&store.get("sprig.provider")==="terminal"){
   store.set("sprig.provider",localPage?"local":"auto");
   alert("Windows terminal mode was removed. "+(localPage?"Sprig will use its local runner instead.":"Auto is selected and may use online services.")+" You can choose an engine in Settings.");
 }
-buildGrid();updateStats();newTab(nextName(),"js",L.js.s);route();
+buildGrid();updateStats();newTab(nextName(),"js",L.js.s);route();syncTerminalRunButton();
 for(const provider of ["wandbox","tio"]){
   const saved=store.get("sprig.catalog."+provider);
   if(saved){

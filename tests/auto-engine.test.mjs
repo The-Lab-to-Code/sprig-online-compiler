@@ -33,6 +33,12 @@ test("the packaged desktop forces the local Windows Terminal provider", () => {
   vm.runInContext(provider, context);
   assert.equal(vm.runInContext("selectedProvider()", context), "local");
 });
+test("terminal mode disables the editor Run button and uses direct commands", () => {
+  assert.match(html, /async function run\(\)\{\s*if\(localPage&&selectedProvider\(\)==="local"/);
+  assert.match(html, /syncTerminalRunButton/);
+  assert.match(html, /desktopOnlineRow/);
+  assert.match(html, /justify-content:center/);
+});
 
 function selector(localPage = true) {
   const saved = new Map();
