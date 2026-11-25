@@ -1559,6 +1559,7 @@ async function runPy(src){
 }
 async function execute(l,src,input,provider=effectiveProvider(l,tabs[active]),tab=tabs[active],auto=false){
   const k=l.rt.slice(1);
+  if(l.local) provider="browser";
   if(provider!=="browser")return runRemote(l,src,input,provider,tab,auto);
   if(k==="js")return runWorker("js",src,input,15000);
   if(k==="ts"){await loadScript(TSLIB);return runWorker("js",ts.transpileModule(src,{compilerOptions:{target:"ES2020"}}).outputText,input,15000)}
