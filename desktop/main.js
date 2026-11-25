@@ -124,6 +124,49 @@ if (!app.requestSingleInstanceLock()) {
       window.setIcon(iconForTheme(result.theme));
       return result;
     });
+    ipcMain.handle("sprig:desktop:open-folder", async event => {
+      if (!validSender(event)) throw new Error("Invalid folder request.");
+      const result = await dialog.showOpenDialog(window, { title: "Open folder", properties: ["openDirectory"] });
+      return result.canceled ? null : result.filePaths[0];
+    });
+    ipcMain.handle("sprig:desktop:open-file", async event => {
+      if (!validSender(event)) throw new Error("Invalid file request.");
+      const result = await dialog.showOpenDialog(window, { title: "Open file", properties: ["openFile"] });
+      if (result.canceled) return null;
+      const filePath = result.filePaths[0];
+      return { name: path.basename(filePath), path: filePath, content: fs.readFileSync(filePath, "utf8") };
+    });
+    ipcMain.handle("sprig:desktop:read-dir", (event, directory) => {
+      if (!validSender(event)) throw new Error("Invalid directory request.");
+      return fs.readdirSync(directory, { withFileTypes: true })
+        .map(entry => ({ name: entry.name, kind: entry.isDirectory() ? "directory" : "file",
+          path: path.join(directory, entry.name) }));
+    });
+    ipcMain.handle("sprig:desktop:read-file", (event, filePath) => {
+      if (!validSender(event)) throw new Error("Invalid file request.");
+      return fs.readFileSync(filePath, "utf8");
+    });
+    ipcMain.handle("sprig:desktop:write-file", (event, filePath, content) => {
+      if (!validSender(event)) throw new Error("Invalid file write.");
+      fs.mkdirSync(path.dirname(filePath), { recursive: true });
+      fs.writeFileSync(filePath, content, "utf8");
+      return true;
+    });
+    ipcMain.handle("sprig:desktop:make-dir", (event, directory) => {
+      if (!validSender(event)) throw new Error("Invalid directory request.");
+      fs.mkdirSync(directory, { recursive: true });
+      return true;
+    });
+    ipcMain.handle("sprig:desktop:remove-path", (event, target) => {
+      if (!validSender(event)) throw new Error("Invalid removal request.");
+      fs.rmSync(target, { recursive: true, force: true });
+      return true;
+    });
+    ipcMain.handle("sprig:desktop:rename-path", (event, target, destination) => {
+      if (!validSender(event)) throw new Error("Invalid rename request.");
+      fs.renameSync(target, destination);
+      return true;
+    });
     runner = spawn(process.execPath, [path.join(app.getAppPath(), "sprig-runner.js"), "--desktop"], {
       cwd: app.getAppPath(), env: { ...process.env, ELECTRON_RUN_AS_NODE: "1",
         SPRIG_FLIX_PATH: path.join(dataDir, "flix.jar") },

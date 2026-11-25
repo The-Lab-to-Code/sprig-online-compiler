@@ -1622,6 +1622,47 @@ document.querySelector(".tlogo").onclick=goHome;
 // ---- files
 const hasOpenPicker="showOpenFilePicker" in window,hasSavePicker="showSaveFilePicker" in window;
 let folderHandle=null,trashBusy=false;
+function desktopFolderHandle(directory){
+  const api=window.sprigDesktop;
+  return {
+    kind:"directory", path:directory,
+    async *entries(){
+      const entries=await api.readDir(directory);
+      for(const entry of entries)yield [entry.name,entry.kind==="directory"?desktopFolderHandle(entry.path):desktopFileHandle(entry.path,entry.name)];
+    },
+    async getFileHandle(name,{create=false}={}){
+      const file=directory+"\\"+name;
+      if(create)await api.writeFile(file,"");
+      return desktopFileHandle(file,name);
+    },
+    async getDirectoryHandle(name,{create=false}={}){
+      const sub=directory+"\\"+name;
+      if(create)await api.makeDir(sub);
+      return desktopFolderHandle(sub);
+    },
+    async removeEntry(name,options={}){
+      const target=directory+"\\"+name;
+      await api.removePath(target);
+    },
+    async isSameEntry(other){
+      return !!other&&other.kind==="directory"&&other.path===directory;
+    },
+    async resolve(target){
+      return target.path.startsWith(directory+"\\")?target.path.slice(directory.length+1).split("\\").filter(Boolean):null;
+    }
+  };
+}
+function desktopFileHandle(file,name=file.split("\\").pop()){
+  const api=window.sprigDesktop;
+  return {
+    kind:"file", path:file, name,
+    async getFile(){const content=await api.readFile(file);return {name,text:async()=>content}},
+    async isSameEntry(other){return !!other&&other.kind==="file"&&other.path===file},
+    async createWritable(){
+      return {write:async content=>api.writeFile(file,typeof content==="string"?content:String(content)),close:async()=>true,abort:async()=>true};
+    }
+  };
+}
 function fileChangeBlocked(){if(!trashBusy)return false;line("Wait for the trash operation to finish.","e");return true}
 const EXT_LANG_ALIASES={"c++":"cpp","h++":"cpp",cxx:"cpp",cc:"cpp",hxx:"cpp",hpp:"cpp",pyw:"py",mjs:"node",cjs:"node",kts:"kotlin"};
 function extLang(name){
@@ -1696,7 +1737,8 @@ async function openTab(name,text,h,directory){
 }
 async function openFile(){
   try{
-    if(hasOpenPicker){const[h]=await showOpenFilePicker();const f=await h.getFile();await openTab(f.name,await f.text(),h)}
+    if(window.sprigDesktop){const file=await window.sprigDesktop.openFile();if(file)await openTab(file.name,file.content,desktopFileHandle(file.path,file.name))}
+    else if(hasOpenPicker){const[h]=await showOpenFilePicker();const f=await h.getFile();await openTab(f.name,await f.text(),h)}
     else{const i=document.createElement("input");i.type="file";i.onchange=async()=>{try{const f=i.files[0];if(f)await openTab(f.name,await f.text())}catch(e){line("Open failed: "+e.message,"e")}};i.click()}
   }catch(e){if(e.name!=="AbortError")line("Open failed: "+e.message,"e")}
 }
@@ -2064,9 +2106,18 @@ async function listDir(h,el,depth){
 }
 async function openDir(){
   if(fileChangeBlocked())return;
-  if(!("showDirectoryPicker" in window)){line("Folder access needs Chrome, Edge or Opera.","e");return}
-  try{const d=await showDirectoryPicker({mode:"readwrite"});if(fileChangeBlocked())return;folderHandle=d;$("side").style.display="flex";updateSidebarWidths();await listDir(d,$("tree"),0)}
-  catch(e){if(e.name!=="AbortError")line("Folder failed: "+e.message,"e")}
+  try{
+    if(window.sprigDesktop){
+      const directory=await window.sprigDesktop.openFolder();
+      if(!directory)return;
+      folderHandle=desktopFolderHandle(directory);
+    }else{
+      if(!("showDirectoryPicker" in window)){line("Folder access needs Chrome, Edge or Opera.","e");return}
+      folderHandle=await showDirectoryPicker({mode:"readwrite"});
+    }
+    if(fileChangeBlocked())return;
+    $("side").style.display="flex";updateSidebarWidths();await listDir(folderHandle,$("tree"),0);
+  }catch(e){if(e.name!=="AbortError")line("Folder failed: "+e.message,"e")}
 }
 $("open").onclick=openFile;$("dir").onclick=openDir;$("dir2").onclick=openDir;
 $("new").onclick=createNewFile;
