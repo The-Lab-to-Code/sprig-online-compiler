@@ -41,6 +41,24 @@ test("terminal mode enables the Run command button and sends direct commands", (
   assert.match(html,/syncTerminalRunButton/);
   assert.match(html,/node \$\{quoted\}/);
   assert.match(html,/powershell -NoProfile/);
+  assert.doesNotMatch(html,/placeholder="PowerShell command"/);
+  assert.match(html,/python\.exe/);
+});
+test("the terminal Run command table covers every bundled language runtime", () => {
+  const dataStart = html.indexOf("const DATA=");
+  const dataEnd = html.indexOf("const L={},", dataStart);
+  const commandStart = html.indexOf("function terminalRunCommand(", dataEnd);
+  const commandEnd = html.indexOf("async function startWindowsTerminal(", commandStart);
+  assert.ok(dataStart >= 0 && dataEnd > dataStart);
+  assert.ok(commandStart >= 0 && commandEnd > commandStart);
+  const dataSource = html.slice(dataStart, dataEnd);
+  const commandSource = html.slice(commandStart, commandEnd);
+  const context = vm.createContext({ active: 0, tabs: [], L: {}, folderHandle: null });
+  vm.runInContext(dataSource + `
+    const tab={name:"main",lang:"js"};
+    tab.lang="js";`, context);
+  assert.match(commandSource, /const base=/);
+  assert.match(commandSource, /return base\[tab\.lang\]\|\|base\[rt\]\|\|""/);
 });
 
 function selector(localPage = true) {
