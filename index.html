@@ -1193,9 +1193,9 @@ function terminalRunCommand(tab=active>=0?tabs[active]:null){
     powershell:`powershell -NoProfile -ExecutionPolicy Bypass -File ${quoted}`, pwsh:`pwsh -NoProfile -File ${quoted}`,
     sqlite3:`sqlite3 :memory: ".read ${quoted}"`, basic:`qbasic ${quoted}`, freebasic:`fbc ${quoted} && ${stem}.exe`,
     forth:`gforth ${quoted} -e bye`, smalltalk:`gst ${quoted}`,
-    py:`"%LOCALAPPDATA%\Programs\Python\Python314\python.exe" -u ${quoted}`,
-    python:`"%LOCALAPPDATA%\Programs\Python\Python314\python.exe" -u ${quoted}`,
-    python2:`py -2 -u ${quoted}`, python3:`"%LOCALAPPDATA%\Programs\Python\Python314\python.exe" -u ${quoted}`,
+    py:`py -3 -u ${quoted}`,
+    python:`py -3 -u ${quoted}`,
+    python2:`py -2 -u ${quoted}`,     python3:`py -3 -u ${quoted}`,
     js:`node ${quoted}`, node:`node ${quoted}`, javascript:`node ${quoted}`, ts:`ts-node ${quoted}`,
     typescript:`ts-node ${quoted}`, coffee:`coffee ${quoted}`, coffeescript:`coffee ${quoted}`,
     lua:`lua ${quoted}`, deno:`deno run ${quoted}`, typescriptdeno:`deno run ${quoted}`
@@ -1590,8 +1590,25 @@ function syncTerminalRunButton(){
   $("abRun").title=terminalMode?"Send the language run command to the Windows terminal":"Run (Ctrl+Enter)";
 }
 async function run(){
-  if(localPage&&selectedProvider()==="local"){
+  const tabBeforeRun=tabs[active];
+  const browserOnly=tabBeforeRun&&L[tabBeforeRun.lang]?.local;
+  if(localPage&&selectedProvider()==="local"&&!browserOnly){
     setPanel("out");
+    if(!tabBeforeRun.handle){
+      if(folderHandle){
+        const name=tabBeforeRun.name||"main."+L[tabBeforeRun.lang].ext;
+        await assertNameAvailable(folderHandle,name);
+        const handle=await folderHandle.getFileHandle(name,{create:true});
+        await writeTo(handle,tabBeforeRun,tabContents(active));
+        tabBeforeRun.name=name;tabBeforeRun.handle=handle;tabBeforeRun.directory=folderHandle;
+        renderTabs();renderOpen();
+      }else{
+        const saved=await saveAs(active);
+        if(saved!==true)return;
+      }
+    }else{
+      await writeTo(tabBeforeRun.handle,tabBeforeRun,tabContents(active));
+    }
     if(!windowsTerminalSession)startWindowsTerminal();
     const command=terminalRunCommand();
     if(command){
@@ -1845,9 +1862,11 @@ async function saveAs(index=active){
   if(index<0||!tabs[index]||fileChangeBlocked())return;
   const t=tabs[index],text=tabContents(index),name=/^Untitled/.test(t.name)?"main."+L[t.lang].ext:t.name;
   try{
+    if(window.sprigDesktop){const f=await window.sprigDesktop.saveFile(name);if(!f)return false;const h=desktopFileHandle(f.path,f.name);await writeTo(h,t,text);t.handle=h;t.directory=null;t.name=h.name;t.lang=extLang(h.name)||t.lang;renderTabs();renderOpen();return true}
     if(hasSavePicker){const h=await showSaveFilePicker({suggestedName:name});await writeTo(h,t,text);t.handle=h;t.directory=null;t.name=h.name;t.lang=extLang(h.name)||t.lang;renderTabs();renderOpen()}
     else{downloadFile(t,text,name)}
   }catch(e){if(e.name!=="AbortError")line("Save failed: "+e.message,"e")}
+  return false;
 }
 function downloadFile(t,text,name){
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"text/plain"}));a.download=name;a.click();

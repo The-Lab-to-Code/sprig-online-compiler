@@ -136,6 +136,15 @@ if (!app.requestSingleInstanceLock()) {
       const filePath = result.filePaths[0];
       return { name: path.basename(filePath), path: filePath, content: fs.readFileSync(filePath, "utf8") };
     });
+    ipcMain.handle("sprig:desktop:save-file", async (event, suggestedName) => {
+      if (!validSender(event)) throw new Error("Invalid file save.");
+      const result = await dialog.showSaveDialog(window, { title: "Save file", defaultPath: suggestedName,
+        properties: ["createDirectory"] });
+      if (result.canceled) return null;
+      const filePath = result.filePath;
+      fs.writeFileSync(filePath, "", "utf8");
+      return { name: path.basename(filePath), path: filePath };
+    });
     ipcMain.handle("sprig:desktop:read-dir", (event, directory) => {
       if (!validSender(event)) throw new Error("Invalid directory request.");
       return fs.readdirSync(directory, { withFileTypes: true })

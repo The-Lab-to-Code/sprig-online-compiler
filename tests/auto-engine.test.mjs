@@ -34,7 +34,7 @@ test("the packaged desktop forces the local Windows Terminal provider", () => {
   assert.equal(vm.runInContext("selectedProvider()", context), "local");
 });
 test("terminal mode enables the Run command button and sends direct commands", () => {
-  assert.match(html, /async function run\(\)\{\s*if\(localPage&&selectedProvider\(\)==="local"/);
+  assert.match(html, /localPage&&selectedProvider\(\)==="local"&&!browserOnly/);
   assert.match(html, /syncTerminalRunButton/);
   assert.match(html, /desktopOnlineRow/);
   assert.match(html, /justify-content:center/);
@@ -42,7 +42,7 @@ test("terminal mode enables the Run command button and sends direct commands", (
   assert.match(html,/node \$\{quoted\}/);
   assert.match(html,/powershell -NoProfile/);
   assert.doesNotMatch(html,/placeholder="PowerShell command"/);
-  assert.match(html,/python\.exe/);
+  assert.match(html,/py -3 -u/);
 });
 test("the terminal Run command table covers every bundled language runtime", () => {
   const dataStart = html.indexOf("const DATA=");
