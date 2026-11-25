@@ -49,6 +49,7 @@ function setupUpdates({ updater, dialog, setStatus, packaged, installUpdate = ()
   });
 
   return async function checkForUpdates(manual = false) {
+    if (process.env.SPRIG_DISABLE_UPDATES === "1") return;
     if (!packaged) {
       if (manual) await dialog.showMessageBox({ type: "info", title: "Sprig updates",
         message: "Update checks are available in the installed app." });

@@ -38,9 +38,16 @@ async function unusedPort() {
 test("packaged app opens home and runs code in an isolated editor window", {
   skip: process.platform !== "win32" || !executable, timeout: 120000
 }, async () => {
+  if (process.env.CI) {
+    try {
+      execFileSync("powershell.exe", ["-NoProfile", "-Command",
+        "Get-Process Sprig -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.Id -Force }"]);
+    } catch {}
+  }
   const port = await unusedPort(), debugPort = await unusedPort();
   const profile = mkdtempSync(path.join(os.tmpdir(), "sprig-desktop-test-"));
   const env = { ...process.env, SPRIG_PORT: String(port) };
+  env.SPRIG_DISABLE_UPDATES = "1";
   delete env.ELECTRON_RUN_AS_NODE;
   const child = spawn(executable, ["--remote-debugging-port=" + debugPort, "--user-data-dir=" + profile], {
     env,
