@@ -248,6 +248,7 @@ kbd{font:11px Consolas,monospace;border:1px solid var(--vbd);border-radius:4px;p
 .tr{display:flex;justify-content:flex-end;align-items:center;gap:8px}
 .chipb{background:none;border:1px solid var(--vbd);color:var(--vt);border-radius:6px;padding:3px 10px;cursor:pointer;font:inherit}.chipb:hover{background:#ffffff14}.chipb:after{content:" ▾";color:var(--vdim)}
 .runbtn{background:#2ea043;color:#fff;border:0;border-radius:6px;padding:4px 16px;font:inherit;font-weight:600;cursor:pointer}.runbtn:hover{background:#3fb950}.runbtn.stop{background:#d73a49}
+.runbtn.terminal-run{background:#3a3f46;color:#d8dee6;border:1px solid #58616b}
 #menu{display:none;position:fixed;z-index:60;min-width:230px;background:var(--vside);border:1px solid var(--vbd);border-radius:7px;box-shadow:0 10px 30px #0008;padding:4px 0;color:var(--vt)}
 .mi{display:flex;justify-content:space-between;gap:30px;padding:5px 16px;cursor:pointer}.mi:hover{background:var(--vsel);color:var(--vt)}.mi em{color:var(--vdim);font-style:normal}.mi:hover em{color:var(--vt)}
 #side .sh{display:flex;justify-content:space-between;align-items:center;padding:6px 8px 6px 20px;font-size:11px;letter-spacing:.06em}
@@ -1167,6 +1168,45 @@ function askStdin(prompt){
   return new Promise((resolve,reject)=>{stdinWait={resolve:line=>{write(line+"\n","i");resolve(line)},reject}});
 }
 let windowsTerminalSession=null;
+function terminalRunCommand(tab=active>=0?tabs[active]:null){
+  if(!tab)return "";
+  const lang=L[tab.lang];
+  const file=tab.name&&tab.name.trim()?tab.name:"main."+lang.ext;
+  const cwd=folderHandle?.path;
+  const quoted=file.includes(" ")?"\""+file+"\"":file;
+  const cmd={
+    js:`node ${quoted}`,
+    node:`node ${quoted}`,
+    ts:`ts-node ${quoted}`,
+    py:`python -u ${quoted}`,
+    c:`gcc ${quoted} -o main.exe && main.exe`,
+    "c++":`g++ ${quoted} -o main.exe && main.exe`,
+    cs:`dotnet run --project ${quoted}`,
+    java:`javac ${quoted} && java ${quoted.replace(/\.java$/i,"")}`,
+    go:`go run ${quoted}`,
+    rust:`rustc ${quoted} -o main.exe && main.exe`,
+    ruby:`ruby ${quoted}`,
+    php:`php ${quoted}`,
+    perl:`perl ${quoted}`,
+    lua:`lua ${quoted}`,
+    julia:`julia ${quoted}`,
+    dart:`dart run ${quoted}`,
+    swift:`swift ${quoted}`,
+    kotlin:`kotlinc ${quoted} -include-runtime -d main.jar && java -jar main.jar`,
+    scala:`scala-cli run ${quoted}`,
+    pascal:`fpc ${quoted} && main.exe`,
+    zig:`zig run ${quoted}`,
+    rscript:`Rscript ${quoted}`,
+    powershell:`powershell -NoProfile -ExecutionPolicy Bypass -File ${quoted}`,
+    pwsh:`pwsh -NoProfile -File ${quoted}`,
+    sqlite3:`sqlite3 < ${quoted}`,
+    bash:`bash ${quoted}`,
+    dash:`dash ${quoted}`,
+    elixir:`elixir ${quoted}`
+  }[tab.lang];
+  if(cwd){} // Keep the terminal's current working directory synchronized by the shell.
+  return cmd||`${lang.name.toLowerCase()} ${quoted}`;
+}
 async function startWindowsTerminal(command=""){
   if(windowsTerminalSession||selectedProvider()!=="local"||!localPage)return false;
   const session=Math.random().toString(36).slice(2);
@@ -1177,7 +1217,7 @@ async function startWindowsTerminal(command=""){
   $("tin").placeholder="PowerShell command";
   $("tin").focus();
   const response=fetch(localRunnerUrl(),{method:"POST",signal:ctrl.signal,headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({language:"__windows_terminal__",interactive:true,session,cwd:folderHandle?.path||undefined,stdin:command?command+"\n":"",closeStdin:false})}).then(async r=>{
+    body:JSON.stringify({language:"__windows_terminal__",interactive:true,session,shell:"cmd",cwd:folderHandle?.path||undefined,stdin:command?command+"\n":"",closeStdin:false})}).then(async r=>{
       if(!r.ok){const t=await r.text();throw new Error(t||"Could not start Windows Terminal.");}
       const reader=r.body.getReader(),dec=new TextDecoder();let buf="";
       while(true){
@@ -1545,15 +1585,28 @@ function setRunning(on){
 }
 function syncTerminalRunButton(){
   const terminalMode=localPage&&selectedProvider()==="local";
-  $("run").disabled=terminalMode;
-  $("abRun").disabled=terminalMode;
-  $("run").title=terminalMode?"Terminal mode: type commands directly in the terminal":"Run (Ctrl+Enter)";
-  $("abRun").title=terminalMode?"Terminal mode: type commands directly in the terminal":"Run (Ctrl+Enter)";
+  $("run").disabled=false;
+  $("abRun").disabled=false;
+  $("run").classList.toggle("terminal-run",terminalMode);
+  $("abRun").classList.toggle("terminal-run",terminalMode);
+  $("run").innerHTML=terminalMode?"▶ Run command":"▶ Run";
+  $("run").title=terminalMode?"Send the language run command to the Windows terminal":"Run (Ctrl+Enter)";
+  $("abRun").title=terminalMode?"Send the language run command to the Windows terminal":"Run (Ctrl+Enter)";
 }
 async function run(){
   if(localPage&&selectedProvider()==="local"){
-    setPanel("out");$("tin").focus();
-    line("Terminal mode: type a command directly in the terminal.","i");
+    setPanel("out");
+    if(!windowsTerminalSession)startWindowsTerminal();
+    const command=terminalRunCommand();
+    if(command){
+      if(windowsTerminalSession){
+        fetch(windowsTerminalSession.url,{method:"POST",headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({session:windowsTerminalSession.session,data:command+"\r\n"})}).catch(()=>{});
+      }else{
+        startWindowsTerminal(command);
+      }
+    }
+    $("tin").focus();
     return;
   }
   if(job){stopJob();return}

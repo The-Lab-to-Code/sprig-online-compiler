@@ -303,7 +303,9 @@ async function execute(payload) {
       throw new Error("Windows Terminal is available only in the interactive Windows desktop app.");
     }
     return new Promise(resolve => {
-      const pty = require("node-pty").spawn("powershell.exe", ["-NoLogo", "-NoProfile", "-NoExit"], {
+      const shell = payload.shell === "powershell" ? "powershell.exe" : "cmd.exe";
+      const args = payload.shell === "powershell" ? ["-NoLogo", "-NoProfile", "-NoExit"] : ["/d", "/q", "/k"];
+      const pty = require("node-pty").spawn(shell, args, {
         name: "xterm", cols: 120, rows: 30,
         cwd: payload.cwd || process.cwd(), env: process.env
       });

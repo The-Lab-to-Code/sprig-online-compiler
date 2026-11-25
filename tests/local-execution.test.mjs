@@ -81,9 +81,10 @@ test("missing runtime installation offers winget and scoop", () => {
   assert.match(runner, /spawn\("scoop"/);
   assert.match(runner, /spawn\("winget"/);
 });
-test("Windows Terminal starts an interactive PowerShell session", () => {
+test("Windows Terminal starts an interactive CMD session", () => {
   assert.match(runner, /language === "__windows_terminal__"/);
-  assert.match(runner, /spawn\("powershell\.exe", \["-NoLogo", "-NoProfile", "-NoExit"\]/);
+  assert.match(runner, /payload\.shell === "powershell" \? "powershell\.exe" : "cmd\.exe"/);
+  assert.match(runner, /args = payload\.shell === "powershell".*\["\/d", "\/q", "\/k"\]/);
 });
 
 test("SQLite runs the source as SQL and reports syntax errors", {
