@@ -565,6 +565,15 @@ console.log(makeIt(idea));</pre><div class="home-output">OUTPUT<br><br>↳ Hello
   <div id="desktopSettings" hidden>
     <label for="sStartup">Open Sprig to</label>
     <select id="sStartup"><option value="home">Home page</option><option value="editor">Editor</option></select>
+    <label for="sOnlineRunning"><input id="sOnlineRunning" type="checkbox"> Enable online running</label>
+    <div id="desktopOnlineProvider" hidden>
+      <label for="sDesktopProvider">Online engine</label>
+      <select id="sDesktopProvider"><option value="wandbox">Wandbox</option><option value="tio">TIO</option><option value="piston">Piston</option><option value="custom">Custom engine</option></select>
+      <div id="desktopCustomEngine" hidden>
+        <label for="sDesktopUrl">Execute URL</label><input id="sDesktopUrl" placeholder="https://your-engine.example/api/v2/execute">
+        <label for="sDesktopTok">Authorization token (optional)</label><input id="sDesktopTok" type="password" placeholder="Leave blank if not needed">
+      </div>
+    </div>
     <p id="desktopSettingsMsg" role="status"></p>
   </div>
   <div id="settingsEngine" role="tabpanel">
@@ -713,7 +722,10 @@ function isDefaultPiston(url){
 }
 function selectedProvider(){
   if(previewMode)return "auto";
-  if(typeof window!=="undefined"&&window.sprigDesktop)return "local";
+  if(typeof window!=="undefined"&&window.sprigDesktop){
+    const prefs=window.sprigDesktop.getPreferences();
+    if(!prefs.onlineRunning)return "local";
+  }
   const saved=store.get("sprig.provider");
   if(saved==="terminal")return localPage?"local":"auto";
   if(saved==="auto"||saved==="wandbox"||saved==="tio"||saved==="local"||saved==="piston"||saved==="custom")return saved;
@@ -2135,7 +2147,13 @@ function openSettings(){
  if(previewMode)return;
  $("desktopSettings").hidden=!window.sprigDesktop;
  if(window.sprigDesktop){
-   $("sStartup").value=window.sprigDesktop.getPreferences().startup;
+   const preferences=window.sprigDesktop.getPreferences();
+   $("sStartup").value=preferences.startup;
+   $("sOnlineRunning").checked=preferences.onlineRunning===true;
+   const provider=store.get("sprig.provider");
+   $("sDesktopProvider").value=["wandbox","tio","piston","custom"].includes(provider)?provider:"wandbox";
+   $("desktopOnlineProvider").hidden=!$("sOnlineRunning").checked;
+   $("desktopCustomEngine").hidden=$("sDesktopProvider").value!=="custom";
    $("settingsEngineTab").hidden=true;
    $("settingsEngine").hidden=true;
    $("settingsRestoreTab").setAttribute("aria-selected","true");
@@ -2162,6 +2180,20 @@ $("sStartup").onchange=async()=>{
  try{await window.sprigDesktop.updatePreferences({startup:$("sStartup").value});$("desktopSettingsMsg").textContent="Startup preference saved."}
  catch(error){$("desktopSettingsMsg").textContent="Could not save startup preference: "+error.message;$("sStartup").value=window.sprigDesktop.getPreferences().startup}
 };
+$("sOnlineRunning").onchange=async()=>{
+ try{
+  await window.sprigDesktop.updatePreferences({onlineRunning:$("sOnlineRunning").checked});
+  $("desktopOnlineProvider").hidden=!$("sOnlineRunning").checked;
+  if(!$("sOnlineRunning").checked){
+   store.set("sprig.provider","local");store.set("sprig.url","");
+   if(active>=0)$("sbEng").textContent=executionTarget(L[tabs[active].lang]);
+  }
+  $("desktopSettingsMsg").textContent=$("sOnlineRunning").checked?"Online running enabled.":"Online running disabled. Windows Terminal is active.";
+ }catch(error){$("desktopSettingsMsg").textContent="Could not save online-running preference: "+error.message;$("sOnlineRunning").checked=window.sprigDesktop.getPreferences().onlineRunning}
+};
+$("sDesktopProvider").onchange=()=>{
+ $("desktopCustomEngine").hidden=$("sDesktopProvider").value!=="custom";
+};
 $("settingsEngineTab").onclick=()=>settingsSection(false);$("settingsRestoreTab").onclick=()=>settingsSection(true);
 function refreshEngineSettings(){
  const provider=$("sProvider").value;
@@ -2182,6 +2214,24 @@ function refreshEngineSettings(){
 }
 $("sProvider").onchange=refreshEngineSettings;
 function saveCfg(){
+ if(window.sprigDesktop){
+   if(!$("sOnlineRunning").checked){
+     store.set("sprig.provider","local");store.set("sprig.url","");
+     if(active>=0)$("sbEng").textContent=executionTarget(L[tabs[active].lang]);
+     $("sMsg").textContent="Windows Terminal is active.";
+     return true;
+   }
+   const provider=$("sDesktopProvider").value;
+   const url=provider==="custom"?$("sDesktopUrl").value.trim():provider==="piston"?PISTON_URL:"";
+   const token=provider==="custom"?$("sDesktopTok").value.trim():"";
+   if(provider==="custom"&&(!url||!/^https?:\/\//i.test(url))){
+     $("sMsg").textContent="Enter a valid HTTP or HTTPS Execute URL.";return false;
+   }
+   store.set("sprig.provider",provider);store.set("sprig.url",url);store.set("sprig.tok",token);
+   if(active>=0)$("sbEng").textContent=executionTarget(L[tabs[active].lang]);
+   $("sMsg").textContent="Online running saved.";
+   return true;
+ }
  const provider=$("sProvider").value,url=$("sUrl").value.trim();
  if(provider==="custom"){
    if(!url){$("sMsg").textContent="Enter a Piston-compatible Execute URL.";return false}
