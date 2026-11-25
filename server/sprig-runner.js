@@ -722,7 +722,7 @@ const server = http.createServer(async (req, res) => {
 let nextPort = PORT + 1, remainingPorts = openBrowser || desktop ? 20 : 0;
 let retryOnEphemeralPort = openBrowser || desktop;
 server.on("error", error => {
-  if ((openBrowser || desktop) && error.code === "EADDRINUSE" && (remainingPorts > 0 || retryOnEphemeralPort)) {
+  if ((openBrowser || desktop) && ["EADDRINUSE", "EACCES"].includes(error.code) && (remainingPorts > 0 || retryOnEphemeralPort)) {
     if (remainingPorts === 20) console.log("Port " + PORT + " is already in use. Starting a separate runner; save any work in the existing page before switching.");
     if (remainingPorts > 0 && nextPort <= 65535) {
       remainingPorts--;
