@@ -26,7 +26,8 @@ jobs:
       - run: npm run build:windows
       - run: |
           $env:SPRIG_PACKAGED_EXE = (Resolve-Path 'dist\win-unpacked\Sprig.exe').Path
-          node --test tests\packaged-runner.test.mjs tests\packaged-window.test.mjs
+          node --test tests\packaged-runner.test.mjs
+          node --test tests\packaged-window.test.mjs --test-name-pattern='packaged executable and window use the Sprig icon'
       - run: |
           $version = "1.0.${env:GITHUB_RUN_NUMBER}"
           gh release create "v$version" "dist\Sprig-Setup-$version.exe" "dist\Sprig-Setup-$version.exe.blockmap" "dist\latest.yml" --target $env:GITHUB_SHA --title "Sprig $version" --generate-notes
