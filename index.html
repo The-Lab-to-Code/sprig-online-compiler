@@ -562,12 +562,12 @@ console.log(makeIt(idea));</pre><div class="home-output">OUTPUT<br><br>↳ Hello
     <button class="btn" id="settingsEngineTab" role="tab" aria-selected="true" aria-controls="settingsEngine">Engine</button>
     <button class="btn" id="settingsRestoreTab" role="tab" aria-selected="false" aria-controls="settingsRestore">Restore</button>
   </div>
-  <div id="settingsEngine" role="tabpanel">
   <div id="desktopSettings" hidden>
     <label for="sStartup">Open Sprig to</label>
     <select id="sStartup"><option value="home">Home page</option><option value="editor">Editor</option></select>
     <p id="desktopSettingsMsg" role="status"></p>
   </div>
+  <div id="settingsEngine" role="tabpanel">
   <label for="sProvider">Where should your code run?</label>
   <select id="sProvider">
     <option value="auto">Auto - choose for each language</option>
@@ -713,6 +713,7 @@ function isDefaultPiston(url){
 }
 function selectedProvider(){
   if(previewMode)return "auto";
+  if(typeof window!=="undefined"&&window.sprigDesktop)return "local";
   const saved=store.get("sprig.provider");
   if(saved==="terminal")return localPage?"local":"auto";
   if(saved==="auto"||saved==="wandbox"||saved==="tio"||saved==="local"||saved==="piston"||saved==="custom")return saved;
@@ -2133,7 +2134,12 @@ function settingsSection(restore){
 function openSettings(){
  if(previewMode)return;
  $("desktopSettings").hidden=!window.sprigDesktop;
- if(window.sprigDesktop)$("sStartup").value=window.sprigDesktop.getPreferences().startup;
+ if(window.sprigDesktop){
+   $("sStartup").value=window.sprigDesktop.getPreferences().startup;
+   $("settingsEngineTab").hidden=true;
+   $("settingsEngine").hidden=true;
+   $("settingsRestoreTab").setAttribute("aria-selected","true");
+ }
  $("desktopSettingsMsg").textContent="";
  $("sUrl").value=savedEngine();$("sTok").value=store.get("sprig.tok")||"";
  $("sMsg").textContent=store.get("sprig.provider")==="terminal"?"Windows Terminal is now the local runner mode. Save this setting to use it.":"";
@@ -2143,6 +2149,12 @@ function openSettings(){
  $("sProvider").querySelector('option[value="local"]').hidden=!localPage;
  refreshEngineSettings();
  settingsSection(false);
+ if(window.sprigDesktop){
+   $("settingsEngine").hidden=true;
+   $("settingsEngineTab").hidden=true;
+   $("settingsRestore").hidden=true;
+   $("settingsRestoreTab").hidden=true;
+ }
  dlg.showModal();
 }
 $("abSet").onclick=openSettings;$("homeSettings").onclick=openSettings;$("sClose").onclick=()=>dlg.close();

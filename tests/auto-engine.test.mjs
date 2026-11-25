@@ -25,6 +25,13 @@ test("Windows Terminal replaces the Local Runner label and starts PowerShell", (
   assert.match(runner, /payload\.language === "__windows_terminal__"/);
   assert.match(runner, /powershell\.exe/);
 });
+test("the packaged desktop forces the local Windows Terminal provider", () => {
+  const provider = html.slice(html.indexOf("function selectedProvider()"), html.indexOf("function providerUrl("));
+  const context = vm.createContext({ previewMode: false, window: { sprigDesktop: {} },
+    localPage: true, store: { get: () => "wandbox" } });
+  vm.runInContext(provider, context);
+  assert.equal(vm.runInContext("selectedProvider()", context), "local");
+});
 
 function selector(localPage = true) {
   const saved = new Map();
